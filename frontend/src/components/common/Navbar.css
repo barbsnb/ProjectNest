@@ -1,0 +1,53 @@
+/* Ustawienia logo  */
+  #image_logo .image_logo-middle img {
+    display: block;
+    margin: 0 auto; /* Wyśrodkowanie */
+    width: 80%;
+    height: auto;
+  }
+
+  
+  .navbar {
+    width: 100%;
+    min-height: 40px;
+    margin: 0;
+    text-align: left;
+    padding: 0;
+    border-radius: 0;
+    border: 0 solid transparent;
+    background-color: rgb(50, 50, 64); 
+  }
+
+  .navbar-brand {
+    color: #ffffff;
+    margin-left: 20px;
+    font-size: 24px; 
+  }
+
+/* Przycisk na pasku nawigacji */
+  .navbar_btn {
+    margin-top: 10px;
+    margin-right: 10px;
+    margin-bottom: 15px;
+    font-size: 20px;
+    background-color: #ffffff00;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    padding: 5px;
+    float: right;
+    font-family: adagio_slab;
+    transition: background-color 0.3s ease;
+  }
+  
+  .navbar_btn:hover {
+    background-color: #ffffff38 !important;
+  }
+
+  .form-container {
+    max-width: 100%;
+    margin: 0 auto; /* Wyśrodkowuje kontener formularza na stronie */
+    display: flex; /* Ustawia kontener formularza jako kontener flexbox */
+    justify-content: center; /* Wyśrodkowuje zawartość wzdłuż osi X */
+    align-items: center; /* Wyśrodkowuje zawartość wzdłuż osi Y */
+}

@@ -1,0 +1,49 @@
+.form-container {
+    max-width: 100%;
+    margin: 0 auto; /* Wyśrodkowuje kontener formularza na stronie */
+    display: flex; /* Ustawia kontener formularza jako kontener flexbox */
+    justify-content: center; /* Wyśrodkowuje zawartość wzdłuż osi X */
+    align-items: center; /* Wyśrodkowuje zawartość wzdłuż osi Y */
+}
+
+.form-label {
+    font-weight: bold;
+    font-size: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-family: adagio_slab, sans-serif;
+}
+
+.form-control {
+    width: 100%;
+    max-width: 400px;
+    height: 30px;
+    font-size: 16px;
+    font-family: adagio_slab, sans-serif;
+    border-radius: 10px;
+    border-color: #a09898;
+}
+
+.form-group,
+.input-group {
+    width: 100%;
+}
+
+.form-inline {
+    width: 100%;
+}
+
+#form_btn {
+    margin-top: 10px;
+    margin-bottom: 15px;
+    font-size: 20px;
+    background-color: #333; /* Ciemne tło */
+    color: #fff; /* Biały napis */
+    border: none;
+    font-family: adagio_slab;
+    float: right; /* Umieszczanie przycisku z prawej strony */
+}
+
+#form_btn:hover {
+    background-color: #555; /* Ciemniejsze tło po najechaniu */
+}

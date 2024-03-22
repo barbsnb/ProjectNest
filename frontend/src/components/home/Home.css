@@ -1,0 +1,86 @@
+/* Stylizacja przycisku */
+.btn-custom {
+  background-color: rgb(61, 61, 77) !important; /* Zmień kolor tła na zielony (możesz dostosować kolor według potrzeb) */
+  color: white; /* Zmień kolor tekstu na biały */
+  border: none; /* Usuń obramowanie */
+  padding: 10px 20px; /* Dodaj wewnętrzne wypełnienie */
+  font-size: 16px; /* Zmień rozmiar czcionki */
+  cursor: pointer; /* Zmień kursor na wskaźnik */
+  text-align: center; /* Wyśrodkuj tekst */
+  display: inline-block; /* Ustaw wyświetlanie inline-block */
+  margin: 0 auto; /* Wyśrodkuj przycisk */
+  display: block; /* Zmień wyświetlanie na block, aby działało auto margin */
+}
+
+.btn-custom:hover {
+  background-color: #45a049; /* Zmień kolor tła na ciemniejszy zielony podczas najechania */
+}
+
+/* Kontener przycisku wyśrodkowany */
+.button-container {
+  text-align: center; /* Wyśrodkuj przycisk w kontenerze */
+  margin-top: 10px; /* Dodaj odstęp od góry */
+}
+
+/* Stylizacja innych elementów */
+#user_data_container {
+  margin: 0 auto; /* Wyśrodkowuje kontener formularza na stronie */
+  display: flex; /* Ustawia kontener formularza jako kontener flexbox */
+  justify-content: center; /* Wyśrodkowuje zawartość wzdłuż osi X */
+  align-items: center;
+  font-family: adagio_slab;
+  float: left; /* Ustaw kontener danych użytkownika na lewo */
+  width: 70%;
+}
+
+.info_text {
+  font-family: adagio_slab;
+  font-size: 17px;
+}
+
+.info_text_bold {
+  font-family: adagio_slab;
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.user_visits_container {
+  margin-left: 30px; /* Dodaj margines z lewej strony, aby oddzielić od kontenera danych użytkownika */
+  font-family: adagio_slab;
+}
+
+.user_visits_container ul {
+  list-style-type: none; /* Usuń domyślny styl listy */
+  padding: 0; /* Usuń wewnętrzne wypełnienie listy */
+}
+
+.user_visits_container li {
+  border: 1px solid #ccc; /* Dodaj obramowanie dla każdej wizyty */
+  margin-bottom: 10px; /* Dodaj margines na dole dla odstępu między wizytami */
+  padding: 10px; /* Dodaj wewnętrzne wypełnienie dla każdej wizyty */
+}
+
+.user_visits_container li p {
+  margin: 5px 0; /* Dodaj odstęp między paragrafami wewnątrz każdej wizyty */
+}
+
+.card-hover {
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+.card-hover:hover {
+  box-shadow: 0 0 10px rgba(0,0,0,0.5); /* Dodaj cień wokół karty */
+}
+
+.card_header {
+  background-color: rgb(61, 61, 77) !important;
+  color: white !important;
+  font-weight: lighter;
+  font-family: adagio_slab;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.h3 {
+  font-family: adagio_slab;
+}
