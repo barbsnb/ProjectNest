@@ -8,7 +8,7 @@ export const AuthProvider = ({ children }) => {
     const [currentUser, setCurrentUser] = useState(null);
 
     useEffect(() => {
-      client.get("/api/user")
+        client.get("/api/user")
         .then(res => setCurrentUser(res.data))
         .catch(() => setCurrentUser(null));
     }, []);

@@ -30,7 +30,11 @@ class UserLoginSerializer(serializers.Serializer):
 	password = serializers.CharField()
 	##
 	def check_user(self, clean_data):
-		user = authenticate(username=clean_data['email'], password=clean_data['password'])
+		user = authenticate(
+      	username=clean_data['email'], 
+       	password=clean_data['password']
+        
+        )
 		if not user:
 			raise ValueError('user not found')
 		return user
@@ -38,9 +42,25 @@ class UserLoginSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = UserModel
-		fields = ('email', 'username', 'first_name', 'last_name', 'phone_number', 'dormitory', 'room_number')
+		fields = (
+      		'email', 
+        	'username', 
+			'first_name', 
+			'last_name', 
+			'phone_number', 
+			'dormitory', 
+			'room_number')
   
 class UserVisitSerializer(serializers.ModelSerializer):
     class Meta:
         model = Visit
-        fields = '__all__'
+        fields = (
+            'start_date', 
+            'start_time', 
+            'end_date', 
+            'end_time', 
+            'guest_first_name', 
+            'guest_last_name', 
+            'guest_phone_nr', 
+            'guest_email'
+            )

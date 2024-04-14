@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { Form, Button, Container } from 'react-bootstrap';
 import client from '../axiosClient';  // Ensure you have the axiosClient setup correctly to handle requests
+import './auth/RegistrationForm.css'
 
 const ScheduleAppointment = () => {
-  const [startDate, setStartDate] = useState('');
-  const [startTime, setStartTime] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [endTime, setEndTime] = useState('');
+  // const { setVisit } = useContext(AuthContext);
+
+  const [start_date, setStartDate] = useState('');
+  const [start_time, setStartTime] = useState('');
+  const [end_date, setEndDate] = useState('');
+  const [end_time, setEndTime] = useState('');
   const [guest_first_name, setGuestFirstName] = useState('');
   const [guest_last_name, setGuestLastName] = useState('');
   const [guest_phone_nr, setGuestPhoneNr] = useState('');
@@ -14,18 +17,29 @@ const ScheduleAppointment = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();  // Prevent the form from being submitted in the traditional way
-    const appointmentData = {
-      startDateTime: `${startDate}T${startTime}`,
-      endDateTime: `${endDate}T${endTime}`,
-      guest_first_name: guest_first_name,
-      guest_last_name: guest_last_name,
-      guest_phone_nr: guest_phone_nr,
-      guest_email: guest_email
-    };
-
+    console.log("Inside handle sumbit")
     // Posting data to the server
-    client.post('/api/schedule', appointmentData)
+    console.log({start_date, 
+      start_time, 
+      end_date,
+      end_time, 
+      guest_first_name, 
+      guest_last_name,
+      guest_phone_nr, 
+      guest_email})
+
+    client.post('/api/schedule', {
+      start_date, 
+      start_time, 
+      end_date,
+      end_time, 
+      guest_first_name, 
+      guest_last_name,
+      guest_phone_nr, 
+      guest_email 
+    })
       .then(response => {
+        // setVisit(response.data)
         console.log('Appointment scheduled successfully:', response);
         // Optionally reset form or give feedback to the user
       })
@@ -36,23 +50,24 @@ const ScheduleAppointment = () => {
   };
 
   return (
+    <div className="form-container">
     <Container>
       <Form onSubmit={handleSubmit}>
         <Form.Group controlId="formStartDate">
           <Form.Label>Data rozpoczęcia wizyty</Form.Label>
-          <Form.Control type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
+          <Form.Control type="date" value={start_date} onChange={e => setStartDate(e.target.value)} />
         </Form.Group>
         <Form.Group controlId="formStartTime">
           <Form.Label>Czas rozpoczęcia wizyty</Form.Label>
-          <Form.Control type="time" value={startTime} onChange={e => setStartTime(e.target.value)} />
+          <Form.Control type="time" value={start_time} onChange={e => setStartTime(e.target.value)} />
         </Form.Group>
         <Form.Group controlId="formEndDate">
           <Form.Label>Data zakończnia wizyty</Form.Label>
-          <Form.Control type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
+          <Form.Control type="date" value={end_date} onChange={e => setEndDate(e.target.value)} />
         </Form.Group>
         <Form.Group controlId="formEndTime">
           <Form.Label>Czas zakończnia wizyty</Form.Label>
-          <Form.Control type="time" value={endTime} onChange={e => setEndTime(e.target.value)} />
+          <Form.Control type="time" value={end_time} onChange={e => setEndTime(e.target.value)} />
         </Form.Group>
         <Form.Group controlId="formHostFirstName">
           <Form.Label>Imię gościa</Form.Label>
@@ -70,11 +85,12 @@ const ScheduleAppointment = () => {
           <Form.Label>Adres e-mail gościa</Form.Label>
           <Form.Control type="text" placeholder="Wprowadź e-mail gościa" value={guest_email} onChange={e => setGuestEmail(e.target.value)} />
         </Form.Group>
-        <Button variant="primary" type="submit">
+        <Button id="form_btn" variant="primary" type="submit">
           Zaplanuj wizytę
         </Button>
       </Form>
     </Container>
+    </div>
   );
 };
 

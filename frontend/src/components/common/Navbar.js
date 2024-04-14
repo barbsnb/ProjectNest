@@ -34,7 +34,7 @@ const CustomNavbar = () => {
                     <Navbar.Text>
                         {currentUser ? (
                             <>
-                                <Button id="navbar_btn" variant="outline-light" onClick={goToHomePage} className="mx-2">Homepage</Button>
+                                <Button id="navbar_btn" variant="outline-light" onClick={goToHomePage} className="mx-2">Strona główna</Button>
                                 <Button id="navbar_btn" variant="outline-light" onClick={goToAppointmentPage} className="mx-2">Umów wizytę</Button>
                                 <LogoutButton />
                             </>

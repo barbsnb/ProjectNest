@@ -7,6 +7,7 @@ import './Home.css'
 
 const Home = () => {
   const { currentUser } = useContext(AuthContext);
+  console.log(currentUser)
   const navigate = useNavigate();
 
   const onButtonClick = () => {
@@ -20,19 +21,19 @@ const Home = () => {
   return (
     <Row>
       <Col> 
-      {currentUser && (
-          <div>
+        {currentUser && (
             <div>
-              <h2>Witaj {currentUser.first_name}</h2>
+              <div>
+                Witaj {currentUser.user.first_name}
+              </div>
+              <div>
+                Akademik: {currentUser.user.dormitory}
+              </div>
+              <div>
+                Numer pokoju: {currentUser.user.room_number}
+              </div>
             </div>
-            <div>
-              <h2>Akademik: {currentUser.dormitory}</h2>
-            </div>
-            <div>
-              <h2>Numer pokoju: {currentUser.room_number}</h2>
-            </div>
-          </div>
-        )}
+          )}
       </Col>
       <Col>
         <div className={'buttonContainer'}>
@@ -42,7 +43,7 @@ const Home = () => {
             onClick={onButtonClick}
             value={currentUser ? 'Log out' : 'Log in'}
           />
-          {currentUser ? <div>Your email address is {currentUser.email}</div> : <div />}
+          {currentUser ? <div>Your email address is {currentUser.user.email}</div> : <div />}
         </div>
         </Col>
     </Row>

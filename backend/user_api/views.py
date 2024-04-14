@@ -8,6 +8,10 @@ from rest_framework import permissions, status
 from .validations import custom_validation, validate_email, validate_password
 from .models import Visit
 from .serializers import UserVisitSerializer
+import logging
+
+# Inicjalizacja loggera
+logger = logging.getLogger(__name__)
 
 class UserRegister(APIView):
 	permission_classes = (permissions.AllowAny,)
@@ -53,14 +57,21 @@ class UserView(APIView):
 		return Response({'user': serializer.data}, status=status.HTTP_200_OK)
 
 class UserVisit(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (SessionAuthentication,)
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
+    
     def post(self, request):
+        logger.info(f"Received POST request: {request.data}")
+        
         serializer = UserVisitSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            logger.info("Data saved successfully")
+            
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            logger.error(f"Data validation error: {serializer.errors}")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # class VisitListView(generics.ListCreateAPIView):
 #     permission_classes = (permissions.IsAuthenticated,)
