@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { Button } from 'react-bootstrap';
 import { AuthContext } from '../../contexts/AuthContext';
 import client from '../../axiosClient';
+import '../common/Navbar.css'
 
 const LogoutButton = () => {
   const { setCurrentUser } = useContext(AuthContext);
@@ -20,7 +21,7 @@ const LogoutButton = () => {
   };
 
   return (
-    <Button onClick={handleLogout} variant="light">Wyloguj</Button>
+    <Button id="navbar_btn" onClick={handleLogout} variant="light">Wyloguj</Button>
   );
 };
 

@@ -1,0 +1,42 @@
+/* Ustawienia logo  */
+  #image_logo .image_logo-middle img {
+    display: block;
+    margin: 0 auto; /* Wyśrodkowanie */
+    width: 80%;
+    height: auto;
+  }
+
+  
+  .navbar {
+    width: 100%;
+    min-height: 40px;
+    margin-bottom: 0;
+    text-align: left;
+    padding: 0;
+    border-radius: 0;
+    border: 0 solid transparent;
+    background-color: transparent;
+    background-color: #3d3d4d; 
+  }
+
+  .navbar-brand {
+    color: #ffffff;
+    margin-left: 20px;
+    font-size: 24px; 
+  }
+
+/* Przycisk na pasku nawigacji */
+  #navbar_btn {
+    margin-top: 10px;
+    margin-bottom: 15px;
+    font-size: 20px;
+    background-color: #ffffff00;
+    color: #ffffff;
+    border: none;
+    float: right;
+    font-family: adagio_slab;
+  }
+  
+  #navbar_btn:hover {
+    background-color: #ffffff38;
+  }

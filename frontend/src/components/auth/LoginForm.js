@@ -3,6 +3,7 @@ import { Form, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../contexts/AuthContext';
 import client from '../../axiosClient';
+import './LoginForm.css'
 
 const LoginForm = () => {
   const { setCurrentUser } = useContext(AuthContext);
@@ -23,7 +24,7 @@ const LoginForm = () => {
   }
 
   return (
-    <div className="center">
+    <div className="form-container">
       <Form onSubmit={submitLogin}>
         <Form.Group className="mb-3" controlId="formBasicEmail">
           <Form.Label>Adres e-mail</Form.Label>
@@ -33,7 +34,7 @@ const LoginForm = () => {
           <Form.Label>Hasło</Form.Label>
           <Form.Control type="password" placeholder="Wprowadź hasło" value={password} onChange={e => setPassword(e.target.value)} />
         </Form.Group>
-        <Button variant="primary" type="submit">
+        <Button id="form_btn" variant="primary" type="submit">
           Zaloguj
         </Button>
       </Form>

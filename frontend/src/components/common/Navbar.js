@@ -3,6 +3,8 @@ import { Navbar, Button, Container } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { AuthContext } from '../../contexts/AuthContext';
 import LogoutButton from '../auth/LogoutButton';
+import PWLogo from '../../assets/images/znak_pw.png'
+import './Navbar.css'
 
 const CustomNavbar = () => {
     const { currentUser } = useContext(AuthContext);
@@ -26,26 +28,32 @@ const CustomNavbar = () => {
     };
 
     return (
-        <Navbar bg="dark" variant="dark">
-            <Container>
-                <Navbar.Brand onClick={goToHomePage}>SystemPlanowaniaWizyt</Navbar.Brand>
+        <Container>
+            <Navbar bg="dark" variant="dark">
                 <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
                     <Navbar.Text>
                         {currentUser ? (
                             <>
-                                <Button variant="outline-light" onClick={goToHomePage} className="mx-2">Homepage</Button>
-                                <Button variant="outline-light" onClick={goToAppointmentPage} className="mx-2">Umów wizytę</Button>
+                                <Button id="navbar_btn" variant="outline-light" onClick={goToHomePage} className="mx-2">Homepage</Button>
+                                <Button id="navbar_btn" variant="outline-light" onClick={goToAppointmentPage} className="mx-2">Umów wizytę</Button>
                                 <LogoutButton />
                             </>
                         ) : (
-                            <Button variant="light" onClick={handleLoginOrRegister}>
+                            <Button id="navbar_btn" variant="light" onClick={handleLoginOrRegister}>
                                 {showLogin ? 'Logowanie' : 'Rejestracja'}
                             </Button>
                         )}      
                     </Navbar.Text>
                 </Navbar.Collapse>
-            </Container>
-        </Navbar>
+            </Navbar>
+            <div id="header-position">
+                <div id="image_logo" className="container">
+                    <div className="image_logo-middle">
+                        <img src={PWLogo} alt="Politechnika Warszawska Logo" />
+                    </div>
+                </div>
+            </div>
+        </Container>
     );
 };
 

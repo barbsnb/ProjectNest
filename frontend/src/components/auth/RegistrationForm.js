@@ -1,7 +1,8 @@
 import React, { useContext, useState } from 'react';
-import { Form, Button } from 'react-bootstrap';
+import { Form, Button, Row, Col } from 'react-bootstrap';
 import { AuthContext } from '../../contexts/AuthContext';
 import client from '../../axiosClient';
+import './RegistrationForm.css'
 
 const RegistrationForm = () => {
   const { setCurrentUser } = useContext(AuthContext);
@@ -35,45 +36,52 @@ const RegistrationForm = () => {
   }
 
   return (
-    <div className="center">
+    <div className="form-container">
       <Form onSubmit={submitRegistration}>
-        <Form.Group className="mb-3" controlId="formBasicEmail">
-          <Form.Label>Adres e-mail</Form.Label>
-          <Form.Control type="email" placeholder="Wprowadź adres e-mail" value={email} onChange={e => setEmail(e.target.value)} />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="formBasicUsername">
-          <Form.Label>Nazwa użytkownika</Form.Label>
-          <Form.Control type="text" placeholder="Wprowadź nazwę użytkownika" value={username} onChange={e => setUsername(e.target.value)} />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="formBasicPassword">
-          <Form.Label>Hasło</Form.Label>
-          <Form.Control type="password" placeholder="Hasło powinno zawierać przynajmniej 8 znaków" value={password} onChange={e => setPassword(e.target.value)} />
-        </Form.Group>
+      <Row> 
+          <Col>
+            <Form.Group className="mb-3" controlId="formBasicEmail">
+              <Form.Label>Adres e-mail</Form.Label>
+              <Form.Control type="email" placeholder="Wprowadź adres e-mail" value={email} onChange={e => setEmail(e.target.value)} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formBasicUsername">
+              <Form.Label>Nazwa użytkownika</Form.Label>
+              <Form.Control type="text" placeholder="Wprowadź nazwę użytkownika" value={username} onChange={e => setUsername(e.target.value)} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formBasicPassword">
+              <Form.Label>Hasło</Form.Label>
+              <Form.Control type="password" placeholder="Hasło powinno zawierać przynajmniej 8 znaków" value={password} onChange={e => setPassword(e.target.value)} />
+            </Form.Group>
+            </Col>
 
-        <Form.Group className="mb-3" controlId="formBasicFirstName">
-          <Form.Label>Imię</Form.Label>
-          <Form.Control type="text" placeholder="Wprowadź imię" value={first_name} onChange={e => setFirstName(e.target.value)} />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="formBasicLastName">
-          <Form.Label>Nazwisko</Form.Label>
-          <Form.Control type="text" placeholder="Wprowadź nazwisko" value={last_name} onChange={e => setLastName(e.target.value)} />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="formBasicPhoneNumber">
-          <Form.Label>Numer telefonu</Form.Label>
-          <Form.Control type="text" placeholder="Wprowadź numer telefonu" value={phone_number} onChange={e => setPhoneNumber(e.target.value)} />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="formBasicDormitory">
-          <Form.Label>Akademik</Form.Label>
-          <Form.Control type="text" placeholder="Wprowadź nazwę akademika" value={dormitory} onChange={e => setDormitory(e.target.value)} />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="formBasicRoomNumber">
-          <Form.Label>Numer pokoju</Form.Label>
-          <Form.Control type="text" placeholder="Wprowadź numer pokoju" value={room_number} onChange={e => setRoomNumber(e.target.value)} />
-        </Form.Group>
+            <Col>
+            <Form.Group className="mb-3" controlId="formBasicFirstName">
+              <Form.Label>Imię</Form.Label>
+              <Form.Control type="text" placeholder="Wprowadź imię" value={first_name} onChange={e => setFirstName(e.target.value)} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formBasicLastName">
+              <Form.Label>Nazwisko</Form.Label>
+              <Form.Control type="text" placeholder="Wprowadź nazwisko" value={last_name} onChange={e => setLastName(e.target.value)} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formBasicPhoneNumber">
+              <Form.Label>Numer telefonu</Form.Label>
+              <Form.Control type="text" placeholder="Wprowadź numer telefonu" value={phone_number} onChange={e => setPhoneNumber(e.target.value)} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formBasicDormitory">
+              <Form.Label>Akademik</Form.Label>
+              <Form.Control type="text" placeholder="Wprowadź nazwę akademika" value={dormitory} onChange={e => setDormitory(e.target.value)} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formBasicRoomNumber">
+              <Form.Label>Numer pokoju</Form.Label>
+              <Form.Control type="text" placeholder="Wprowadź numer pokoju" value={room_number} onChange={e => setRoomNumber(e.target.value)} />
+            </Form.Group>
 
-        <Button variant="primary" type="submit">
-          Zarejestruj
-        </Button>
+            <Button id="form_btn" variant="primary" type="submit">
+              Zarejestruj
+            </Button>
+            
+          </Col>
+        </Row>
       </Form>
     </div>
   );

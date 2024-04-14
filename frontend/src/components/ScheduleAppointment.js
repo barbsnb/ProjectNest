@@ -7,20 +7,20 @@ const ScheduleAppointment = () => {
   const [startTime, setStartTime] = useState('');
   const [endDate, setEndDate] = useState('');
   const [endTime, setEndTime] = useState('');
-  const [hostFirstName, setHostFirstName] = useState('');
-  const [hostLastName, setHostLastName] = useState('');
-  const [buildingName, setBuildingName] = useState('');
-  const [roomNumber, setRoomNumber] = useState('');
+  const [guest_first_name, setGuestFirstName] = useState('');
+  const [guest_last_name, setGuestLastName] = useState('');
+  const [guest_phone_nr, setGuestPhoneNr] = useState('');
+  const [guest_email, setGuestEmail] = useState('');
 
   const handleSubmit = (event) => {
     event.preventDefault();  // Prevent the form from being submitted in the traditional way
     const appointmentData = {
       startDateTime: `${startDate}T${startTime}`,
       endDateTime: `${endDate}T${endTime}`,
-      hostFirstName: hostFirstName,
-      hostLastName: hostLastName,
-      building: buildingName,
-      room: roomNumber
+      guest_first_name: guest_first_name,
+      guest_last_name: guest_last_name,
+      guest_phone_nr: guest_phone_nr,
+      guest_email: guest_email
     };
 
     // Posting data to the server
@@ -39,39 +39,39 @@ const ScheduleAppointment = () => {
     <Container>
       <Form onSubmit={handleSubmit}>
         <Form.Group controlId="formStartDate">
-          <Form.Label>Start Date</Form.Label>
+          <Form.Label>Data rozpoczęcia wizyty</Form.Label>
           <Form.Control type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
         </Form.Group>
         <Form.Group controlId="formStartTime">
-          <Form.Label>Start Time</Form.Label>
+          <Form.Label>Czas rozpoczęcia wizyty</Form.Label>
           <Form.Control type="time" value={startTime} onChange={e => setStartTime(e.target.value)} />
         </Form.Group>
         <Form.Group controlId="formEndDate">
-          <Form.Label>End Date</Form.Label>
+          <Form.Label>Data zakończnia wizyty</Form.Label>
           <Form.Control type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
         </Form.Group>
         <Form.Group controlId="formEndTime">
-          <Form.Label>End Time</Form.Label>
+          <Form.Label>Czas zakończnia wizyty</Form.Label>
           <Form.Control type="time" value={endTime} onChange={e => setEndTime(e.target.value)} />
         </Form.Group>
         <Form.Group controlId="formHostFirstName">
-          <Form.Label>Host First Name</Form.Label>
-          <Form.Control type="text" placeholder="Enter host's first name" value={hostFirstName} onChange={e => setHostFirstName(e.target.value)} />
+          <Form.Label>Imię gościa</Form.Label>
+          <Form.Control type="text" placeholder="Wprowadź imię gościa" value={guest_first_name} onChange={e => setGuestFirstName(e.target.value)} />
         </Form.Group>
         <Form.Group controlId="formHostLastName">
-          <Form.Label>Host Last Name</Form.Label>
-          <Form.Control type="text" placeholder="Enter host's last name" value={hostLastName} onChange={e => setHostLastName(e.target.value)} />
+          <Form.Label>Nazwisko gościa</Form.Label>
+          <Form.Control type="text" placeholder="Wprowadź nazwisko gościa" value={guest_last_name} onChange={e => setGuestLastName(e.target.value)} />
         </Form.Group>
         <Form.Group controlId="formBuildingName">
-          <Form.Label>Building Name</Form.Label>
-          <Form.Control type="text" placeholder="Enter building name" value={buildingName} onChange={e => setBuildingName(e.target.value)} />
+          <Form.Label>Numer telefonu gościa</Form.Label>
+          <Form.Control type="text" placeholder="Wprowadź numer telefonu gościa" value={guest_phone_nr} onChange={e => setGuestPhoneNr(e.target.value)} />
         </Form.Group>
         <Form.Group controlId="formRoomNumber">
-          <Form.Label>Room Number</Form.Label>
-          <Form.Control type="text" placeholder="Enter room number" value={roomNumber} onChange={e => setRoomNumber(e.target.value)} />
+          <Form.Label>Adres e-mail gościa</Form.Label>
+          <Form.Control type="text" placeholder="Wprowadź e-mail gościa" value={guest_email} onChange={e => setGuestEmail(e.target.value)} />
         </Form.Group>
         <Button variant="primary" type="submit">
-          Schedule Visit
+          Zaplanuj wizytę
         </Button>
       </Form>
     </Container>
