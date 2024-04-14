@@ -6,8 +6,8 @@ from rest_framework import generics
 from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer
 from rest_framework import permissions, status
 from .validations import custom_validation, validate_email, validate_password
-from .models import Visit, VisitForm
-from .serializers import VisitSerializer
+from .models import Visit
+from .serializers import UserVisitSerializer
 
 class UserRegister(APIView):
 	permission_classes = (permissions.AllowAny,)
@@ -52,28 +52,38 @@ class UserView(APIView):
 		serializer = UserSerializer(request.user)
 		return Response({'user': serializer.data}, status=status.HTTP_200_OK)
 
-class VisitListView(generics.ListCreateAPIView):
+class UserVisit(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
-    queryset = Visit.objects.all()
-    serializer_class = VisitSerializer
-    
-    def list(self, request):
-        queryset = self.get_queryset()
-        serializer = UserSerializer(queryset, many=True)
-        return Response({serializer.data}, status=status.HTTP_200_OK)
+    def post(self, request):
+        serializer = UserVisitSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class VisitDetailView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (SessionAuthentication,)
-    queryset = Visit.objects.all()
-    serializer_class = VisitSerializer
+# class VisitListView(generics.ListCreateAPIView):
+#     permission_classes = (permissions.IsAuthenticated,)
+#     authentication_classes = (SessionAuthentication,)
+#     queryset = Visit.objects.all()
+#     serializer_class = VisitSerializer
     
-    def list(self, request):
-        queryset = self.get_queryset()
-        serializer = UserSerializer(queryset, many=True)
-        return Response({serializer.data}, status=status.HTTP_200_OK)
+#     def list(self, request):
+#         queryset = self.get_queryset()
+#         serializer = UserSerializer(queryset, many=True)
+#         return Response({serializer.data}, status=status.HTTP_200_OK)
+
+# class VisitDetailView(generics.RetrieveUpdateDestroyAPIView):
+#     permission_classes = (permissions.IsAuthenticated,)
+#     authentication_classes = (SessionAuthentication,)
+#     queryset = Visit.objects.all()
+#     serializer_class = VisitSerializer
     
-class VisitFormView(APIView):
-    def upload_form(request):
-        form = VisitForm(request.POST)
+#     def list(self, request):
+#         queryset = self.get_queryset()
+#         serializer = UserSerializer(queryset, many=True)
+#         return Response({serializer.data}, status=status.HTTP_200_OK)
+    
+# class VisitFormView(APIView):
+#     def upload_form(request):
+#         form = VisitForm(request.POST)

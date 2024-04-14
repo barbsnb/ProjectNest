@@ -3,61 +3,95 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django import forms
 
-class AppUserManager(BaseUserManager):
-	def create_user(self, email, password=None):
-		if not email:
-			raise ValueError('An email is required.')
-		if not password:
-			raise ValueError('A password is required.')
-		email = self.normalize_email(email)
-		user = self.model(email=email)
-		user.set_password(password)
-		user.save()
-		return user
-	def create_superuser(self, email, password=None):
-		if not email:
-			raise ValueError('An email is required.')
-		if not password:
-			raise ValueError('A password is required.')
-		user = self.create_user(email, password)
-		user.is_superuser = True
-		user.save()
-		return user
 
+
+
+class AppUserManager(BaseUserManager):
+    def create_user(self, email, username, first_name, last_name, phone_number, dormitory, room_number, password=None):
+        if not email:
+            raise ValueError('An email is required.')
+        if not username:
+            raise ValueError('A username is required.')
+        if not first_name:
+            raise ValueError('A first name is required.')
+        if not last_name:
+            raise ValueError('A last name is required.')
+        if not phone_number:
+            raise ValueError('A phone number is required.')
+        if not dormitory:
+            raise ValueError('A building name is required.')
+        if not room_number:
+            raise ValueError('A room number is required.')
+        email = self.normalize_email(email)
+        user = self.model(email=email, username=username, first_name=first_name, last_name=last_name, phone_number=phone_number, dormitory=dormitory, room_number=room_number)
+        user.set_password(password)
+        user.save()
+        return user
+    
+    def create_superuser(self, email, username, first_name, last_name, phone_number, dormitory, room_number, password=None):
+        user = self.create_user(email,username, first_name, last_name, phone_number, dormitory, room_number, password)
+        user.is_superuser = True
+        user.save()
+        return user
 
 class AppUser(AbstractBaseUser, PermissionsMixin):
-	user_id = models.AutoField(primary_key=True)
-	email = models.EmailField(max_length=50, unique=True)
-	username = models.CharField(max_length=50)
-	USERNAME_FIELD = 'email'
-	REQUIRED_FIELDS = ['username']
-	objects = AppUserManager()
-	def __str__(self):
-		return self.username
+    user_id = models.AutoField(primary_key=True)
+    email = models.EmailField(max_length=50, unique=True)
+    username = models.CharField(max_length=50)
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
+    phone_number = models.CharField(max_length=15)
+    dormitory = models.CharField(max_length=100)
+    room_number = models.CharField(max_length=50)
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'phone_number', 'dormitory', 'room_number']
+    objects = AppUserManager()
+    
+    def __str__(self):
+        return self.last_name
+
 
 class Visit(models.Model):
-    date = models.DateField()
+    start_date = models.DateField()
     start_time = models.TimeField()
-    end_time = models.TimeField(default='23:00')
-    guest_name = models.CharField(max_length=50, blank=False)
+    end_date = models.DateField()
+    end_time = models.TimeField()
+    guest_first_name = models.CharField(max_length=50, blank=False)
     guest_last_name = models.CharField(max_length=50, blank=False)
     guest_phone_nr = models.CharField(max_length=14, blank=False)
-    
-    # def __str__(self):
-	# 	return self.guest_last_name
-    
-class VisitForm(forms.ModelForm):
-    date = forms.DateInput(attrs={'type': 'date'}),
-    start_time = forms.TimeInput(attrs={'type': 'time'}),
-    guest_name = forms.TextInput(attrs={'type': 'text'})
-    guest_last_name = forms.TextInput(attrs={'type': 'text'})
-    guest_phone_nr = forms.TextInput(attrs={'type': 'tel'}),
-    
-    class Meta:
-        model = Visit
-        fields = ['date', 'start_time', 'guest_name', 'guest_last_name', 'guest_phone_nr']
-        # widgets = {
-        #     'date': forms.DateInput(attrs={'type': 'date'}),
-        #     'start_time': forms.TimeInput(attrs={'type': 'time'}),
-        #     'guest_phone_nr': forms.TextInput(attrs={'type': 'tel'}),
-        # }
+    guest_email = models.EmailField(max_length=50, blank=False)
+        
+        
+        
+# class AppUserManager(BaseUserManager):
+# 	def create_user(self, email, password=None):
+# 		if not email:
+# 			raise ValueError('An email is required.')
+# 		if not password:
+# 			raise ValueError('A password is required.')
+# 		email = self.normalize_email(email)
+# 		user = self.model(email=email)
+# 		user.set_password(password)
+# 		user.save()
+# 		return user
+# 	def create_superuser(self, email, password=None):
+# 		if not email:
+# 			raise ValueError('An email is required.')
+# 		if not password:
+# 			raise ValueError('A password is required.')
+# 		user = self.create_user(email, password)
+# 		user.is_superuser = True
+# 		user.save()
+# 		return user
+
+
+
+# class AppUser(AbstractBaseUser, PermissionsMixin):
+# 	user_id = models.AutoField(primary_key=True)
+# 	email = models.EmailField(max_length=50, unique=True)
+# 	username = models.CharField(max_length=50)
+# 	USERNAME_FIELD = 'email'
+# 	REQUIRED_FIELDS = ['username']
+# 	objects = AppUserManager()
+# 	def __str__(self):
+# 		return self.username

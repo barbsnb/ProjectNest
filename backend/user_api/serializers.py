@@ -10,10 +10,18 @@ UserModel = get_user_model()
 class UserRegisterSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = UserModel
-		fields = '__all__'
-	def create(self, clean_data):
-		user_obj = UserModel.objects.create_user(email=clean_data['email'], password=clean_data['password'])
-		user_obj.username = clean_data['username']
+		fields = fields = ['email', 'password', 'username', 'first_name', 'last_name', 'phone_number', 'dormitory', 'room_number']
+	def create(self, validated_data):
+		user_obj = UserModel.objects.create_user(
+            email=validated_data['email'],
+            password=validated_data['password'],
+            username=validated_data['username'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            phone_number=validated_data['phone_number'],
+            dormitory=validated_data['dormitory'],
+            room_number=validated_data['room_number']
+        )
 		user_obj.save()
 		return user_obj
 
@@ -30,9 +38,9 @@ class UserLoginSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = UserModel
-		fields = ('email', 'username')
+		fields = ('email', 'username', 'first_name', 'last_name', 'phone_number', 'dormitory', 'room_number')
   
-class VisitSerializer(serializers.ModelSerializer):
+class UserVisitSerializer(serializers.ModelSerializer):
     class Meta:
         model = Visit
         fields = '__all__'

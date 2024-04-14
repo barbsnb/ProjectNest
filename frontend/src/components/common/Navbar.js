@@ -41,7 +41,7 @@ const CustomNavbar = () => {
                             <Button variant="light" onClick={handleLoginOrRegister}>
                                 {showLogin ? 'Logowanie' : 'Rejestracja'}
                             </Button>
-                        )}
+                        )}      
                     </Navbar.Text>
                 </Navbar.Collapse>
             </Container>
