@@ -6,6 +6,7 @@ export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
     const [currentUser, setCurrentUser] = useState(null);
+    const [visit, setVisit] = useState(null);
 
     useEffect(() => {
         client.get("/api/user")
@@ -14,7 +15,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ currentUser, setCurrentUser }}>
+        <AuthContext.Provider value={{ currentUser, setCurrentUser, visit, setVisit}}>
             {children}
         </AuthContext.Provider>
     );

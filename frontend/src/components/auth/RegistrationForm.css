@@ -47,3 +47,15 @@
 #form_btn:hover {
     background-color: #555; /* Ciemniejsze tło po najechaniu */
 }
+
+.visit_info {
+    max-width: 500px;
+    margin: 0 auto;
+    text-align: center; /* Wyśrodkowanie tekstu */
+    font-family: adagio_slab, sans-serif; /* Ustawienie czcionki */
+  }
+  
+  .visit_info p {
+    margin: 5px 0; /* Mniejszy odstęp między wierszami */
+  }
+  
