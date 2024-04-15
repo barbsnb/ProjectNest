@@ -1,5 +1,17 @@
-h2 {
-    font-size: 25px; /* Wielkość czcionki */
-    color: #333333; /* Kolor tekstu */
-    font-family: adagio_slab;
-  }
+#user_data_container {
+  max-width: 500px;
+  margin: 0 auto; /* Wyśrodkowuje kontener formularza na stronie */
+  display: flex; /* Ustawia kontener formularza jako kontener flexbox */
+  justify-content: center; /* Wyśrodkowuje zawartość wzdłuż osi X */
+  align-items: center;
+  font-family: adagio_slab;
+}
+
+.buttonContainer {
+  font-family: adagio_slab; /* Ustawienie czcionki */
+}
+
+.inputButton {
+  font-family: adagio_slab; /* Ustawienie czcionki */
+  /* Dodatkowe style przycisku, jeśli są wymagane */
+}

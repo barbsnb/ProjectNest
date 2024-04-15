@@ -2,7 +2,7 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../contexts/AuthContext';
-import { Row, Col } from 'react-bootstrap';
+import { Row, Col, Container } from 'react-bootstrap';
 import './Home.css'
 
 const Home = () => {
@@ -19,10 +19,12 @@ const Home = () => {
   };
 
   return (
+    
     <Row>
       <Col> 
+      <Container className="user_data_container">
         {currentUser && (
-            <div>
+            <div >
               <div>
                 Witaj {currentUser.user.first_name}
               </div>
@@ -34,8 +36,10 @@ const Home = () => {
               </div>
             </div>
           )}
+          </Container>
       </Col>
       <Col>
+      <Container className="user_data_container">
         <div className={'buttonContainer'}>
           <input
             className={'inputButton'}
@@ -43,8 +47,9 @@ const Home = () => {
             onClick={onButtonClick}
             value={currentUser ? 'Log out' : 'Log in'}
           />
-          {currentUser ? <div>Your email address is {currentUser.user.email}</div> : <div />}
+          {currentUser ? <div>Twój adres e-mail: {currentUser.user.email}</div> : <div />}
         </div>
+        </Container>
         </Col>
     </Row>
   )

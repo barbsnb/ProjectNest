@@ -10,7 +10,7 @@
   .navbar {
     width: 100%;
     min-height: 40px;
-    margin-bottom: 0;
+    margin: 0;
     text-align: left;
     padding: 0;
     border-radius: 0;
@@ -40,3 +40,11 @@
   #navbar_btn:hover {
     background-color: #ffffff38;
   }
+
+  .form-container {
+    max-width: 100%;
+    margin: 0 auto; /* Wyśrodkowuje kontener formularza na stronie */
+    display: flex; /* Ustawia kontener formularza jako kontener flexbox */
+    justify-content: center; /* Wyśrodkowuje zawartość wzdłuż osi X */
+    align-items: center; /* Wyśrodkowuje zawartość wzdłuż osi Y */
+}
