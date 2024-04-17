@@ -37,6 +37,7 @@ class UserLogin(APIView):
 		if serializer.is_valid(raise_exception=True):
 			user = serializer.check_user(data)
 			login(request, user)
+			#print(f"W post user login {serializer.data}")
 			return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -53,7 +54,10 @@ class UserView(APIView):
 	authentication_classes = (SessionAuthentication,)
 	##
 	def get(self, request):
+		#print(f"Request: {request}")
+		#print(f"Before serializer: {request.user}")
 		serializer = UserSerializer(request.user)
+		#print(f"After serializer: {serializer.data}")
 		return Response({'user': serializer.data}, status=status.HTTP_200_OK)
 
 class UserVisit(APIView):

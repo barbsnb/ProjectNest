@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Form, Button, Container } from 'react-bootstrap';
 import { AuthContext } from '../contexts/AuthContext';
 import client from '../axiosClient';  // Ensure you have the axiosClient setup correctly to handle requests
-import './auth/RegistrationForm.css'
+import './ScheduleForm.css'
 import { Row, Col } from 'react-bootstrap';
 
 const ScheduleAppointment = () => {

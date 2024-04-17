@@ -13,9 +13,12 @@ const CustomNavbar = () => {
 
     // Function to navigate to the homepage
     const goToHomePage = () => {
-        navigate('/');
+        navigate('/home');
     };
 
+    const goToInfoPage = () => {
+        navigate('/');
+    };
     // Function to navigate to the appointment scheduling page
     const goToAppointmentPage = () => {
         navigate('/schedule');
@@ -39,9 +42,12 @@ const CustomNavbar = () => {
                                 <LogoutButton />
                             </>
                         ) : (
+                            <>
                             <Button id="navbar_btn" variant="light" onClick={handleLoginOrRegister}>
                                 {showLogin ? 'Logowanie' : 'Rejestracja'}
                             </Button>
+                            <Button id="navbar_btn" variant="outline-light" onClick={goToInfoPage} className="mx-2">Strona główna</Button>
+                            </>
                         )}      
                     </Navbar.Text>
                 </Navbar.Collapse>

@@ -15,3 +15,14 @@
   font-family: adagio_slab; /* Ustawienie czcionki */
   /* Dodatkowe style przycisku, jeśli są wymagane */
 }
+
+.info_text {
+  font-family: adagio_slab;
+  font-size: 17px;
+}
+
+.info_text_bold {
+  font-family: adagio_slab;
+  font-size: 17px;
+  font-weight: bold;
+}

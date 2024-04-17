@@ -6,7 +6,7 @@ import client from '../../axiosClient';
 import './LoginForm.css'
 
 const LoginForm = () => {
-  const { setCurrentUser } = useContext(AuthContext);
+  const { setGetCurrentUser } = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();  // Initialize navigate function
@@ -15,8 +15,7 @@ const LoginForm = () => {
     e.preventDefault();
     client.post("/api/login", { email, password })
       .then(res => {
-        setCurrentUser(res.data);
-        navigate('/');  // Navigate to the homepage after setting the user
+        setGetCurrentUser(true)
       })
       .catch(err => {
         console.error("Login failed: ", err);
