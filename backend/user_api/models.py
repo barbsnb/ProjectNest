@@ -60,6 +60,8 @@ class Visit(models.Model):
     guest_last_name = models.CharField(max_length=50, blank=False)
     guest_phone_nr = models.CharField(max_length=14, blank=False)
     guest_email = models.EmailField(max_length=50, blank=False)
+    # Pole klucza obcego do użytkownika
+    user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
         
         
         

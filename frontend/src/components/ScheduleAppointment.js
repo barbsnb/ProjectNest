@@ -8,7 +8,7 @@ import { Row, Col } from 'react-bootstrap';
 const ScheduleAppointment = () => {
   // to do zmiany na pewno bo trzeba zeby ustawial globalnie i dodawal do bazy
   const [visit, setVisit ] = useState(''); 
-
+  const { currentUser } = useContext(AuthContext);
   const [visitFormToggle, setvisitFormToggle] = useState(false);
   const [start_date, setStartDate] = useState('');
   const [start_time, setStartTime] = useState('');
@@ -31,7 +31,8 @@ const ScheduleAppointment = () => {
       guest_first_name, 
       guest_last_name,
       guest_phone_nr, 
-      guest_email})
+      guest_email, 
+      user_id: currentUser.user.user_id})
 
     client.post('/api/schedule', {
       start_date, 
@@ -41,7 +42,8 @@ const ScheduleAppointment = () => {
       guest_first_name, 
       guest_last_name,
       guest_phone_nr, 
-      guest_email 
+      guest_email, 
+      user: currentUser.user.user_id
     })
       .then(response => {
         setVisit(response.data)

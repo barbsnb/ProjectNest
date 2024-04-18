@@ -5,8 +5,6 @@ import './Home.css'
 
 const Home = () => {
   const { currentUser } = useContext(AuthContext);
-
-
   return (
     <Row>
       <Col> 

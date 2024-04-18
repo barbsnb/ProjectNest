@@ -9,7 +9,6 @@ export const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
     const [currentUser, setCurrentUser] = useState(null);
     const [getCurrentUser, setGetCurrentUser] = useState(false);
-    const [visit, setVisit] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -26,7 +25,7 @@ export const AuthProvider = ({ children }) => {
     }, [getCurrentUser]);
 
     return (
-        <AuthContext.Provider value={{ currentUser, setCurrentUser, visit, setVisit, getCurrentUser, setGetCurrentUser}}>
+        <AuthContext.Provider value={{ currentUser, setCurrentUser, getCurrentUser, setGetCurrentUser}}>
             {children}
         </AuthContext.Provider>
     );

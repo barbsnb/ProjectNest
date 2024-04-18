@@ -43,6 +43,7 @@ class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = UserModel
 		fields = (
+			'user_id',
       		'email', 
         	'username', 
 			'first_name', 
@@ -55,6 +56,7 @@ class UserVisitSerializer(serializers.ModelSerializer):
     class Meta:
         model = Visit
         fields = (
+            # 'visit_id',
             'start_date', 
             'start_time', 
             'end_date', 
@@ -62,5 +64,6 @@ class UserVisitSerializer(serializers.ModelSerializer):
             'guest_first_name', 
             'guest_last_name', 
             'guest_phone_nr', 
-            'guest_email'
+            'guest_email',
+            'user'
             )
