@@ -57,7 +57,7 @@ class UserView(APIView):
 		#print(f"Request: {request}")
 		#print(f"Before serializer: {request.user}")
 		serializer = UserSerializer(request.user)
-		print(f"After serializer: {serializer.data}")
+		# print(f"After serializer: {serializer.data}")
 		return Response({'user': serializer.data}, status=status.HTTP_200_OK)
 
 class UserVisit(APIView):
@@ -83,8 +83,14 @@ class VisitListView(generics.ListAPIView):
     serializer_class = UserVisitSerializer
     
     def get(self, request):
-        queryset = Visit.objects.filter(user = request.user)
-        return Response(queryset, status=status.HTTP_201_CREATED)
+        try:
+            if request.user.is_authenticated:
+                queryset = Visit.objects.filter(user=request.user.user_id)
+                print(queryset)
+                serializer = self.serializer_class(queryset, many=True)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # class VisitListView(generics.ListCreateAPIView):
 #     permission_classes = (permissions.IsAuthenticated,)

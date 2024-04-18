@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { UserVisitsProvider } from './contexts/UserVisitsContext';
 import LoginForm from './components/auth/LoginForm';
 import RegistrationForm from './components/auth/RegistrationForm';
 import Home from './components/home/Home';
@@ -13,6 +14,7 @@ function App() {
   return (
     <Router>
       <AuthProvider>
+        <UserVisitsProvider>
         <CustomNavbar />
         <Routes>
           <Route path="/" element={<Info/>} />
@@ -21,6 +23,7 @@ function App() {
           <Route path="/register" element={<RegistrationForm />} />
           <Route path="/schedule" element={<ScheduleAppointment />} />
         </Routes>
+        </UserVisitsProvider>
       </AuthProvider>
     </Router>
   );
