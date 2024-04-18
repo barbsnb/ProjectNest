@@ -31,7 +31,7 @@ const CustomNavbar = () => {
     };
 
     return (
-        <Container className = "form_container">
+        <>
             <Navbar bg="dark" variant="dark">
                 <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
                     <Navbar.Text>
@@ -59,7 +59,7 @@ const CustomNavbar = () => {
                     </div>
                 </div>
             </div>
-        </Container>
+        </>
     );
 };
 
