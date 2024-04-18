@@ -28,6 +28,7 @@
 /* Przycisk na pasku nawigacji */
   #navbar_btn {
     margin-top: 10px;
+    margin-right: 10px;
     margin-bottom: 15px;
     font-size: 20px;
     background-color: #ffffff00;
