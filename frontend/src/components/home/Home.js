@@ -1,10 +1,13 @@
 import React, { useContext } from 'react';
 import { AuthContext } from '../../contexts/AuthContext';
+import { UserVisitsContext } from '../../contexts/UserVisitsContext';
 import { Row, Col, Container } from 'react-bootstrap';
 import './Home.css'
 
 const Home = () => {
   const { currentUser } = useContext(AuthContext);
+  const { userVisits } = useContext(UserVisitsContext)
+
   return (
     <Row>
       <Col> 
@@ -23,6 +26,30 @@ const Home = () => {
             </div>
           )}
           </Container>
+      </Col>
+      <Col>
+        <Container className="user_visits_container">
+        {userVisits &&  userVisits.length > 0 && (
+          <div> 
+            <h3>Twoje wizyty:</h3>
+            <ul>
+              {userVisits.map((visit, index) => (
+                <li key={index}>
+                  <p>Dzień rozpoczęcia wizyty: {visit.start_date}</p>
+                  <p>Czas rozpoczęcia wizyty: {visit.start_time}</p>
+                  <p>Dzień zakończenia wizyty: {visit.end_date}</p>
+                  <p>Czas zakończenia wizyty: {visit.end_time}</p>
+                  <p>Imię gościa: {visit.guest_first_name}</p>
+                  <p>Nazwisko gościa: {visit.guest_last_name}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {userVisits &&  userVisits.length === 0 &&(
+          <h3>Brak nadchodzących wizyt</h3>
+        )}
+        </Container>
       </Col>
     </Row>
   )

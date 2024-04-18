@@ -1,9 +1,11 @@
 import React, { useContext, useState } from 'react';
-import { Form, Button, Container } from 'react-bootstrap';
+import { Form, Button } from 'react-bootstrap';
 import { AuthContext } from '../contexts/AuthContext';
 import client from '../axiosClient';  // Ensure you have the axiosClient setup correctly to handle requests
 import './ScheduleForm.css'
 import { Row, Col } from 'react-bootstrap';
+
+import { UserVisitsContext } from '../contexts/UserVisitsContext';
 
 const ScheduleAppointment = () => {
   // to do zmiany na pewno bo trzeba zeby ustawial globalnie i dodawal do bazy
@@ -18,6 +20,8 @@ const ScheduleAppointment = () => {
   const [guest_last_name, setGuestLastName] = useState('');
   const [guest_phone_nr, setGuestPhoneNr] = useState('');
   const [guest_email, setGuestEmail] = useState('');
+
+  const { setGetUserVisits } = useContext(UserVisitsContext)
   
 
   const handleSubmit = (event) => {
@@ -45,16 +49,19 @@ const ScheduleAppointment = () => {
       guest_email, 
       user: currentUser.user.user_id
     })
-      .then(response => {
-        setVisit(response.data)
-        setvisitFormToggle(true)
-        console.log('Appointment scheduled successfully:', response);
-        // Optionally reset form or give feedback to the user
-      })
-      .catch(error => {
-        console.error('Failed to schedule appointment:', error);
-        // Handle errors, e.g., show an error message
-      });
+    .then(response => {
+      const newVisit = response.data;
+      // Dodaj nową wizytę do istniejącej listy wizyt w stanie
+      // setUserVisits([...userVisits, newVisit]);
+      setVisit(response.data) //to chyba zle
+      setGetUserVisits(true)
+      setvisitFormToggle(true)
+      console.log('Appointment scheduled successfully:', response);
+    })
+    .catch(error => {
+      console.error('Failed to schedule appointment:', error);
+    });
+  
   };
 
   // const handleNewAppointment = () => {

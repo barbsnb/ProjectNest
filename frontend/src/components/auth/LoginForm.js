@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../contexts/AuthContext';
+import { UserVisitsContext } from '../../contexts/UserVisitsContext';
 import client from '../../axiosClient';
 import './LoginForm.css'
 
@@ -9,13 +10,15 @@ const LoginForm = () => {
   const { setGetCurrentUser } = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate();  // Initialize navigate function
+  // const navigate = useNavigate();  // Initialize navigate function
+  const { setGetUserVisits } = useContext(UserVisitsContext)
 
   function submitLogin(e) {
     e.preventDefault();
     client.post("/api/login", { email, password })
       .then(res => {
         setGetCurrentUser(true)
+        setGetUserVisits(true)
       })
       .catch(err => {
         console.error("Login failed: ", err);
