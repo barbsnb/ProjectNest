@@ -39,3 +39,10 @@
   margin: 5px 0; /* Dodaj odstęp między paragrafami wewnątrz każdej wizyty */
 }
 
+.card-hover {
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+.card-hover:hover {
+  box-shadow: 0 0 10px rgba(0,0,0,0.5); /* Dodaj cień wokół karty */
+}

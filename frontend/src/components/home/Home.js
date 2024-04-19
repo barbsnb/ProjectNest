@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { AuthContext } from '../../contexts/AuthContext';
 import { UserVisitsContext } from '../../contexts/UserVisitsContext';
-import { Row, Col, Container, Table } from 'react-bootstrap';
+import { Row, Col, Container, Card } from 'react-bootstrap';
 import './Home.css';
 
 const Home = () => {
@@ -20,56 +20,49 @@ const Home = () => {
                   <h2><strong>Witaj {currentUser.user.first_name}!</strong></h2>
                 </div>
                 <div className='info_text'>
-                  Akademik: {currentUser.user.dormitory}
+                  <h5>Akademik: {currentUser.user.dormitory}</h5>
                 </div>
                 <div className='info_text'>
-                  Numer pokoju: {currentUser.user.room_number}
+                  <h5>Numer pokoju: {currentUser.user.room_number}</h5>
                 </div>
               </div>
             )}
             </Col>
           </Row>
         </Container>
-      <Container>
+        <Container>
       <Row className='row d-flex justify-content-center'>
         <Col>
-            {userVisits && userVisits.length > 0 && (
-              <div>
-                <h2><strong>Twoje wizyty:</strong></h2>
-                <Table striped hover className='custom-font-table'>
-                  <thead className='h5'>
-                    <tr>
-                      <th>#</th>
-                      <th>Dzień rozpoczęcia wizyty</th>
-                      <th>Czas rozpoczęcia wizyty</th>
-                      <th>Dzień zakończenia wizyty</th>
-                      <th>Czas zakończenia wizyty</th>
-                      <th>Imię gościa</th>
-                      <th>Nazwisko gościa</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {userVisits.map((visit, index) => (
-                      <tr key={index}>
-                        <td>{index + 1}</td>
-                        <td>{visit.start_date}</td>
-                        <td>{visit.start_time}</td>
-                        <td>{visit.end_date}</td>
-                        <td>{visit.end_time}</td>
-                        <td>{visit.guest_first_name}</td>
-                        <td>{visit.guest_last_name}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </div>
-            )}
-            {userVisits && userVisits.length === 0 && (
-              <div>
-                <h3>Twoje wizyty:</h3>
-                <p>Brak nadchodzących wizyt</p>
-              </div>
-            )}
+          {userVisits && userVisits.length > 0 && (
+            <div>
+              <Row className='mb-3'>
+                <h2 ><strong>Twoje wizyty:</strong></h2>
+              </Row>
+              <Row >
+                {userVisits.map((visit, index) => (
+                  <Col md={4} key={index} className="mb-4"> {/* Każda wizyta w osobnej kolumnie */}
+                    <Card className='card-hover'>
+                      <Card.Header>
+                        <strong>{visit.guest_first_name} {visit.guest_last_name}</strong> {/* Imię i nazwisko gościa na górze kafelka */}
+                      </Card.Header>
+                      <Card.Body>
+                        <Card.Title>
+                          Rozpoczęcie: {visit.start_date} - {visit.start_time}<br /><br />
+                          Zakończenie: {visit.end_date} - {visit.end_time}<br />
+                        </Card.Title> {/* Data rozpoczęcia i zakończenia wizyty */}
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+            </div>
+          )}
+          {userVisits && userVisits.length === 0 && (
+            <div>
+              <h3>Twoje wizyty:</h3>
+              <p>Brak nadchodzących wizyt</p>
+            </div>
+          )}
         </Col>
       </Row>
     </Container>
