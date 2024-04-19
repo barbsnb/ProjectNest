@@ -26,7 +26,7 @@
   }
 
 /* Przycisk na pasku nawigacji */
-  #navbar_btn {
+  .navbar_btn {
     margin-top: 10px;
     margin-right: 10px;
     margin-bottom: 15px;
@@ -34,12 +34,15 @@
     background-color: #ffffff00;
     color: #ffffff;
     border: none;
+    border-radius: 5px;
+    padding: 5px;
     float: right;
     font-family: adagio_slab;
+    transition: background-color 0.3s ease;
   }
   
-  #navbar_btn:hover {
-    background-color: #ffffff38;
+  .navbar_btn:hover {
+    background-color: #ffffff38 !important;
   }
 
   .form-container {

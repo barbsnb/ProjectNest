@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react';
-import { Navbar, Button, Container } from 'react-bootstrap';
+import React, { useContext } from 'react';
+import { Navbar } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { AuthContext } from '../../contexts/AuthContext';
 import LogoutButton from '../auth/LogoutButton';
@@ -9,7 +9,6 @@ import './Navbar.css'
 const CustomNavbar = () => {
     const { currentUser } = useContext(AuthContext);
     const navigate = useNavigate(); // Create a navigate function
-    const [showLogin, setShowLogin] = useState(true);
 
     // Function to navigate to the homepage
     const goToHomePage = () => {
@@ -24,10 +23,12 @@ const CustomNavbar = () => {
         navigate('/schedule');
     };
 
-    const handleLoginOrRegister = () => {
-        // Navigate based on the state of showLogin
-        navigate(showLogin ? '/login' : '/register');
-        setShowLogin(!showLogin); // Toggle the state to switch between login and register
+    const goToLogin = () => {
+        navigate('/login');
+    };
+
+    const goToRegister = () => {
+        navigate('/register');
     };
 
     return (
@@ -37,16 +38,15 @@ const CustomNavbar = () => {
                     <Navbar.Text>
                         {currentUser ? (
                             <>
-                                <Button id="navbar_btn" variant="outline-light" onClick={goToHomePage} className="mx-2">Strona główna</Button>
-                                <Button id="navbar_btn" variant="outline-light" onClick={goToAppointmentPage} className="mx-2">Umów wizytę</Button>
                                 <LogoutButton />
+                                <button onClick={goToAppointmentPage} className="mx-2 navbar_btn">Umów wizytę</button>
+                                <button onClick={goToHomePage} className="mx-2 navbar_btn">Strona główna</button>
                             </>
                         ) : (
                             <>
-                            <Button id="navbar_btn" variant="light" onClick={handleLoginOrRegister}>
-                                {showLogin ? 'Logowanie' : 'Rejestracja'}
-                            </Button>
-                            <Button id="navbar_btn" variant="outline-light" onClick={goToInfoPage} className="mx-2">Strona główna</Button>
+                            <button onClick={goToLogin} className='navbar_btn'>Logowanie</button>
+                            <button onClick={goToRegister} className='navbar_btn'>Rejestracja</button>
+                            <button onClick={goToInfoPage} className="navbar_btn">Strona główna</button>
                             </>
                         )}      
                     </Navbar.Text>

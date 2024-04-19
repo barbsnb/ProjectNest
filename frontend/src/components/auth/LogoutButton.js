@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import { Button } from 'react-bootstrap';
 import { AuthContext } from '../../contexts/AuthContext';
 import client from '../../axiosClient';
 import '../common/Navbar.css'
@@ -21,7 +20,7 @@ const LogoutButton = () => {
   };
 
   return (
-    <Button id="navbar_btn" onClick={handleLogout} variant="light">Wyloguj</Button>
+    <button className='navbar_btn' onClick={handleLogout} >Wyloguj</button>
   );
 };
 

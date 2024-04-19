@@ -50,7 +50,7 @@ const ScheduleAppointment = () => {
       user: currentUser.user.user_id
     })
     .then(response => {
-      const newVisit = response.data;
+      //const newVisit = response.data;
       // Dodaj nową wizytę do istniejącej listy wizyt w stanie
       // setUserVisits([...userVisits, newVisit]);
       setVisit(response.data) //to chyba zle
