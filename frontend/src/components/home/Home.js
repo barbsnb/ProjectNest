@@ -17,7 +17,7 @@ const Home = () => {
             {currentUser && currentUser.user && currentUser.user.first_name && (
               <div>
                 <div className='info_text_bold'>
-                  <h3>Witaj {currentUser.user.first_name}</h3>
+                  <h2><strong>Witaj {currentUser.user.first_name}!</strong></h2>
                 </div>
                 <div className='info_text'>
                   Akademik: {currentUser.user.dormitory}
@@ -35,9 +35,9 @@ const Home = () => {
         <Col>
             {userVisits && userVisits.length > 0 && (
               <div>
-                <h3>Twoje wizyty:</h3>
-                <Table striped bordered hover>
-                  <thead>
+                <h2><strong>Twoje wizyty:</strong></h2>
+                <Table striped hover className='custom-font-table'>
+                  <thead className='h5'>
                     <tr>
                       <th>#</th>
                       <th>Dzień rozpoczęcia wizyty</th>

@@ -1,7 +1,7 @@
 .App {
   text-align: center;
   background-color: #f0f0f0;
-  font-family: Arial, sans-serif;
+  font-family: adagio_slab, sans-serif;
 }
 
 .App-logo {
@@ -26,8 +26,9 @@ h1 {
 }
 
 h2 {
-  font-size: 15px; /* Wielkość czcionki */
+  font-size: 1.5rem; /* Wielkość czcionki */
   color: #333333; /* Kolor tekstu */
   font-family: adagio_slab;
+  font-weight: bold;
 }
 
