@@ -33,7 +33,7 @@ const CustomNavbar = () => {
 
     return (
         <>
-            <Navbar bg="dark" variant="dark">
+            <Navbar className='navbar'>
                 <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
                     <Navbar.Text>
                         {currentUser ? (

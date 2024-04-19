@@ -1,12 +1,16 @@
 import React, { useContext } from 'react';
 import { AuthContext } from '../../contexts/AuthContext';
 import { UserVisitsContext } from '../../contexts/UserVisitsContext';
-import { Row, Col, Container, Card } from 'react-bootstrap';
+import { Row, Col, Container, Card, Table } from 'react-bootstrap';
 import './Home.css';
 
 const Home = () => {
   const { currentUser } = useContext(AuthContext);
   const { userVisits } = useContext(UserVisitsContext);
+
+  const formatTime = (timeString) => {
+    return timeString.substr(0, 5); // Przycina string do formatu HH:mm
+  };
 
   return (
     <>
@@ -36,20 +40,31 @@ const Home = () => {
           {userVisits && userVisits.length > 0 && (
             <div>
               <Row className='mb-3'>
-                <h2 ><strong>Twoje wizyty:</strong></h2>
+                <h2><strong>Twoje wizyty:</strong></h2>
               </Row>
-              <Row >
+              <Row>
                 {userVisits.map((visit, index) => (
-                  <Col md={4} key={index} className="mb-4"> {/* Każda wizyta w osobnej kolumnie */}
+                  <Col md={3} key={index} className="mb-4"> {/* Każda wizyta w osobnej kolumnie */}
                     <Card className='card-hover'>
-                      <Card.Header>
+                      <Card.Header className='card_header'>
                         <strong>{visit.guest_first_name} {visit.guest_last_name}</strong> {/* Imię i nazwisko gościa na górze kafelka */}
                       </Card.Header>
                       <Card.Body>
-                        <Card.Title>
-                          Rozpoczęcie: {visit.start_date} - {visit.start_time}<br /><br />
-                          Zakończenie: {visit.end_date} - {visit.end_time}<br />
-                        </Card.Title> {/* Data rozpoczęcia i zakończenia wizyty */}
+                        {/* Użycie tabeli do prezentacji dat i godzin */}
+                        <Table borderless size="sm">
+                          <tbody>
+                            <tr>
+                              <td><strong>Rozpoczęcie:</strong></td>
+                              <td>{visit.start_date}</td>
+                              <td>{formatTime(visit.start_time)}</td>
+                            </tr>
+                            <tr>
+                              <td><strong>Zakończenie:</strong></td>
+                              <td>{visit.end_date}</td>
+                              <td>{formatTime(visit.end_time)}</td>
+                            </tr>
+                          </tbody>
+                        </Table>
                       </Card.Body>
                     </Card>
                   </Col>

@@ -46,3 +46,12 @@
 .card-hover:hover {
   box-shadow: 0 0 10px rgba(0,0,0,0.5); /* Dodaj cień wokół karty */
 }
+
+.card_header {
+  background-color: rgb(61, 61, 77) !important;
+  color: white !important;
+  font-weight: lighter;
+  font-family: adagio_slab;
+  font-size: 1.5rem;
+  text-align: center;
+}

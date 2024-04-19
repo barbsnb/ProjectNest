@@ -15,8 +15,7 @@
     padding: 0;
     border-radius: 0;
     border: 0 solid transparent;
-    background-color: transparent;
-    background-color: #3d3d4d; 
+    background-color: rgb(50, 50, 64); 
   }
 
   .navbar-brand {
