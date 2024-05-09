@@ -69,14 +69,23 @@ class AppUserManager(BaseUserManager):
         if not room_number:
             raise ValueError('A room number is required.')
         email = self.normalize_email(email)
-        user = self.model(email=email, username=username, first_name=first_name, last_name=last_name, phone_number=phone_number, dormitory=dormitory, room_number=room_number)
+        user = self.model(email=email, 
+                          username=username, 
+                          first_name=first_name, 
+                          last_name=last_name, 
+                          phone_number=phone_number, 
+                          dormitory=dormitory, 
+                          room_number=room_number)
         user.set_password(password)
         user.save()
         return user
     
-    def create_superuser(self, email, username, first_name, last_name, phone_number, dormitory, room_number, password=None):
+    def create_superuser(self, email, username, first_name, last_name, phone_number, dormitory, room_number, password=None, is_receptionist = False):
         user = self.create_user(email,username, first_name, last_name, phone_number, dormitory, room_number, password)
         user.is_superuser = True
+        #types of superusers:
+        user.is_receptionist = is_receptionist
+        user.is_community_member = not is_receptionist  
         user.save()
         return user
 
@@ -89,6 +98,9 @@ class AppUser(AbstractBaseUser, PermissionsMixin):
     phone_number = models.CharField(max_length=15)
     dormitory = models.CharField(max_length=100)
     room_number = models.CharField(max_length=50)
+    # flags for admin type:
+    is_receptionist = models.BooleanField(default=False)
+    is_community_member = models.BooleanField(default=False)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'phone_number', 'dormitory', 'room_number']
     objects = AppUserManager()
