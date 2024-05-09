@@ -27,27 +27,32 @@ const ScheduleAppointment = () => {
   const handleSubmit = (event) => {
     event.preventDefault();  // Prevent the form from being submitted in the traditional way
     console.log("Inside handle sumbit")
+    console.log(currentUser.user.dormitory)
     // Posting data to the server
-    console.log({start_date, 
-      start_time, 
+    console.log({
+      start_date,
+      start_time,
       end_date,
-      end_time, 
-      guest_first_name, 
+      end_time,
+      guest_first_name,
       guest_last_name,
-      guest_phone_nr, 
-      guest_email, 
-      user_id: currentUser.user.user_id})
+      guest_phone_nr,
+      guest_email,
+      user_id: currentUser.user.user_id,
+      dormitory: currentUser.user.dormitory
+    });
 
     client.post('/api/schedule', {
-      start_date, 
-      start_time, 
+      start_date,
+      start_time,
       end_date,
-      end_time, 
-      guest_first_name, 
+      end_time,
+      guest_first_name,
       guest_last_name,
-      guest_phone_nr, 
-      guest_email, 
-      user: currentUser.user.user_id
+      guest_phone_nr,
+      guest_email,
+      user: currentUser.user.user_id,
+      dormitory: currentUser.user.dormitory
     })
     .then(response => {
       //const newVisit = response.data;

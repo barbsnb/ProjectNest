@@ -65,19 +65,15 @@ class UserVisit(APIView):
     authentication_classes = ()
     
     def post(self, request):
-        logger.info(f"Received POST request: {request.data}")
-        
         serializer = UserVisitSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             logger.info("Data saved successfully")
-            
-            serializer.data.dormitory = request.data.user.dormitory #nie wiem czy ok - nadanie kolumnie dormitory tej samej wartosci co użytkownik zalogowany
-            
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             logger.error(f"Data validation error: {serializer.errors}")
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
         
 class VisitListView(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated,)

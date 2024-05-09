@@ -120,7 +120,7 @@ class Visit(models.Model):
     guest_email = models.EmailField(max_length=50, blank=False)
     # Pole klucza obcego do użytkownika
     user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
-    dormitory = models.CharField(max_length=100)
+    dormitory = models.CharField(max_length=100, default='')
         
         
         
