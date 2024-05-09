@@ -1,7 +1,9 @@
 // src/contexts/AuthContext.js
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import client from '../axiosClient';
 import { useNavigate } from 'react-router-dom';
+import { UserVisitsContext } from './UserVisitsContext';
+import { AllVisitsContext } from './AllVisitsContext';
 
 
 export const AuthContext = createContext(null);
@@ -9,14 +11,25 @@ export const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
     const [currentUser, setCurrentUser] = useState(null);
     const [getCurrentUser, setGetCurrentUser] = useState(false);
+    const [getAllVisits, setGetAllVisits] = useState(false);
+    // const { setGetAllVisits } = useContext(AllVisitsContext)
+    const [getUserVisits, setGetUserVisits] = useState(false);
+    // const { setGetUserVisits } = useContext(UserVisitsContext)
+
     const navigate = useNavigate();
 
     useEffect(() => {
         client.get("/api/user")
         .then(res => {
             setCurrentUser(res.data);
-            navigate('/home');  
-            setGetCurrentUser(false);
+            if (res.data.user.is_receptionist) {
+                navigate('/visit_list'); // Przekieruj na stronę Visit List jeśli użytkownik jest recepcjonistką
+                setGetCurrentUser(false);
+            } else {
+                navigate('/home'); // W przeciwnym razie przekieruj na stronę Home
+                setGetCurrentUser(false);
+            }
+            
         })
         .catch(() => {
             setCurrentUser(null);
@@ -25,7 +38,7 @@ export const AuthProvider = ({ children }) => {
     }, [getCurrentUser]);
 
     return (
-        <AuthContext.Provider value={{ currentUser, setCurrentUser, getCurrentUser, setGetCurrentUser}}>
+        <AuthContext.Provider value={{ currentUser, setCurrentUser, getCurrentUser, setGetCurrentUser, getAllVisits, setGetAllVisits, getUserVisits, setGetUserVisits}}>
             {children}
         </AuthContext.Provider>
     );

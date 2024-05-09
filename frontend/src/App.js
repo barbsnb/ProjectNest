@@ -1,29 +1,38 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+//providers:
 import { AuthProvider } from './contexts/AuthContext';
 import { UserVisitsProvider } from './contexts/UserVisitsContext';
+import { AllVisitsProvider } from './contexts/AllVisitsContext';
+
+//routes:
 import LoginForm from './components/auth/LoginForm';
 import RegistrationForm from './components/auth/RegistrationForm';
 import Home from './components/home/Home';
 import Info from './components/home/Info';
 import CustomNavbar from './components/common/Navbar';
-import ScheduleAppointment from './components/ScheduleAppointment';
+import ScheduleAppointment from './components/tabs/ScheduleAppointment';
+import AllVisitsList from './components/tabs/AllVisitsList';
 
 
 function App() {
   return (
     <Router>
       <AuthProvider>
-        <UserVisitsProvider>
-        <CustomNavbar />
-        <Routes>
-          <Route path="/" element={<Info/>} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/login" element={<LoginForm />} />
-          <Route path="/register" element={<RegistrationForm />} />
-          <Route path="/schedule" element={<ScheduleAppointment />} />
-        </Routes>
-        </UserVisitsProvider>
+        <AllVisitsProvider>
+          <UserVisitsProvider>
+            <CustomNavbar />
+              <Routes>
+                <Route path="/" element={<Info/>} />
+                <Route path="/home" element={<Home />} />
+                <Route path="/login" element={<LoginForm />} />
+                <Route path="/register" element={<RegistrationForm />} />
+                <Route path="/schedule" element={<ScheduleAppointment />} />
+                <Route path="/visit_list" element={<AllVisitsList/>} />
+              </Routes>
+            </UserVisitsProvider>
+          </AllVisitsProvider>
       </AuthProvider>
     </Router>
   );

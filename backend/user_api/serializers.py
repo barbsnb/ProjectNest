@@ -50,7 +50,11 @@ class UserSerializer(serializers.ModelSerializer):
 			'last_name', 
 			'phone_number', 
 			'dormitory', 
-			'room_number')
+			'room_number',
+   			'is_receptionist',
+   			'is_community_member'
+   			)
+    
   
 class UserVisitSerializer(serializers.ModelSerializer):
     class Meta:

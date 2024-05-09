@@ -3,6 +3,8 @@ import { Form, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../contexts/AuthContext';
 import { UserVisitsContext } from '../../contexts/UserVisitsContext';
+import { AllVisitsContext } from '../../contexts/AllVisitsContext';
+
 import client from '../../axiosClient';
 import './LoginForm.css'
 
@@ -12,6 +14,7 @@ const LoginForm = () => {
   const [password, setPassword] = useState('');
   // const navigate = useNavigate();  // Initialize navigate function
   const { setGetUserVisits } = useContext(UserVisitsContext)
+  const { setGetAllVisits } = useContext(AllVisitsContext)
 
   function submitLogin(e) {
     e.preventDefault();
@@ -19,6 +22,7 @@ const LoginForm = () => {
       .then(res => {
         setGetCurrentUser(true)
         setGetUserVisits(true)
+        setGetAllVisits(true)
       })
       .catch(err => {
         console.error("Login failed: ", err);

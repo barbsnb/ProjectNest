@@ -1,0 +1,30 @@
+.visits-table {
+    border-collapse: collapse;
+}
+
+.visits-table th, .visits-table td {
+    border: 1px solid #ddd; /* Dodaje obramowanie dla każdej komórki */
+    padding: 8px; /* Dodaje wypełnienie wewnątrz komórek */
+    text-align: left; /* Wyrównuje tekst do lewej */
+}
+
+.visits-table th {
+    background-color: rgb(50, 50, 64);   /* Dodaje kolor tła dla nagłówków */
+    color: #fff;
+    font-family: adagio_slab;
+}
+
+#filter_btn {
+    margin-top: 10px;
+    margin-bottom: 15px;
+    margin-left: 10px;
+    font-size: 20px;
+    background-color: rgb(50, 50, 64); 
+    color: #fff; /* Biały napis */
+    border: none;
+    font-family: adagio_slab;
+}
+
+#filter_btn:hover {
+    background-color: #555; /* Ciemniejsze tło po najechaniu */
+}

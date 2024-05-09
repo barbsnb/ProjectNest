@@ -27,15 +27,3 @@ export const UserVisitsProvider = ({ children }) => {
   );
 };
 
-//   useEffect(() => {
-//     const fetchUserVisits = async () => {
-//       try {
-//         const response = await axios.get('/api/visit_list');
-//         setUserVisits(response.data);
-//       } catch (error) {
-//         console.error('Failed to fetch user visits:', error);
-//       }
-//     };
-
-//     fetchUserVisits();
-//   }, []);

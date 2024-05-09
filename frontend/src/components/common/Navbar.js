@@ -31,6 +31,20 @@ const CustomNavbar = () => {
         navigate('/register');
     };
 
+    const goToAppointmentExtentionPage = () => {
+        navigate('/home'); //do poprawy - powinno przechodzic do innej strony
+    };
+
+    const goToAllAppointmentsPage = () => {
+        navigate('/visit_list'); 
+    };
+
+    const goToAppointmentRequestPage = () => {
+        navigate('/home'); //do poprawy - powinno przechodzic do innej strony
+    };
+     
+    console.log(currentUser)
+
     return (
         <>
             <Navbar className='navbar'>
@@ -39,8 +53,33 @@ const CustomNavbar = () => {
                         {currentUser ? (
                             <>
                                 <LogoutButton />
-                                <button onClick={goToAppointmentPage} className="mx-2 navbar_btn">Umów wizytę</button>
-                                <button onClick={goToHomePage} className="mx-2 navbar_btn">Strona główna</button>
+                                {/* Warunek dla zalogowanego użytkownika */}
+                                {currentUser.user.is_receptionist === false && currentUser.user.is_community_member === false && (
+                                <>
+                                    <button onClick={goToAppointmentPage} className="mx-2 navbar_btn">Umów wizytę</button>
+                                    <button onClick={goToHomePage} className="mx-2 navbar_btn">Strona główna</button>
+                                    <button onClick={goToAppointmentExtentionPage} className="mx-2 navbar_btn">Przedłużanie wizyty</button>
+                                </>
+                                )}
+
+                                {/* Warunek dla recepcjonisty */}
+                                {currentUser.user.is_receptionist === true && (
+                                    <>
+                                        <button onClick={goToAllAppointmentsPage} className="mx-2 navbar_btn">Strona główna</button>
+                                    </>
+                                )}
+
+                                {/* Warunek dla członka społeczności */}
+                                {currentUser.user.is_community_member === true && (
+                                    <>
+                                        <button onClick={goToAppointmentPage} className="mx-2 navbar_btn">Umów wizytę</button>
+                                        <button onClick={goToHomePage} className="mx-2 navbar_btn">Strona główna</button>
+                                        <button onClick={goToAppointmentExtentionPage} className="mx-2 navbar_btn">Przedłużenie wizyty</button>
+                                        <button onClick={goToAppointmentRequestPage} className="mx-2 navbar_btn">Wnioski</button>
+                                        <button onClick={goToAllAppointmentsPage} className="mx-2 navbar_btn">Lista wszystkich wizyt</button>
+                                    </>
+                                )}
+
                             </>
                         ) : (
                             <>

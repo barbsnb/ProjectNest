@@ -1,11 +1,11 @@
 import React, { useContext, useState } from 'react';
 import { Form, Button } from 'react-bootstrap';
-import { AuthContext } from '../contexts/AuthContext';
-import client from '../axiosClient';  // Ensure you have the axiosClient setup correctly to handle requests
+import { AuthContext } from '../../contexts/AuthContext';
+import client from '../../axiosClient';  // Ensure you have the axiosClient setup correctly to handle requests
 import './ScheduleForm.css'
 import { Row, Col } from 'react-bootstrap';
 
-import { UserVisitsContext } from '../contexts/UserVisitsContext';
+import { UserVisitsContext } from '../../contexts/UserVisitsContext';
 
 const ScheduleAppointment = () => {
   // to do zmiany na pewno bo trzeba zeby ustawial globalnie i dodawal do bazy
