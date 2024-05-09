@@ -69,5 +69,6 @@ class UserVisitSerializer(serializers.ModelSerializer):
             'guest_last_name', 
             'guest_phone_nr', 
             'guest_email',
-            'user'
+            'user',
+            'dormitory'
             )

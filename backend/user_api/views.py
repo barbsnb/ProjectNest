@@ -72,6 +72,8 @@ class UserVisit(APIView):
             serializer.save()
             logger.info("Data saved successfully")
             
+            serializer.data.dormitory = request.data.user.dormitory #nie wiem czy ok - nadanie kolumnie dormitory tej samej wartosci co użytkownik zalogowany
+            
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             logger.error(f"Data validation error: {serializer.errors}")
@@ -99,9 +101,12 @@ class AllVisitListView(APIView):
     def get(self, request):
         try:
             if request.user.is_authenticated:
-                visits = Visit.objects.all()
-                serializer = UserVisitSerializer(visits, many=True)
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                if request.user.is_receptionist:
+                    print("sdasd")
+                    print(request.user.dormitory)
+                    visits = Visit.objects.filter(dormitory=request.user.dormitory)
+                    serializer = UserVisitSerializer(visits, many=True)
+                    return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
