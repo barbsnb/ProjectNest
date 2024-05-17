@@ -1,7 +1,7 @@
 # do przekształcania danych modeli django na forme przesylana przez siec 
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
-from .models import Visit
+from .models import Visit, AppUser
 
 #konteneryzacja danych do formatu json
 
@@ -57,6 +57,8 @@ class UserSerializer(serializers.ModelSerializer):
     
   
 class UserVisitSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    
     class Meta:
         model = Visit
         fields = (

@@ -6,7 +6,7 @@ from rest_framework import generics
 from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer
 from rest_framework import permissions, status
 from .validations import custom_validation, validate_email, validate_password
-from .models import Visit
+from .models import Visit, AppUser
 from .serializers import UserVisitSerializer
 import logging
 
