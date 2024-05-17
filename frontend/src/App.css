@@ -1,0 +1,34 @@
+.App {
+  text-align: center;
+  background-color: #f0f0f0;
+  font-family: adagio_slab, sans-serif;
+}
+
+.App-logo {
+  height: 50vmin;
+  background-color: transparent;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+p {
+  font-size: 17px; /* Wielkość czcionki */
+  color: #333333; /* Kolor tekstu */
+  font-family: adagio_slab;
+}
+
+h1 {
+  font-size: 20px; /* Wielkość czcionki */
+  color: #333333; /* Kolor tekstu */
+  font-family: adagio_slab;
+  font-weight: bold;
+}
+
+h2 {
+  font-size: 1.5rem; /* Wielkość czcionki */
+  color: #333333; /* Kolor tekstu */
+  font-family: adagio_slab;
+  font-weight: bold;
+}
+

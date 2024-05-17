@@ -1,7 +1,7 @@
 # do przekształcania danych modeli django na forme przesylana przez siec 
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
-from .models import Visit
+from .models import Visit, AppUser
 
 #konteneryzacja danych do formatu json
 
@@ -10,10 +10,18 @@ UserModel = get_user_model()
 class UserRegisterSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = UserModel
-		fields = '__all__'
-	def create(self, clean_data):
-		user_obj = UserModel.objects.create_user(email=clean_data['email'], password=clean_data['password'])
-		user_obj.username = clean_data['username']
+		fields = fields = ['email', 'password', 'username', 'first_name', 'last_name', 'phone_number', 'dormitory', 'room_number']
+	def create(self, validated_data):
+		user_obj = UserModel.objects.create_user(
+            email=validated_data['email'],
+            password=validated_data['password'],
+            username=validated_data['username'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            phone_number=validated_data['phone_number'],
+            dormitory=validated_data['dormitory'],
+            room_number=validated_data['room_number']
+        )
 		user_obj.save()
 		return user_obj
 
@@ -22,7 +30,11 @@ class UserLoginSerializer(serializers.Serializer):
 	password = serializers.CharField()
 	##
 	def check_user(self, clean_data):
-		user = authenticate(username=clean_data['email'], password=clean_data['password'])
+		user = authenticate(
+      	username=clean_data['email'], 
+       	password=clean_data['password']
+        
+        )
 		if not user:
 			raise ValueError('user not found')
 		return user
@@ -30,9 +42,35 @@ class UserLoginSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = UserModel
-		fields = ('email', 'username')
+		fields = (
+			'user_id',
+      		'email', 
+        	'username', 
+			'first_name', 
+			'last_name', 
+			'phone_number', 
+			'dormitory', 
+			'room_number',
+   			'is_receptionist',
+   			'is_community_member'
+   			)
+    
   
-class VisitSerializer(serializers.ModelSerializer):
+class UserVisitSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    
     class Meta:
         model = Visit
-        fields = '__all__'
+        fields = (
+            # 'visit_id',
+            'start_date', 
+            'start_time', 
+            'end_date', 
+            'end_time', 
+            'guest_first_name', 
+            'guest_last_name', 
+            'guest_phone_nr', 
+            'guest_email',
+            'user',
+            'dormitory'
+            )
