@@ -39,6 +39,7 @@ class Guest(models.Model):
 class Visit(models.Model):
     resident = models.ForeignKey(Resident, on_delete=models.CASCADE, related_name='visits')
     guest = models.ForeignKey(Guest, on_delete=models.CASCADE, related_name='visits')
+    # polaczenie z modelem wniosku
     start_time = models.DateTimeField()
     end_time = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=50, default='scheduled')  # Possible values like 'scheduled', 'ongoing', 'completed'
@@ -50,6 +51,8 @@ class Visit(models.Model):
             raise ValueError("Nie można przedłużyć wizyty dłużej niż 3 dni")
     def __str__(self):
         return f"Visit of {self.guest.last_name} at {self.resident.last_name} from {self.start_time.strftime('%Y-%m-%d %H:%M')}"
+    
+### dodac model wniosku
 
 
 class AppUserManager(BaseUserManager):

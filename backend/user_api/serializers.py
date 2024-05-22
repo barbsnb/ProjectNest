@@ -57,7 +57,6 @@ class UserSerializer(serializers.ModelSerializer):
     
   
 class UserVisitSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
     
     class Meta:
         model = Visit

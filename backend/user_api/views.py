@@ -12,6 +12,7 @@ import logging
 
 # Inicjalizacja loggera
 logger = logging.getLogger(__name__)
+User = get_user_model()
 
 class UserRegister(APIView):
 	permission_classes = (permissions.AllowAny,)
@@ -106,6 +107,12 @@ class AllVisitListView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+class UserDetailView(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    
 # class VisitListView(generics.ListCreateAPIView):
 #     permission_classes = (permissions.IsAuthenticated,)
 #     authentication_classes = (SessionAuthentication,)
