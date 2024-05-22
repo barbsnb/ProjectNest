@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useContext } from "react";
 import { AllVisitsContext } from "../../contexts/AllVisitsContext";
 import { AuthContext } from "../../contexts/AuthContext";
+import UserFetcher from "../tabs/UserFetcher"; // Zaimportuj nowy komponent
 import "./AllVisitsList.css";
+import client from "../../axiosClient";
 
 const AllVisitsList = () => {
    const { AllVisits } = useContext(AllVisitsContext);
    const { currentUser } = useContext(AuthContext);
-   const [filteredVisits, setFilteredVisits] = useState(AllVisits);
+   const [visitsWithUserData, setVisitsWithUserData] = useState([]);
+   const [filteredVisits, setFilteredVisits] = useState([]);
    const [searchFilter, setSearchFilter] = useState("");
    const [filterType, setFilterType] = useState("guest");
    const [startDateFilter, setStartDateFilter] = useState("");
@@ -15,7 +18,23 @@ const AllVisitsList = () => {
    const [endTimeFilter, setEndTimeFilter] = useState("");
 
    useEffect(() => {
-      const filtered = AllVisits.filter((visit) => {
+      const fetchUserData = async (visits) => {
+         const visitsWithUserData = await Promise.all(
+            visits.map(async (visit) => {
+               const userResponse = await client.get(`/api/user/${visit.user}`);
+               return { ...visit, user: userResponse.data };
+            })
+         );
+         setVisitsWithUserData(visitsWithUserData);
+      };
+
+      if (AllVisits.length > 0) {
+         fetchUserData(AllVisits);
+      }
+   }, [AllVisits]);
+
+   useEffect(() => {
+      const filtered = visitsWithUserData.filter((visit) => {
          const fullNameGuest =
             visit.guest_first_name + " " + visit.guest_last_name;
          const fullNameHost =
@@ -70,7 +89,7 @@ const AllVisitsList = () => {
 
       setFilteredVisits(filtered);
    }, [
-      AllVisits,
+      visitsWithUserData,
       searchFilter,
       filterType,
       startDateFilter,
@@ -97,8 +116,6 @@ const AllVisitsList = () => {
    };
 
    const getStatus = (startDate, startTime, endDate, endTime) => {
-      // Do zmiany jak będzie flaga czy gość rozpoczął wizytę, czy nie, teraz bazuje na datach
-
       const now = new Date();
       const startDateTime = new Date(`${startDate}T${startTime}`);
       const endDateTime = new Date(`${endDate}T${endTime}`);
