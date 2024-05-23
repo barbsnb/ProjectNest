@@ -15,8 +15,6 @@ const RegistrationForm = () => {
   const [phone_number, setPhoneNumber] = useState('');
   const [dormitory, setDormitory] = useState('');
   const [room_number, setRoomNumber] = useState('');
-  const [visitStart, setVisitStart] = useState('');
-  const [visitEnd, setVisitEnd] = useState('');
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState('');
 
@@ -35,7 +33,6 @@ const RegistrationForm = () => {
 
   const validate = () => {
     const errors = {};
-    const now = new Date();
 
     // Walidacja email
     if (!email) {
@@ -80,33 +77,6 @@ const RegistrationForm = () => {
     if (!username) errors.username = 'Nazwa użytkownika jest wymagana';
     if (!dormitory) errors.dormitory = 'Akademik jest wymagany';
     if (!room_number) errors.room_number = 'Numer pokoju jest wymagany';
-
-    // Walidacja daty wizyty
-    if (!visitStart) {
-      errors.visitStart = 'Początek wizyty jest wymagany';
-    }
-    if (!visitEnd) {
-      errors.visitEnd = 'Koniec wizyty jest wymagany';
-    }
-
-    if (visitStart && visitEnd) {
-      const start = new Date(visitStart);
-      const end = new Date(visitEnd);
-
-      if (start < now) {
-        errors.visitStart = 'Początek wizyty nie może być przed bieżącą datą';
-      }
-
-      if (start >= end) {
-        errors.visitEnd = 'Data zakończenia wizyty musi być po dacie początku wizyty';
-      }
-
-      const endOfDay = new Date(start);
-      endOfDay.setHours(23, 0, 0, 0);
-      if (end > endOfDay) {
-        errors.visitEnd = 'Koniec wizyty nie może przekraczać 23:00 danego dnia';
-      }
-    }
 
     setErrors(errors);
     return Object.keys(errors).length === 0;
@@ -264,30 +234,6 @@ const RegistrationForm = () => {
               />
               <Form.Control.Feedback type="invalid">
                 {errors.room_number}
-              </Form.Control.Feedback>
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="formVisitStart">
-              <Form.Label>Początek wizyty</Form.Label>
-              <Form.Control 
-                type="datetime-local" 
-                value={visitStart} 
-                onChange={e => setVisitStart(e.target.value)} 
-                isInvalid={!!errors.visitStart}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.visitStart}
-              </Form.Control.Feedback>
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="formVisitEnd">
-              <Form.Label>Koniec wizyty</Form.Label>
-              <Form.Control 
-                type="datetime-local" 
-                value={visitEnd} 
-                onChange={e => setVisitEnd(e.target.value)} 
-                isInvalid={!!errors.visitEnd}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.visitEnd}
               </Form.Control.Feedback>
             </Form.Group>
             <Button id="form_btn" variant="primary" type="submit">
