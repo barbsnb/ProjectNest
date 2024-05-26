@@ -6,14 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('user_api', '0004_administrator_guest_resident_and_more'),
+        ("user_api", "0004_administrator_guest_resident_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='visit',
-            name='dormitory',
-            field=models.CharField(default='akademik', max_length=100),
+            model_name="visit",
+            name="dormitory",
+            field=models.CharField(default="akademik", max_length=100),
             preserve_default=False,
         ),
     ]
