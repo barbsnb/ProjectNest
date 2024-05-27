@@ -6,7 +6,7 @@ export const UserVisitsContext = createContext(null);
 
 export const UserVisitsProvider = ({ children }) => {
   const [userVisits, setUserVisits] = useState([]);
-    const [getUserVisits, setGetUserVisits] = useState(true);
+  const [getUserVisits, setGetUserVisits] = useState(false);
 
     useEffect(() => {
         if (getUserVisits) {
