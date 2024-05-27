@@ -107,18 +107,20 @@ class AllVisitListView(APIView):
     authentication_classes = (SessionAuthentication,)
 
     def get(self, request):
-        try:
-            if request.user.is_authenticated:
-                if request.user.is_receptionist:
-                    print("sdasd")
-                    print(request.user.dormitory)
-                    visits = Visit.objects.filter(dormitory=request.user.dormitory)
-                    serializer = UserVisitSerializer(visits, many=True)
-                    return Response(serializer.data, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response(
-                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+            try:
+                if not request.user.is_authenticated:
+                    return Response({"error": "User not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
+                
+                if not request.user.is_receptionist:
+                    return Response({"error": "User is not a receptionist"}, status=status.HTTP_403_FORBIDDEN)
+                
+                visits = Visit.objects.filter(dormitory=request.user.dormitory)
+                serializer = UserVisitSerializer(visits, many=True)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            
+            except Exception as e:
+                logger.error(f"Error fetching visit list: {e}")
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class RequestVisitExtension(APIView):
