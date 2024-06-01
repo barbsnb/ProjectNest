@@ -19,13 +19,13 @@
 
 #filter_btn {
    margin-top: 10px;
-   margin-bottom: 10px;
    padding: 2px 10px;
    font-size: 20px;
    background-color: rgb(50, 50, 64);
    color: #fff; /* Biały napis */
    border: none;
    font-family: adagio_slab;
+   border-radius: 5px;
 }
 
 #filter_btn:hover {
@@ -60,4 +60,8 @@
    display: flex;
    gap: 5px; /* Odstęp między przyciskami */
    justify-content: center; /* Wyrównanie przycisków do lewej */
+}
+
+.sort {
+   max-width: 200px;
 }
