@@ -14,6 +14,7 @@ import Info from './components/home/Info';
 import CustomNavbar from './components/common/Navbar';
 import ScheduleAppointment from './components/tabs/ScheduleAppointment';
 import AllVisitsList from './components/tabs/AllVisitsList';
+import AppointmentExtension from './components/tabs/AppointmentExtention';
 
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
                 <Route path="/register" element={<RegistrationForm />} />
                 <Route path="/schedule" element={<ScheduleAppointment />} />
                 <Route path="/visit_list" element={<AllVisitsList/>} />
+                <Route path="/visit_extension" element={<AppointmentExtension/>} />
               </Routes>
             </UserVisitsProvider>
           </AllVisitsProvider>

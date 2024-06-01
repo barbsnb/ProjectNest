@@ -1,3 +1,28 @@
+/* Stylizacja przycisku */
+.btn-custom {
+  background-color: rgb(61, 61, 77) !important; /* Zmień kolor tła na zielony (możesz dostosować kolor według potrzeb) */
+  color: white; /* Zmień kolor tekstu na biały */
+  border: none; /* Usuń obramowanie */
+  padding: 10px 20px; /* Dodaj wewnętrzne wypełnienie */
+  font-size: 16px; /* Zmień rozmiar czcionki */
+  cursor: pointer; /* Zmień kursor na wskaźnik */
+  text-align: center; /* Wyśrodkuj tekst */
+  display: inline-block; /* Ustaw wyświetlanie inline-block */
+  margin: 0 auto; /* Wyśrodkuj przycisk */
+  display: block; /* Zmień wyświetlanie na block, aby działało auto margin */
+}
+
+.btn-custom:hover {
+  background-color: #45a049; /* Zmień kolor tła na ciemniejszy zielony podczas najechania */
+}
+
+/* Kontener przycisku wyśrodkowany */
+.button-container {
+  text-align: center; /* Wyśrodkuj przycisk w kontenerze */
+  margin-top: 10px; /* Dodaj odstęp od góry */
+}
+
+/* Stylizacja innych elementów */
 #user_data_container {
   margin: 0 auto; /* Wyśrodkowuje kontener formularza na stronie */
   display: flex; /* Ustawia kontener formularza jako kontener flexbox */

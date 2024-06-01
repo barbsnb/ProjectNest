@@ -31,3 +31,33 @@
 #filter_btn:hover {
    background-color: #555; /* Ciemniejsze tło po najechaniu */
 }
+.button {
+   padding: 10px 15px;
+   font-size: 14px;
+   color: white;
+   border: none;
+   border-radius: 5px;
+   cursor: pointer;
+   margin-right: 5px;
+}
+
+.button-approve {
+   background-color: #28a745;
+}
+
+.button-reject {
+   background-color: #dc3545;
+}
+
+.button:hover {
+   opacity: 0.8;
+}
+
+.button:focus {
+   outline: none;
+}
+.button-container {
+   display: flex;
+   gap: 5px; /* Odstęp między przyciskami */
+   justify-content: center; /* Wyrównanie przycisków do lewej */
+}

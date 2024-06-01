@@ -16,22 +16,50 @@ const AllVisitsList = () => {
    const [startTimeFilter, setStartTimeFilter] = useState("");
    const [endDateFilter, setEndDateFilter] = useState("");
    const [endTimeFilter, setEndTimeFilter] = useState("");
-
-   useEffect(() => {
-      const fetchUserData = async (visits) => {
-         const visitsWithUserData = await Promise.all(
-            visits.map(async (visit) => {
-               const userResponse = await client.get(`/api/user/${visit.user}`);
-               return { ...visit, user: userResponse.data };
-            })
-         );
-         setVisitsWithUserData(visitsWithUserData);
-      };
-
-      if (AllVisits.length > 0) {
-         fetchUserData(AllVisits);
+   const handleActionClick = async (extensionId, action) => {
+      try {
+          const response = await client.put(`/api/approve_reject_extension/${extensionId}/${action}`);
+          console.log(response.data);
+          setVisitsWithUserData((prevVisits) =>
+              prevVisits.map((visit) =>
+                  visit.extensionId === extensionId
+                      ? { ...visit, extensionStatus: action === 'approve' ? 'Approved' : 'Rejected' }
+                      : visit
+              )
+          );
+      } catch (error) {
+          console.error("Error updating extension status:", error);
       }
-   }, [AllVisits]);
+  };
+  useEffect(() => {
+   const fetchUserData = async (visits) => {
+       const visitsWithUserData = await Promise.all(
+           visits.map(async (visit) => {
+               const userResponse = await client.get(`/api/user/${visit.user}`);
+               let extensionStatus = "Brak";
+               let extensionId = null;
+
+               try {
+                   const extensionResponse = await client.get(`/api/all_extension_request_list`);
+                   const extension = extensionResponse.data.find(ext => ext.visit === visit.id);
+                   if (extension) {
+                       extensionStatus = extension.status;
+                       extensionId = extension.id;
+                   }
+               } catch (error) {
+                   console.error("Error fetching extension status:", error);
+               }
+
+               return { ...visit, user: userResponse.data, extensionStatus, extensionId };
+           })
+       );
+       setVisitsWithUserData(visitsWithUserData);
+   };
+
+   if (AllVisits.length > 0) {
+       fetchUserData(AllVisits);
+   }
+}, [AllVisits]);
 
    useEffect(() => {
       const filtered = visitsWithUserData.filter((visit) => {
@@ -220,42 +248,48 @@ const AllVisitsList = () => {
          <div>
             <h1>Lista wizyt</h1>
             <table className="visits-table">
-               <thead>
-                  <tr>
-                     <th>Gość</th>
-                     <th>Data rozpoczęcia</th>
-                     <th>Godzina rozpoczęcia</th>
-                     <th>Data zakończenia</th>
-                     <th>Godzina zakończenia</th>
-                     <th>Host</th>
-                     <th>Status wizyty</th>
-                  </tr>
-               </thead>
-               <tbody>
-                  {filteredVisits.map((visit) => (
-                     <tr key={visit.id}>
-                        <td>
-                           {visit.guest_first_name} {visit.guest_last_name}
+   <thead>
+      <tr>
+         <th>Gość</th>
+         <th>Data rozpoczęcia</th>
+         <th>Godzina rozpoczęcia</th>
+         <th>Data zakończenia</th>
+         <th>Godzina zakończenia</th>
+         <th>Host</th>
+         <th>Status wizyty</th>
+         <th>Wniosek o przedłużenie</th>
+      </tr>
+   </thead>
+   <tbody>
+      {filteredVisits.map((visit) => (
+         <tr key={visit.id}>
+            <td>{visit.guest_first_name} {visit.guest_last_name}</td>
+            <td>{visit.start_date}</td>
+            <td>{visit.start_time}</td>
+            <td>{visit.end_date}</td>
+            <td>{visit.end_time}</td>
+            <td>{visit.user.first_name} {visit.user.last_name}</td>
+            <td>
+               {getStatus(
+                  visit.start_date,
+                  visit.start_time,
+                  visit.end_date,
+                  visit.end_time
+               )}
+            </td>
+            <td>{visit.extensionStatus}</td>
+            <td>
+                            {visit.extensionStatus === "Pending" && (
+                                <div className="button-container">
+                                <button className="button button-approve" onClick={() => handleActionClick(visit.extensionId, 'approve')}>Approve</button>
+                                <button className="button button-reject" onClick={() => handleActionClick(visit.extensionId, 'reject')}>Reject</button>
+                            </div>
+                            )}
                         </td>
-                        <td>{visit.start_date}</td>
-                        <td>{visit.start_time}</td>
-                        <td>{visit.end_date}</td>
-                        <td>{visit.end_time}</td>
-                        <td>
-                           {visit.user.first_name} {visit.user.last_name}
-                        </td>
-                        <td>
-                           {getStatus(
-                              visit.start_date,
-                              visit.start_time,
-                              visit.end_date,
-                              visit.end_time
-                           )}
-                        </td>
-                     </tr>
-                  ))}
-               </tbody>
-            </table>
+         </tr>
+      ))}
+   </tbody>
+</table>
          </div>
       </div>
    );
