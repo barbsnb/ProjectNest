@@ -39,6 +39,7 @@ class Guest(models.Model):
 class Visit(models.Model):
     resident = models.ForeignKey(Resident, on_delete=models.CASCADE, related_name='visits')
     guest = models.ForeignKey(Guest, on_delete=models.CASCADE, related_name='visits')
+    #wniosek
     start_time = models.DateTimeField()
     end_time = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=50, default='scheduled')  # Possible values like 'scheduled', 'ongoing', 'completed'
