@@ -8,14 +8,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('user_api', '0002_visit_appuser_dormitory_appuser_first_name_and_more'),
+        ("user_api", "0002_visit_appuser_dormitory_appuser_first_name_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='visit',
-            name='user',
-            field=models.ForeignKey(default='12', on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="visit",
+            name="user",
+            field=models.ForeignKey(
+                default="12",
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL,
+            ),
             preserve_default=False,
         ),
     ]
