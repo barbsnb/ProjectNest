@@ -25,6 +25,14 @@ urlpatterns = [
         views.ApproveRejectExtension.as_view(),
         name="approve_reject_extension",
     ),
-    path("change_status/<int:visit_id>/", views.ChangeStatus.as_view(), name="change_status"),
-    path("complete_visit/<int:visit_id>/", views.CompleteVisit.as_view(), name="complete_visit"),
+    path(
+        "change_status/<int:visit_id>/",
+        views.ChangeStatus.as_view(),
+        name="change_status",
+    ),
+    path(
+        "complete_visit/<int:visit_id>/",
+        views.CompleteVisit.as_view(),
+        name="complete_visit",
+    ),
 ]
