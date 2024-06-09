@@ -137,7 +137,7 @@ class ChangeStatus(APIView):
     def change_status(self, request, visit_id):
         try:
             visit = Visit.objects.get(id=visit_id)
-            visit.status = "inprogress"
+            visit.status = "Inprogress"
             visit.save()
             logger.info(f"Status for visit {visit_id} changed to inprogress")
 
@@ -199,7 +199,7 @@ class CompleteVisit(APIView):
     def complete_visit(self, request, visit_id):
         try:
             visit = Visit.objects.get(id=visit_id)
-            visit.status = "completed"
+            visit.status = "Completed"
             visit.save()
             logger.info(f"Status for visit {visit_id} changed to completed")
 
@@ -223,6 +223,61 @@ class CompleteVisit(APIView):
     def send_status_completed_email(self, guest_email, visit):
         subject = "Status Changed to Completed"
         message = f"Status for your visit {visit.id} has been changed to completed."
+        from_email = os.environ.get("EMAIL")
+        email_password = os.environ.get("EMAIL_PASSWORD")
+
+        try:
+            em = EmailMessage()
+            em["From"] = from_email
+            em["To"] = guest_email
+            em["Subject"] = subject
+            em.set_content(message)
+            context = ssl.create_default_context()
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
+                smtp.login(from_email, email_password)
+                smtp.sendmail(from_email, guest_email, em.as_string())
+            logger.info(f"Email sent successfully to {guest_email}")
+        except Exception as e:
+            logger.error(f"Error sending email to {guest_email}: {e}")
+            
+            
+class CancelVisit(APIView):
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
+
+    def get(self, request, visit_id):
+        return self.cancel_visit(request, visit_id)
+
+    def post(self, request, visit_id):
+        return self.cancel_visit(request, visit_id)
+
+    def cancel_visit(self, request, visit_id):
+        try:
+            visit = Visit.objects.get(id=visit_id)
+            visit.status = "Cancelled"
+            visit.save()
+            logger.info(f"Status for visit {visit_id} changed to cancelled")
+
+            # Sending email notification
+            guest_email = visit.guest_email
+            if guest_email:
+                self.send_status_cancelled_email(guest_email, visit)
+
+            return Response({"status": "cancelled"}, status=status.HTTP_200_OK)
+        except Visit.DoesNotExist:
+            logger.error(f"Visit with id {visit_id} does not exist")
+            return Response(
+                {"error": "Visit not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            logger.error(f"Error changing status for visit {visit_id}: {e}")
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def send_status_cancelled_email(self, guest_email, visit):
+        subject = "Status Changed to Cancelled"
+        message = f"Status for your visit {visit.id} has been changed to cancelled."
         from_email = os.environ.get("EMAIL")
         email_password = os.environ.get("EMAIL_PASSWORD")
 

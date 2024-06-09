@@ -35,4 +35,7 @@ urlpatterns = [
         views.CompleteVisit.as_view(),
         name="complete_visit",
     ),
+    path('cancel_visit/<int:visit_id>', 
+         views.CancelVisit.as_view(), 
+         name='cancel_visit'),
 ]
