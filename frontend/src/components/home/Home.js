@@ -126,6 +126,16 @@ const Home = () => {
                                              <tr>
                                                 <td>
                                                    <strong>
+                                                      Status Wizyty:
+                                                   </strong>
+                                                </td>
+                                                <td colSpan="2">
+                                                   {visit.status}
+                                                </td>
+                                             </tr>
+                                             <tr>
+                                                <td>
+                                                   <strong>
                                                       Status przedłużenia:
                                                    </strong>
                                                 </td>
