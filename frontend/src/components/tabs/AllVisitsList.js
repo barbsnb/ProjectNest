@@ -4,6 +4,10 @@ import { AuthContext } from "../../contexts/AuthContext";
 import UserFetcher from "../tabs/UserFetcher"; // Zaimportuj nowy komponent
 import "./AllVisitsList.css";
 import client from "../../axiosClient";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Form from "react-bootstrap/Form";
+import Button from "react-bootstrap/Button";
 
 const AllVisitsList = () => {
    const { AllVisits } = useContext(AllVisitsContext);
@@ -16,52 +20,81 @@ const AllVisitsList = () => {
    const [startTimeFilter, setStartTimeFilter] = useState("");
    const [endDateFilter, setEndDateFilter] = useState("");
    const [endTimeFilter, setEndTimeFilter] = useState("");
+   const [sortOrder, setSortOrder] = useState("newest"); // Domyślne sortowanie od najnowszych
+   const [visitStatusFilter, setVisitStatusFilter] = useState("all");
+   const [extensionStatusFilter, setExtensionStatusFilter] = useState("all");
+
    const handleActionClick = async (extensionId, action) => {
       try {
-          const response = await client.put(`/api/approve_reject_extension/${extensionId}/${action}`);
-          console.log(response.data);
-          setVisitsWithUserData((prevVisits) =>
-              prevVisits.map((visit) =>
-                  visit.extensionId === extensionId
-                      ? { ...visit, extensionStatus: action === 'approve' ? 'Approved' : 'Rejected' }
-                      : visit
-              )
-          );
+         const response = await client.put(
+            `/api/approve_reject_extension/${extensionId}/${action}`
+         );
+         console.log(response.data);
+         setVisitsWithUserData((prevVisits) =>
+            prevVisits.map((visit) =>
+               visit.extensionId === extensionId
+                  ? {
+                       ...visit,
+                       extensionStatus:
+                          action === "approve" ? "Approved" : "Rejected",
+                    }
+                  : visit
+            )
+         );
       } catch (error) {
-          console.error("Error updating extension status:", error);
+         console.error("Error updating extension status:", error);
       }
-  };
-  useEffect(() => {
-   const fetchUserData = async (visits) => {
-       const visitsWithUserData = await Promise.all(
-           visits.map(async (visit) => {
+   };
+
+   useEffect(() => {
+      const fetchUserData = async (visits) => {
+         const visitsWithUserData = await Promise.all(
+            visits.map(async (visit) => {
                const userResponse = await client.get(`/api/user/${visit.user}`);
                let extensionStatus = "Brak";
                let extensionId = null;
 
                try {
-                   const extensionResponse = await client.get(`/api/all_extension_request_list`);
-                   const extension = extensionResponse.data.find(ext => ext.visit === visit.id);
-                   if (extension) {
-                       extensionStatus = extension.status;
-                       extensionId = extension.id;
-                   }
+                  const extensionResponse = await client.get(
+                     `/api/all_extension_request_list`
+                  );
+                  const extension = extensionResponse.data.find(
+                     (ext) => ext.visit === visit.id
+                  );
+                  if (extension) {
+                     extensionStatus = extension.status;
+                     extensionId = extension.id;
+                  }
                } catch (error) {
-                   console.error("Error fetching extension status:", error);
+                  console.error("Error fetching extension status:", error);
                }
 
-               return { ...visit, user: userResponse.data, extensionStatus, extensionId };
-           })
-       );
-       setVisitsWithUserData(visitsWithUserData);
-   };
+               return {
+                  ...visit,
+                  user: userResponse.data,
+                  extensionStatus,
+                  extensionId,
+               };
+            })
+         );
 
-   if (AllVisits.length > 0) {
-       fetchUserData(AllVisits);
-   }
-}, [AllVisits]);
+         setVisitsWithUserData(visitsWithUserData);
+      };
+
+      if (AllVisits.length > 0) {
+         fetchUserData(AllVisits);
+      }
+   }, [AllVisits]);
 
    useEffect(() => {
+      const sortVisits = (visits, order) => {
+         return visits.sort((a, b) => {
+            const dateA = new Date(`${a.start_date}T${a.start_time}`);
+            const dateB = new Date(`${b.start_date}T${b.start_time}`);
+            return order === "newest" ? dateB - dateA : dateA - dateB;
+         });
+      };
+
       const filtered = visitsWithUserData.filter((visit) => {
          const fullNameGuest =
             visit.guest_first_name + " " + visit.guest_last_name;
@@ -112,10 +145,27 @@ const AllVisitsList = () => {
             matchesDateFilter = visitEnd <= filterEnd;
          }
 
-         return matchesSearchFilter && matchesDateFilter;
+         let matchesVisitStatusFilter =
+            visitStatusFilter === "all" ||
+            getStatus(
+               visit.start_date,
+               visit.start_time,
+               visit.end_date,
+               visit.end_time
+            ) === visitStatusFilter;
+         let matchesExtensionStatusFilter =
+            extensionStatusFilter === "all" ||
+            visit.extensionStatus === extensionStatusFilter;
+
+         return (
+            matchesSearchFilter &&
+            matchesDateFilter &&
+            matchesVisitStatusFilter &&
+            matchesExtensionStatusFilter
+         );
       });
 
-      setFilteredVisits(filtered);
+      setFilteredVisits(sortVisits(filtered, sortOrder));
    }, [
       visitsWithUserData,
       searchFilter,
@@ -124,6 +174,9 @@ const AllVisitsList = () => {
       startTimeFilter,
       endDateFilter,
       endTimeFilter,
+      sortOrder, // Dodano sortOrder jako zależność
+      visitStatusFilter,
+      extensionStatusFilter,
    ]);
 
    const handleFilterChange = (event) => {
@@ -141,6 +194,8 @@ const AllVisitsList = () => {
       setStartTimeFilter("");
       setEndDateFilter("");
       setEndTimeFilter("");
+      setVisitStatusFilter("all");
+      setExtensionStatusFilter("all");
    };
 
    const getStatus = (startDate, startTime, endDate, endTime) => {
@@ -157,139 +212,248 @@ const AllVisitsList = () => {
       }
    };
 
+   const handleSortOrderChange = (event) => {
+      setSortOrder(event.target.value);
+   };
+
+   const handleVisitStatusFilterChange = (event) => {
+      setVisitStatusFilter(event.target.value);
+   };
+
+   const handleExtensionStatusFilterChange = (event) => {
+      setExtensionStatusFilter(event.target.value);
+   };
+
    return (
       <div className="container mt-4">
          <h2>Filtruj wyniki</h2>
-         <h4>Według danych osoby</h4>
-         <form className="mb-4">
-            <div className="mb-3">
-               <label className="form-check-label me-2 fs-5">
-                  <input
+         <Form className="mb-4">
+            <Row className="mb-3">
+               <Col>
+                  <h4>Według danych osoby</h4>
+                  <Form.Check
                      type="radio"
+                     id="filterTypeGuest"
+                     label="Gość"
                      value="guest"
                      checked={filterType === "guest"}
                      onChange={handleFilterTypeChange}
-                     className="form-check-input"
+                     inline
                   />
-                  Gość
-               </label>
-
-               <label className="form-check-label fs-5">
-                  <input
+                  <Form.Check
                      type="radio"
+                     id="filterTypeHost"
+                     label="Host"
                      value="host"
                      checked={filterType === "host"}
                      onChange={handleFilterTypeChange}
-                     className="form-check-input"
+                     inline
                   />
-                  Host
-               </label>
-            </div>
-            <div className="mb-3">
-               <h6>
-                  Wpisz imię, nazwisko, telefon lub email wybranego użytkownika
-               </h6>
-               <input
-                  type="text"
-                  placeholder="imię/nazwisko/telefon/email"
-                  value={searchFilter}
-                  onChange={handleFilterChange}
-                  className="form-control"
-               />
-            </div>
-            <div className="mb-3">
-               <h4>Według daty i czasu wizyty</h4>
-               <div className="row">
-                  <div className="col">
-                     <label>Data rozpoczęcia:</label>
-                     <input
-                        type="date"
-                        value={startDateFilter}
-                        onChange={(e) => setStartDateFilter(e.target.value)}
-                        className="form-control"
-                     />
-                  </div>
-                  <div className="col">
-                     <label>Czas rozpoczęcia:</label>
-                     <input
-                        type="time"
-                        value={startTimeFilter}
-                        onChange={(e) => setStartTimeFilter(e.target.value)}
-                        className="form-control"
-                     />
-                  </div>
-               </div>
-               <div className="row mt-3">
-                  <div className="col">
-                     <label>Data zakończenia:</label>
-                     <input
-                        type="date"
-                        value={endDateFilter}
-                        onChange={(e) => setEndDateFilter(e.target.value)}
-                        className="form-control"
-                     />
-                  </div>
-                  <div className="col">
-                     <label>Czas zakończenia:</label>
-                     <input
-                        type="time"
-                        value={endTimeFilter}
-                        onChange={(e) => setEndTimeFilter(e.target.value)}
-                        className="form-control"
-                     />
-                  </div>
-               </div>
-            </div>
-            <button type="button" id="filter_btn" onClick={handleFilterReset}>
-               Resetuj filtrowanie
-            </button>
-         </form>
+               </Col>
+            </Row>
+            <Row className="mb-3">
+               <Col>
+                  <h6>
+                     Wpisz imię, nazwisko, telefon lub email wybranego
+                     użytkownika
+                  </h6>
+                  <Form.Control
+                     type="text"
+                     placeholder="imię/nazwisko/telefon/email"
+                     value={searchFilter}
+                     onChange={handleFilterChange}
+                  />
+               </Col>
+            </Row>
 
+            <Row className="mb-3">
+               <Col>
+                  <h4>Według danych wizyty</h4>
+                  <Form.Group as={Row} controlId="startDateFilter">
+                     <Form.Label column sm="2">
+                        Data rozpoczęcia:
+                     </Form.Label>
+                     <Col sm="4">
+                        <Form.Control
+                           type="date"
+                           value={startDateFilter}
+                           onChange={(e) => setStartDateFilter(e.target.value)}
+                           style={{ minHeight: "38px" }}
+                        />
+                     </Col>
+                     <Form.Label column sm="2">
+                        Czas rozpoczęcia:
+                     </Form.Label>
+                     <Col sm="4">
+                        <Form.Control
+                           type="time"
+                           value={startTimeFilter}
+                           onChange={(e) => setStartTimeFilter(e.target.value)}
+                           style={{ minHeight: "38px" }}
+                        />
+                     </Col>
+                  </Form.Group>
+               </Col>
+            </Row>
+            <Row className="mb-3">
+               <Col>
+                  <Form.Group as={Row} controlId="endDateFilter">
+                     <Form.Label column sm="2">
+                        Data zakończenia:
+                     </Form.Label>
+                     <Col sm="4">
+                        <Form.Control
+                           type="date"
+                           value={endDateFilter}
+                           onChange={(e) => setEndDateFilter(e.target.value)}
+                           style={{ minHeight: "38px" }}
+                        />
+                     </Col>
+                     <Form.Label column sm="2">
+                        Czas zakończenia:
+                     </Form.Label>
+                     <Col sm="4">
+                        <Form.Control
+                           type="time"
+                           value={endTimeFilter}
+                           onChange={(e) => setEndTimeFilter(e.target.value)}
+                           style={{ minHeight: "38px" }}
+                        />
+                     </Col>
+                  </Form.Group>
+               </Col>
+            </Row>
+            <Row className="mb-3">
+               <Col>
+                  <Form.Group controlId="visitStatusFilter">
+                     <Form.Label>Status wizyty:</Form.Label>
+                     <Form.Control
+                        as="select"
+                        value={visitStatusFilter}
+                        onChange={handleVisitStatusFilterChange}
+                        style={{ minHeight: "38px" }}
+                     >
+                        <option value="all">Wszystkie</option>
+                        <option value="nierozpoczęta">Nierozpoczęta</option>
+                        <option value="trwa">Trwa</option>
+                        <option value="zakończona">Zakończona</option>
+                     </Form.Control>
+                  </Form.Group>
+               </Col>
+               <Col>
+                  <Form.Group controlId="extensionStatusFilter">
+                     <Form.Label>Status wniosku o przedłużenie:</Form.Label>
+                     <Form.Control
+                        as="select"
+                        value={extensionStatusFilter}
+                        onChange={handleExtensionStatusFilterChange}
+                        style={{ minHeight: "38px" }}
+                     >
+                        <option value="all">Wszystkie</option>
+                        <option value="Brak">Brak</option>
+                        <option value="Pending">Oczekujący</option>
+                        <option value="Approved">Zatwierdzony</option>
+                        <option value="Rejected">Odrzucony</option>
+                     </Form.Control>
+                  </Form.Group>
+               </Col>
+            </Row>
+            <Row>
+               <Col>
+                  <button id="filter_btn" onClick={handleFilterReset}>
+                     Resetuj filtrowanie
+                  </button>
+               </Col>
+            </Row>
+         </Form>
+         <Row className="mb-2">
+            <Col>
+               <Form.Group controlId="sortOrder">
+                  <Form.Label>
+                     <h5>Sortuj według:</h5>
+                  </Form.Label>
+                  <Form.Control
+                     as="select"
+                     value={sortOrder}
+                     onChange={handleSortOrderChange}
+                     style={{ minHeight: "38px" }}
+                  >
+                     <option value="newest">Od najnowszych</option>
+                     <option value="oldest">Od najstarszych</option>
+                  </Form.Control>
+               </Form.Group>
+            </Col>
+         </Row>
          <div>
             <h1>Lista wizyt</h1>
             <table className="visits-table">
-   <thead>
-      <tr>
-         <th>Gość</th>
-         <th>Data rozpoczęcia</th>
-         <th>Godzina rozpoczęcia</th>
-         <th>Data zakończenia</th>
-         <th>Godzina zakończenia</th>
-         <th>Host</th>
-         <th>Status wizyty</th>
-         <th>Wniosek o przedłużenie</th>
-      </tr>
-   </thead>
-   <tbody>
-      {filteredVisits.map((visit) => (
-         <tr key={visit.id}>
-            <td>{visit.guest_first_name} {visit.guest_last_name}</td>
-            <td>{visit.start_date}</td>
-            <td>{visit.start_time}</td>
-            <td>{visit.end_date}</td>
-            <td>{visit.end_time}</td>
-            <td>{visit.user.first_name} {visit.user.last_name}</td>
-            <td>
-               {getStatus(
-                  visit.start_date,
-                  visit.start_time,
-                  visit.end_date,
-                  visit.end_time
-               )}
-            </td>
-            <td>{visit.extensionStatus}</td>
-            <td>
-                            {visit.extensionStatus === "Pending" && (
-                                <div className="button-container">
-                                <button className="button button-approve" onClick={() => handleActionClick(visit.extensionId, 'approve')}>Approve</button>
-                                <button className="button button-reject" onClick={() => handleActionClick(visit.extensionId, 'reject')}>Reject</button>
-                            </div>
-                            )}
+               <thead>
+                  <tr>
+                     <th>Gość</th>
+                     <th>Data rozpoczęcia</th>
+                     <th>Godzina rozpoczęcia</th>
+                     <th>Data zakończenia</th>
+                     <th>Godzina zakończenia</th>
+                     <th>Host</th>
+                     <th>Status wizyty</th>
+                     <th>Wniosek o przedłużenie</th>
+                     <th>Decyzja</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  {filteredVisits.map((visit) => (
+                     <tr key={visit.id}>
+                        <td>
+                           {visit.guest_first_name} {visit.guest_last_name}
                         </td>
-         </tr>
-      ))}
-   </tbody>
-</table>
+                        <td>{visit.start_date}</td>
+                        <td>{visit.start_time}</td>
+                        <td>{visit.end_date}</td>
+                        <td>{visit.end_time}</td>
+                        <td>
+                           {visit.user.first_name} {visit.user.last_name}
+                        </td>
+                        <td>
+                           {getStatus(
+                              visit.start_date,
+                              visit.start_time,
+                              visit.end_date,
+                              visit.end_time
+                           )}
+                        </td>
+                        <td>{visit.extensionStatus}</td>
+                        <td>
+                           {visit.extensionStatus === "Pending" && (
+                              <div className="button-container">
+                                 <Button
+                                    variant="success"
+                                    onClick={() =>
+                                       handleActionClick(
+                                          visit.extensionId,
+                                          "approve"
+                                       )
+                                    }
+                                 >
+                                    Approve
+                                 </Button>
+                                 <Button
+                                    variant="danger"
+                                    onClick={() =>
+                                       handleActionClick(
+                                          visit.extensionId,
+                                          "reject"
+                                       )
+                                    }
+                                 >
+                                    Reject
+                                 </Button>
+                              </div>
+                           )}
+                        </td>
+                     </tr>
+                  ))}
+               </tbody>
+            </table>
          </div>
       </div>
    );
