@@ -38,4 +38,7 @@ urlpatterns = [
     path('cancel_visit/<int:visit_id>', 
          views.CancelVisit.as_view(), 
          name='cancel_visit'),
+    path('admin_cancel_visit/<int:visit_id>/', 
+         views.AdminCancelVisit.as_view(), 
+         name='admin_cancel_visit'),
 ]

@@ -15,6 +15,7 @@ import os
 import logging
 import smtplib
 import ssl
+import json
 
 # Inicjalizacja loggera
 logger = logging.getLogger(__name__)
@@ -101,11 +102,18 @@ class UserVisit(APIView):
 
     def send_email_api(self, guest_email, data, change_status_url):
         subject = "Your data has been saved"
+    
+        # Formatowanie daty i godziny
+        start_datetime = f"{data['start_date']} {data['start_time']}"
+        end_datetime = f"{data['end_date']} {data['end_time']}"
+        
+        # Tworzenie wiadomości
         message = (
-            f"Here is the result of your data submission: {data}\n\n"
-            f"To change the status of your visit to 'inprogress', click the following link:\n"
+            f"Zaplanowano wizytę dla {data['guest_first_name']} {data['guest_last_name']} "
+            f"w terminie od {start_datetime} do {end_datetime} w {data['dormitory']}.\n\n"
+            "Aby zmienic status wizyty na 'w trakcie', nacisnij link:\n"
             f"{change_status_url}"
-        )
+    )
         from_email = os.environ.get("EMAIL")
         email_password = os.environ.get("EMAIL_PASSWORD")
 
@@ -277,7 +285,62 @@ class CancelVisit(APIView):
 
     def send_status_cancelled_email(self, guest_email, visit):
         subject = "Status Changed to Cancelled"
-        message = f"Status for your visit {visit.id} has been changed to cancelled."
+        message = f"Status for your visit {visit.id}, visitor: {visit.guest_first_name} {visit.guest_last_name} has been changed to cancelled."
+        from_email = os.environ.get("EMAIL")
+        email_password = os.environ.get("EMAIL_PASSWORD")
+
+        try:
+            em = EmailMessage()
+            em["From"] = from_email
+            em["To"] = guest_email
+            em["Subject"] = subject
+            em.set_content(message)
+            context = ssl.create_default_context()
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
+                smtp.login(from_email, email_password)
+                smtp.sendmail(from_email, guest_email, em.as_string())
+            logger.info(f"Email sent successfully to {guest_email}")
+        except Exception as e:
+            logger.error(f"Error sending email to {guest_email}: {e}")
+
+
+class AdminCancelVisit(APIView):
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
+
+    def get(self, request, visit_id):
+        return self.cancel_visit(request, visit_id)
+
+    def post(self, request, visit_id):
+        return self.cancel_visit(request, visit_id)
+
+    def cancel_visit(self, request, visit_id):
+        try:
+            visit = Visit.objects.get(id=visit_id)
+            visit.status = "Cancelled"
+            visit.save()
+            logger.info(f"Status for visit {visit_id} changed to cancelled")
+
+            # Sending email notification
+            guest_email = visit.guest_email
+            if guest_email:
+                self.send_status_cancelled_email(guest_email, visit)
+
+            return Response({"status": "cancelled"}, status=status.HTTP_200_OK)
+        except Visit.DoesNotExist:
+            logger.error(f"Visit with id {visit_id} does not exist")
+            return Response(
+                {"error": "Visit not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            logger.error(f"Error changing status for visit {visit_id}: {e}")
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def send_status_cancelled_email(self, guest_email, visit):
+        subject = "Status Changed to Cancelled"
+        message = f"Status for your visit {visit.id}, visitor: {visit.guest_first_name} {visit.guest_last_name} has been changed to cancelled by the administrator."
         from_email = os.environ.get("EMAIL")
         email_password = os.environ.get("EMAIL_PASSWORD")
 

@@ -165,6 +165,7 @@ class Visit(models.Model):
     user = models.ForeignKey("AppUser", on_delete=models.CASCADE)
     dormitory = models.CharField(max_length=100)
     status = models.CharField(max_length=50, default="Pending")
+    description = models.TextField(blank=True, null=True)
 
     def extend_visit(self, days=1):
         self.end_date += timedelta(days=days)

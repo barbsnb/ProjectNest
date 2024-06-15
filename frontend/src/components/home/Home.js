@@ -40,19 +40,15 @@ const Home = () => {
          });
    };
 
-   
    const handleCancelRequest = (visit) => {
-
       console.log(visit.id);
 
       const newEndDate = moment(visit.end_date)
          .add(1, "days")
          .format("YYYY-MM-DD");
-      const newEndTime = visit.end_time; // Assuming the end time remains the same
+      const newEndTime = visit.end_time;
       client
-         .post(`/api/cancel_visit/${visit.id}`, {
-
-         })
+         .post(`/api/cancel_visit/${visit.id}`, {})
          .then((response) => {
             setShowModal(false);
             setGetUserVisits(true);
@@ -65,28 +61,26 @@ const Home = () => {
    };
 
    const getStatusText = (status) => {
-      if (status === 'Inprogress') {
-        return 'W trakcie';
-      } else if (status === 'Cancelled') {
-        return 'Anulowana';
-      } else if (status === 'Completed'){
-        return 'Zakończona' 
-      } else {
-        return 'Oczekująca';
+      if (status === "Inprogress") {
+         return "W trakcie";
+      } else if (status === "Cancelled") {
+         return "Anulowana";
+      } else if (status === "Completed") {
+         return "Zakończona";
+      } else if (status === "Pending") {
+         return "Zaplanowana";
       }
-    };
+   };
 
-    const getExtentionText = (status) => {
-      if (status === 'Approved') {
-        return 'Wniosek zaakceptowany';
-      } else if (status === 'Rejected') {
-        return 'Wniosek odrzucony'; 
+   const getExtentionText = (status) => {
+      if (status === "Approved") {
+         return "Wniosek zaakceptowany";
+      } else if (status === "Rejected") {
+         return "Wniosek odrzucony";
       } else {
-        return ' - ';
+         return " - ";
       }
-    };
-
-
+   };
 
    const formatTime = (timeString) => {
       return timeString.substr(0, 5); // Trims string to format HH:mm
@@ -188,7 +182,9 @@ const Home = () => {
                                                    </strong>
                                                 </td>
                                                 <td colSpan="2">
-                                                   {getExtentionText(visit.extensionStatus)}
+                                                   {getExtentionText(
+                                                      visit.extensionStatus
+                                                   )}
                                                 </td>
                                              </tr>
                                           </tbody>
@@ -220,7 +216,6 @@ const Home = () => {
                                              Anuluj wizytę
                                           </Button>
                                        </div>
-
                                     </Card.Body>
                                  </Card>
                               </Col>
