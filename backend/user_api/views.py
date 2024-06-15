@@ -10,12 +10,15 @@ from .models import Visit, AppUser, VisitExtension
 from .serializers import UserVisitSerializer, VisitExtensionSerializer
 from datetime import timedelta
 from django.shortcuts import get_object_or_404
+from email.message import EmailMessage
+import os
 import logging
+import smtplib
+import ssl
 
 # Inicjalizacja loggera
 logger = logging.getLogger(__name__)
 User = get_user_model()
-
 
 class UserRegister(APIView):
     permission_classes = (permissions.AllowAny,)
@@ -78,10 +81,38 @@ class UserVisit(APIView):
         if serializer.is_valid():
             serializer.save()
             logger.info("Data saved successfully")
+            
+            # Sending email
+            guest_email = request.data.get('guest_email', None)
+            if guest_email:
+                self.send_email_api(guest_email, serializer.data)
+            
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             logger.error(f"Data validation error: {serializer.errors}")
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def send_email_api(self, guest_email, data):
+        subject = "Your data has been saved"
+        message = f"Here is the result of your data submission: {data}"
+        from_email = os.environ.get("EMAIL")
+        email_password = os.environ.get("EMAIL_PASSWORD")
+        
+
+        try:
+            em = EmailMessage()
+            em['From'] = from_email
+            em["To"] = guest_email
+            em["Subject"] = subject 
+            em.set_content(message)
+            context = ssl.create_default_context() 
+            with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
+                smtp.login(from_email, email_password)
+                smtp.sendmail(from_email, guest_email, em.as_string())
+            logger.info(f"Email sent successfully to {guest_email}")
+        except Exception as e:
+            logger.error(f"Error sending email to {guest_email}: {e}")
+
 
 
 class VisitListView(generics.ListAPIView):
@@ -173,8 +204,10 @@ class ApproveRejectExtension(APIView):
         if action == "approve":
             extension.status = "Approved"
             extension.visit.extend_visit()
+            self.send_email_api(extension.visit.guest_email, "Your visit extension has been approved.")
         elif action == "reject":
             extension.status = "Rejected"
+            self.send_email_api(extension.visit.guest_email, "Your visit extension has been rejected.")
         else:
             return Response(
                 {"error": "Invalid action"}, status=status.HTTP_400_BAD_REQUEST
@@ -185,6 +218,26 @@ class ApproveRejectExtension(APIView):
         return Response(
             VisitExtensionSerializer(extension).data, status=status.HTTP_200_OK
         )
+    def send_email_api(self, guest_email, message):
+        subject = "Your data has been saved"
+        message = message
+        from_email = os.environ.get("EMAIL")
+        email_password = os.environ.get("EMAIL_PASSWORD")
+        
+
+        try:
+            em = EmailMessage()
+            em['From'] = from_email
+            em["To"] = guest_email
+            em["Subject"] = subject 
+            em.set_content(message)
+            context = ssl.create_default_context() 
+            with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
+                smtp.login(from_email, email_password)
+                smtp.sendmail(from_email, guest_email, em.as_string())
+            logger.info(f"Email sent successfully to {guest_email}")
+        except Exception as e:
+            logger.error(f"Error sending email to {guest_email}: {e}")
 
 
 class UserDetailView(generics.RetrieveAPIView):
