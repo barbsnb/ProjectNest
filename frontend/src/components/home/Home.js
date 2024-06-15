@@ -40,6 +40,54 @@ const Home = () => {
          });
    };
 
+   
+   const handleCancelRequest = (visit) => {
+
+      console.log(visit.id);
+
+      const newEndDate = moment(visit.end_date)
+         .add(1, "days")
+         .format("YYYY-MM-DD");
+      const newEndTime = visit.end_time; // Assuming the end time remains the same
+      client
+         .post(`/api/cancel_visit/${visit.id}`, {
+
+         })
+         .then((response) => {
+            setShowModal(false);
+            setGetUserVisits(true);
+            console.log("Appointment canceled successfully:", response);
+         })
+         .catch((error) => {
+            console.error("Failed to canceled appointment:", error);
+            setErrors({ extension: "Failed to canceled appointment" });
+         });
+   };
+
+   const getStatusText = (status) => {
+      if (status === 'Inprogress') {
+        return 'W trakcie';
+      } else if (status === 'Cancelled') {
+        return 'Anulowana';
+      } else if (status === 'Completed'){
+        return 'Zakończona' 
+      } else {
+        return 'Oczekująca';
+      }
+    };
+
+    const getExtentionText = (status) => {
+      if (status === 'Approved') {
+        return 'Wniosek zaakceptowany';
+      } else if (status === 'Rejected') {
+        return 'Wniosek odrzucony'; 
+      } else {
+        return ' - ';
+      }
+    };
+
+
+
    const formatTime = (timeString) => {
       return timeString.substr(0, 5); // Trims string to format HH:mm
    };
@@ -126,11 +174,21 @@ const Home = () => {
                                              <tr>
                                                 <td>
                                                    <strong>
+                                                      Status Wizyty:
+                                                   </strong>
+                                                </td>
+                                                <td colSpan="2">
+                                                   {getStatusText(visit.status)}
+                                                </td>
+                                             </tr>
+                                             <tr>
+                                                <td>
+                                                   <strong>
                                                       Status przedłużenia:
                                                    </strong>
                                                 </td>
                                                 <td colSpan="2">
-                                                   {visit.extensionStatus}
+                                                   {getExtentionText(visit.extensionStatus)}
                                                 </td>
                                              </tr>
                                           </tbody>
@@ -148,6 +206,21 @@ const Home = () => {
                                              Przedłuż wizytę
                                           </Button>
                                        </div>
+
+                                       <div className="button-container">
+                                          <Button
+                                             className="btn-custom"
+                                             onClick={() =>
+                                                handleCancelRequest(visit)
+                                             }
+                                             disabled={
+                                                visit.status !== "Pending"
+                                             }
+                                          >
+                                             Anuluj wizytę
+                                          </Button>
+                                       </div>
+
                                     </Card.Body>
                                  </Card>
                               </Col>

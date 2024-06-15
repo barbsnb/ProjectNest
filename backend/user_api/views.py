@@ -20,6 +20,7 @@ import ssl
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
+
 class UserRegister(APIView):
     permission_classes = (permissions.AllowAny,)
 
@@ -81,38 +82,218 @@ class UserVisit(APIView):
         if serializer.is_valid():
             serializer.save()
             logger.info("Data saved successfully")
-            
+
+            # Generate link to change status
+            visit_id = serializer.data.get("id")
+            change_status_url = request.build_absolute_uri(
+                f"/api/change_status/{visit_id}/"
+            )
+
             # Sending email
-            guest_email = request.data.get('guest_email', None)
+            guest_email = request.data.get("guest_email", None)
             if guest_email:
-                self.send_email_api(guest_email, serializer.data)
-            
+                self.send_email_api(guest_email, serializer.data, change_status_url)
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             logger.error(f"Data validation error: {serializer.errors}")
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    def send_email_api(self, guest_email, data):
+
+    def send_email_api(self, guest_email, data, change_status_url):
         subject = "Your data has been saved"
-        message = f"Here is the result of your data submission: {data}"
+        message = (
+            f"Here is the result of your data submission: {data}\n\n"
+            f"To change the status of your visit to 'inprogress', click the following link:\n"
+            f"{change_status_url}"
+        )
         from_email = os.environ.get("EMAIL")
         email_password = os.environ.get("EMAIL_PASSWORD")
-        
 
         try:
             em = EmailMessage()
-            em['From'] = from_email
+            em["From"] = from_email
             em["To"] = guest_email
-            em["Subject"] = subject 
+            em["Subject"] = subject
             em.set_content(message)
-            context = ssl.create_default_context() 
-            with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
+            context = ssl.create_default_context()
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
                 smtp.login(from_email, email_password)
                 smtp.sendmail(from_email, guest_email, em.as_string())
             logger.info(f"Email sent successfully to {guest_email}")
         except Exception as e:
             logger.error(f"Error sending email to {guest_email}: {e}")
 
+
+class ChangeStatus(APIView):
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
+
+    def get(self, request, visit_id):
+        return self.change_status(request, visit_id)
+
+    def post(self, request, visit_id):
+        return self.change_status(request, visit_id)
+
+    def change_status(self, request, visit_id):
+        try:
+            visit = Visit.objects.get(id=visit_id)
+            visit.status = "Inprogress"
+            visit.save()
+            logger.info(f"Status for visit {visit_id} changed to inprogress")
+
+            # Sending email notification
+            guest_email = visit.guest_email
+            if guest_email:
+                self.send_status_changed_email(request, guest_email, visit)
+
+            return Response({"status": "inprogress"}, status=status.HTTP_200_OK)
+        except Visit.DoesNotExist:
+            logger.error(f"Visit with id {visit_id} does not exist")
+            return Response(
+                {"error": "Visit not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            logger.error(f"Error changing status for visit {visit_id}: {e}")
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def send_status_changed_email(self, request, guest_email, visit):
+        subject = "Status Changed to Inprogress"
+        complete_visit_url = request.build_absolute_uri(
+            f"/api/complete_visit/{visit.id}/"
+        )
+        message = (
+            f"Status for your visit {visit.id} has been changed to inprogress.\n\n"
+            f"To complete your visit, click the following link:\n"
+            f"{complete_visit_url}"
+        )
+        from_email = os.environ.get("EMAIL")
+        email_password = os.environ.get("EMAIL_PASSWORD")
+
+        try:
+            em = EmailMessage()
+            em["From"] = from_email
+            em["To"] = guest_email
+            em["Subject"] = subject
+            em.set_content(message)
+            context = ssl.create_default_context()
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
+                smtp.login(from_email, email_password)
+                smtp.sendmail(from_email, guest_email, em.as_string())
+            logger.info(f"Email sent successfully to {guest_email}")
+        except Exception as e:
+            logger.error(f"Error sending email to {guest_email}: {e}")
+
+
+class CompleteVisit(APIView):
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
+
+    def get(self, request, visit_id):
+        return self.complete_visit(request, visit_id)
+
+    def post(self, request, visit_id):
+        return self.complete_visit(request, visit_id)
+
+    def complete_visit(self, request, visit_id):
+        try:
+            visit = Visit.objects.get(id=visit_id)
+            visit.status = "Completed"
+            visit.save()
+            logger.info(f"Status for visit {visit_id} changed to completed")
+
+            # Sending email notification
+            guest_email = visit.guest_email
+            if guest_email:
+                self.send_status_completed_email(guest_email, visit)
+
+            return Response({"status": "completed"}, status=status.HTTP_200_OK)
+        except Visit.DoesNotExist:
+            logger.error(f"Visit with id {visit_id} does not exist")
+            return Response(
+                {"error": "Visit not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            logger.error(f"Error changing status for visit {visit_id}: {e}")
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def send_status_completed_email(self, guest_email, visit):
+        subject = "Status Changed to Completed"
+        message = f"Status for your visit {visit.id} has been changed to completed."
+        from_email = os.environ.get("EMAIL")
+        email_password = os.environ.get("EMAIL_PASSWORD")
+
+        try:
+            em = EmailMessage()
+            em["From"] = from_email
+            em["To"] = guest_email
+            em["Subject"] = subject
+            em.set_content(message)
+            context = ssl.create_default_context()
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
+                smtp.login(from_email, email_password)
+                smtp.sendmail(from_email, guest_email, em.as_string())
+            logger.info(f"Email sent successfully to {guest_email}")
+        except Exception as e:
+            logger.error(f"Error sending email to {guest_email}: {e}")
+            
+            
+class CancelVisit(APIView):
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
+
+    def get(self, request, visit_id):
+        return self.cancel_visit(request, visit_id)
+
+    def post(self, request, visit_id):
+        return self.cancel_visit(request, visit_id)
+
+    def cancel_visit(self, request, visit_id):
+        try:
+            visit = Visit.objects.get(id=visit_id)
+            visit.status = "Cancelled"
+            visit.save()
+            logger.info(f"Status for visit {visit_id} changed to cancelled")
+
+            # Sending email notification
+            guest_email = visit.guest_email
+            if guest_email:
+                self.send_status_cancelled_email(guest_email, visit)
+
+            return Response({"status": "cancelled"}, status=status.HTTP_200_OK)
+        except Visit.DoesNotExist:
+            logger.error(f"Visit with id {visit_id} does not exist")
+            return Response(
+                {"error": "Visit not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            logger.error(f"Error changing status for visit {visit_id}: {e}")
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def send_status_cancelled_email(self, guest_email, visit):
+        subject = "Status Changed to Cancelled"
+        message = f"Status for your visit {visit.id} has been changed to cancelled."
+        from_email = os.environ.get("EMAIL")
+        email_password = os.environ.get("EMAIL_PASSWORD")
+
+        try:
+            em = EmailMessage()
+            em["From"] = from_email
+            em["To"] = guest_email
+            em["Subject"] = subject
+            em.set_content(message)
+            context = ssl.create_default_context()
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
+                smtp.login(from_email, email_password)
+                smtp.sendmail(from_email, guest_email, em.as_string())
+            logger.info(f"Email sent successfully to {guest_email}")
+        except Exception as e:
+            logger.error(f"Error sending email to {guest_email}: {e}")
 
 
 class VisitListView(generics.ListAPIView):
@@ -138,20 +319,28 @@ class AllVisitListView(APIView):
     authentication_classes = (SessionAuthentication,)
 
     def get(self, request):
-            try:
-                if not request.user.is_authenticated:
-                    return Response({"error": "User not authenticated"}, status=status.HTTP_401_UNAUTHORIZED)
-                
-                if not request.user.is_receptionist:
-                    return Response({"error": "User is not a receptionist"}, status=status.HTTP_403_FORBIDDEN)
-                
-                visits = Visit.objects.filter(dormitory=request.user.dormitory)
-                serializer = UserVisitSerializer(visits, many=True)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            
-            except Exception as e:
-                logger.error(f"Error fetching visit list: {e}")
-                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            if not request.user.is_authenticated:
+                return Response(
+                    {"error": "User not authenticated"},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+
+            if not request.user.is_receptionist:
+                return Response(
+                    {"error": "User is not a receptionist"},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+
+            visits = Visit.objects.filter(dormitory=request.user.dormitory)
+            serializer = UserVisitSerializer(visits, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            logger.error(f"Error fetching visit list: {e}")
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class RequestVisitExtension(APIView):
@@ -204,10 +393,14 @@ class ApproveRejectExtension(APIView):
         if action == "approve":
             extension.status = "Approved"
             extension.visit.extend_visit()
-            self.send_email_api(extension.visit.guest_email, "Your visit extension has been approved.")
+            self.send_email_api(
+                extension.visit.guest_email, "Your visit extension has been approved."
+            )
         elif action == "reject":
             extension.status = "Rejected"
-            self.send_email_api(extension.visit.guest_email, "Your visit extension has been rejected.")
+            self.send_email_api(
+                extension.visit.guest_email, "Your visit extension has been rejected."
+            )
         else:
             return Response(
                 {"error": "Invalid action"}, status=status.HTTP_400_BAD_REQUEST
@@ -218,21 +411,21 @@ class ApproveRejectExtension(APIView):
         return Response(
             VisitExtensionSerializer(extension).data, status=status.HTTP_200_OK
         )
+
     def send_email_api(self, guest_email, message):
         subject = "Your data has been saved"
         message = message
         from_email = os.environ.get("EMAIL")
         email_password = os.environ.get("EMAIL_PASSWORD")
-        
 
         try:
             em = EmailMessage()
-            em['From'] = from_email
+            em["From"] = from_email
             em["To"] = guest_email
-            em["Subject"] = subject 
+            em["Subject"] = subject
             em.set_content(message)
-            context = ssl.create_default_context() 
-            with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
+            context = ssl.create_default_context()
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
                 smtp.login(from_email, email_password)
                 smtp.sendmail(from_email, guest_email, em.as_string())
             logger.info(f"Email sent successfully to {guest_email}")
