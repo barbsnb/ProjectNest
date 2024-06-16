@@ -172,8 +172,8 @@ class ChangeStatus(APIView):
             f"/api/complete_visit/{visit.id}/"
         )
         message = (
-            f"Status for your visit {visit.id} has been changed to inprogress.\n\n"
-            f"To complete your visit, click the following link:\n"
+            f"Status twojej wizyty {visit.id} zmienił się na trwająca.\n\n"
+            f"Aby zakończyć wizytę, naciśnij link:\n"
             f"{complete_visit_url}"
         )
         from_email = os.environ.get("EMAIL")
@@ -230,7 +230,7 @@ class CompleteVisit(APIView):
 
     def send_status_completed_email(self, guest_email, visit):
         subject = "Status Changed to Completed"
-        message = f"Status for your visit {visit.id} has been changed to completed."
+        message = f"Status Twojej wizyty {visit.id} zmienił się na zakończoną."
         from_email = os.environ.get("EMAIL")
         email_password = os.environ.get("EMAIL_PASSWORD")
 
@@ -285,7 +285,7 @@ class CancelVisit(APIView):
 
     def send_status_cancelled_email(self, guest_email, visit):
         subject = "Status Changed to Cancelled"
-        message = f"Status for your visit {visit.id}, visitor: {visit.guest_first_name} {visit.guest_last_name} has been changed to cancelled."
+        message = f"Status twojej wizyty {visit.id}, gość: {visit.guest_first_name} {visit.guest_last_name} zmienił się na anulowaną."
         from_email = os.environ.get("EMAIL")
         email_password = os.environ.get("EMAIL_PASSWORD")
 
@@ -318,6 +318,8 @@ class AdminCancelVisit(APIView):
         try:
             visit = Visit.objects.get(id=visit_id)
             visit.status = "Cancelled"
+            description = request.data.get("description", "Wizyta została anulowana przez administratora")
+            visit.description = description
             visit.save()
             logger.info(f"Status for visit {visit_id} changed to cancelled")
 
@@ -340,7 +342,7 @@ class AdminCancelVisit(APIView):
 
     def send_status_cancelled_email(self, guest_email, visit):
         subject = "Status Changed to Cancelled"
-        message = f"Status for your visit {visit.id}, visitor: {visit.guest_first_name} {visit.guest_last_name} has been changed to cancelled by the administrator."
+        message = f"Twoja wizyta została anulowana przez administratora {visit.id}, gość: {visit.guest_first_name} {visit.guest_last_name}. Powód: {visit.description}"
         from_email = os.environ.get("EMAIL")
         email_password = os.environ.get("EMAIL_PASSWORD")
 

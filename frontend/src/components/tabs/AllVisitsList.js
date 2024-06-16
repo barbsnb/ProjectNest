@@ -450,14 +450,7 @@ const AllVisitsList = () => {
                         <td>
                            {visit.user.first_name} {visit.user.last_name}
                         </td>
-                        <td>
-                           {getStatus(
-                              visit.start_date,
-                              visit.start_time,
-                              visit.end_date,
-                              visit.end_time
-                           )}
-                        </td>
+                        <td>{visit.status}</td>
                         <td>{visit.extensionStatus}</td>
                         <td>
                            {visit.extensionStatus === "Pending" && (
