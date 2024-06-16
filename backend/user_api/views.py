@@ -154,7 +154,7 @@ class ChangeStatus(APIView):
             if guest_email:
                 self.send_status_changed_email(request, guest_email, visit)
 
-            return Response({"status": "inprogress"}, status=status.HTTP_200_OK)
+            return Response({"status": "Inprogress"}, status=status.HTTP_200_OK)
         except Visit.DoesNotExist:
             logger.error(f"Visit with id {visit_id} does not exist")
             return Response(
@@ -271,7 +271,7 @@ class CancelVisit(APIView):
             if guest_email:
                 self.send_status_cancelled_email(guest_email, visit)
 
-            return Response({"status": "cancelled"}, status=status.HTTP_200_OK)
+            return Response({"status": "Cancelled"}, status=status.HTTP_200_OK)
         except Visit.DoesNotExist:
             logger.error(f"Visit with id {visit_id} does not exist")
             return Response(
@@ -317,18 +317,18 @@ class AdminCancelVisit(APIView):
     def cancel_visit(self, request, visit_id):
         try:
             visit = Visit.objects.get(id=visit_id)
-            visit.status = "Cancelled"
+            visit.status = "Expelled"
             description = request.data.get("description", "Wizyta została anulowana przez administratora")
             visit.description = description
             visit.save()
-            logger.info(f"Status for visit {visit_id} changed to cancelled")
+            logger.info(f"Status for visit {visit_id} changed to Expelled")
 
             # Sending email notification
             guest_email = visit.guest_email
             if guest_email:
                 self.send_status_cancelled_email(guest_email, visit)
 
-            return Response({"status": "cancelled"}, status=status.HTTP_200_OK)
+            return Response({"status": "expelled"}, status=status.HTTP_200_OK)
         except Visit.DoesNotExist:
             logger.error(f"Visit with id {visit_id} does not exist")
             return Response(

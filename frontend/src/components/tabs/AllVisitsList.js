@@ -71,7 +71,7 @@ const AllVisitsList = () => {
          setVisitsWithUserData((prevVisits) =>
             prevVisits.map((visit) =>
                visit.id === selectedVisit.id
-                  ? { ...visit, status: "Banished", description: cancelReason }
+                  ? { ...visit, status: "Expelled", description: cancelReason }
                   : visit
             )
          );
@@ -260,6 +260,12 @@ const AllVisitsList = () => {
       setExtensionStatusFilter(event.target.value);
    };
 
+   const isOverdueInProgress = (endDate, endTime, status) => {
+      const now = new Date();
+      const endDateTime = new Date(`${endDate}T${endTime}`);
+      return status === "Inprogress" && endDateTime < now;
+   };
+
    return (
       <div className="container mt-4">
          <h2>Filtruj wyniki</h2>
@@ -439,7 +445,18 @@ const AllVisitsList = () => {
                </thead>
                <tbody>
                   {filteredVisits.map((visit) => (
-                     <tr key={visit.id}>
+                     <tr
+                        key={visit.id}
+                        className={
+                           isOverdueInProgress(
+                              visit.end_date,
+                              visit.end_time,
+                              visit.status
+                           )
+                              ? "overdue-inprogress"
+                              : ""
+                        }
+                     >
                         <td>
                            {visit.guest_first_name} {visit.guest_last_name}
                         </td>
@@ -485,7 +502,7 @@ const AllVisitsList = () => {
                               variant="danger"
                               onClick={() => handleCancelClick(visit)}
                            >
-                              Cancel Visit
+                              Wyrzuć
                            </Button>
                         </td>
                      </tr>
