@@ -5,8 +5,8 @@ import client from "../axiosClient";
 export const UserVisitsContext = createContext(null);
 
 export const UserVisitsProvider = ({ children }) => {
-  const [userVisits, setUserVisits] = useState([]);
-  const [getUserVisits, setGetUserVisits] = useState(false);
+   const [userVisits, setUserVisits] = useState([]);
+   const [getUserVisits, setGetUserVisits] = useState(true);
 
    useEffect(() => {
       if (getUserVisits) {

@@ -65,3 +65,8 @@
 .sort {
    max-width: 200px;
 }
+
+.overdue-inprogress {
+   background-color: red;
+   font-weight: bold;
+}

@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useContext } from "react";
 import { AllVisitsContext } from "../../contexts/AllVisitsContext";
 import { AuthContext } from "../../contexts/AuthContext";
-import UserFetcher from "../tabs/UserFetcher"; // Zaimportuj nowy komponent
-import "./AllVisitsList.css";
+import UserFetcher from "../tabs/UserFetcher";
 import client from "../../axiosClient";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
+import "./AllVisitsList.css";
 
 const AllVisitsList = () => {
    const { AllVisits } = useContext(AllVisitsContext);
@@ -20,9 +21,13 @@ const AllVisitsList = () => {
    const [startTimeFilter, setStartTimeFilter] = useState("");
    const [endDateFilter, setEndDateFilter] = useState("");
    const [endTimeFilter, setEndTimeFilter] = useState("");
-   const [sortOrder, setSortOrder] = useState("newest"); // Domyślne sortowanie od najnowszych
+   const [sortOrder, setSortOrder] = useState("newest");
    const [visitStatusFilter, setVisitStatusFilter] = useState("all");
    const [extensionStatusFilter, setExtensionStatusFilter] = useState("all");
+
+   const [showCancelModal, setShowCancelModal] = useState(false);
+   const [selectedVisit, setSelectedVisit] = useState(null);
+   const [cancelReason, setCancelReason] = useState("");
 
    const handleActionClick = async (extensionId, action) => {
       try {
@@ -43,6 +48,37 @@ const AllVisitsList = () => {
          );
       } catch (error) {
          console.error("Error updating extension status:", error);
+      }
+   };
+
+   const handleCancelClick = (visit) => {
+      setSelectedVisit(visit);
+      setShowCancelModal(true);
+   };
+
+   const handleCancelSubmit = async () => {
+      if (!cancelReason) {
+         alert("Please provide a reason for cancellation.");
+         return;
+      }
+      try {
+         const response = await client.post(
+            `/api/admin_cancel_visit/${selectedVisit.id}/`,
+            { description: cancelReason },
+            { withCredentials: true } // Ensure credentials are included
+         );
+         console.log(response.data);
+         setVisitsWithUserData((prevVisits) =>
+            prevVisits.map((visit) =>
+               visit.id === selectedVisit.id
+                  ? { ...visit, status: "Expelled", description: cancelReason }
+                  : visit
+            )
+         );
+         setShowCancelModal(false);
+         setCancelReason("");
+      } catch (error) {
+         console.error("Error cancelling visit:", error);
       }
    };
 
@@ -174,7 +210,7 @@ const AllVisitsList = () => {
       startTimeFilter,
       endDateFilter,
       endTimeFilter,
-      sortOrder, // Dodano sortOrder jako zależność
+      sortOrder,
       visitStatusFilter,
       extensionStatusFilter,
    ]);
@@ -222,6 +258,12 @@ const AllVisitsList = () => {
 
    const handleExtensionStatusFilterChange = (event) => {
       setExtensionStatusFilter(event.target.value);
+   };
+
+   const isOverdueInProgress = (endDate, endTime, status) => {
+      const now = new Date();
+      const endDateTime = new Date(`${endDate}T${endTime}`);
+      return status === "Inprogress" && endDateTime < now;
    };
 
    return (
@@ -398,11 +440,23 @@ const AllVisitsList = () => {
                      <th>Status wizyty</th>
                      <th>Wniosek o przedłużenie</th>
                      <th>Decyzja</th>
+                     <th>Akcje</th>
                   </tr>
                </thead>
                <tbody>
                   {filteredVisits.map((visit) => (
-                     <tr key={visit.id}>
+                     <tr
+                        key={visit.id}
+                        className={
+                           isOverdueInProgress(
+                              visit.end_date,
+                              visit.end_time,
+                              visit.status
+                           )
+                              ? "overdue-inprogress"
+                              : ""
+                        }
+                     >
                         <td>
                            {visit.guest_first_name} {visit.guest_last_name}
                         </td>
@@ -413,14 +467,7 @@ const AllVisitsList = () => {
                         <td>
                            {visit.user.first_name} {visit.user.last_name}
                         </td>
-                        <td>
-                           {getStatus(
-                              visit.start_date,
-                              visit.start_time,
-                              visit.end_date,
-                              visit.end_time
-                           )}
-                        </td>
+                        <td>{visit.status}</td>
                         <td>{visit.extensionStatus}</td>
                         <td>
                            {visit.extensionStatus === "Pending" && (
@@ -450,11 +497,49 @@ const AllVisitsList = () => {
                               </div>
                            )}
                         </td>
+                        <td>
+                           <Button
+                              variant="danger"
+                              onClick={() => handleCancelClick(visit)}
+                           >
+                              Wyrzuć
+                           </Button>
+                        </td>
                      </tr>
                   ))}
                </tbody>
             </table>
          </div>
+
+         <Modal show={showCancelModal} onHide={() => setShowCancelModal(false)}>
+            <Modal.Header closeButton>
+               <Modal.Title>Cancel Visit</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+               <Form>
+                  <Form.Group controlId="cancelReason">
+                     <Form.Label>Reason for Cancellation</Form.Label>
+                     <Form.Control
+                        as="textarea"
+                        rows={3}
+                        value={cancelReason}
+                        onChange={(e) => setCancelReason(e.target.value)}
+                     />
+                  </Form.Group>
+               </Form>
+            </Modal.Body>
+            <Modal.Footer>
+               <Button
+                  variant="secondary"
+                  onClick={() => setShowCancelModal(false)}
+               >
+                  Close
+               </Button>
+               <Button variant="danger" onClick={handleCancelSubmit}>
+                  Cancel Visit
+               </Button>
+            </Modal.Footer>
+         </Modal>
       </div>
    );
 };

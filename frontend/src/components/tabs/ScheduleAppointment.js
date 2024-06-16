@@ -94,6 +94,7 @@ const ScheduleAppointment = () => {
       guest_last_name,
       guest_phone_nr,
       guest_email,
+      status: 'Pending',
       user: currentUser.user.user_id,
       dormitory: currentUser.user.dormitory
     })

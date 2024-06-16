@@ -84,6 +84,8 @@ class UserVisitSerializer(serializers.ModelSerializer):
             "guest_email",
             "user",
             "dormitory",
+            "status",
+            "description",
         )
 
 

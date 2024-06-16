@@ -39,8 +39,21 @@ class Guest(models.Model):
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
-
-### dodac model wniosku
+class Visit(models.Model):
+    resident = models.ForeignKey(Resident, on_delete=models.CASCADE, related_name='visits')
+    guest = models.ForeignKey(Guest, on_delete=models.CASCADE, related_name='visits')
+    #wniosek
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=50, default='scheduled')  # Possible values like 'scheduled', 'ongoing', 'completed'
+    def extend_visit(self):
+        if self.end_time + timedelta(days=1) - self.start_time <= timedelta(days=3):
+            self.end_time += timedelta(days=1)
+            self.save()
+        else:
+            raise ValueError("Nie można przedłużyć wizyty dłużej niż 3 dni")
+    def __str__(self):
+        return f"Visit of {self.guest.last_name} at {self.resident.last_name} from {self.start_time.strftime('%Y-%m-%d %H:%M')}"
 
 
 class AppUserManager(BaseUserManager):
@@ -151,6 +164,8 @@ class Visit(models.Model):
     guest_email = models.EmailField(max_length=50, blank=False)
     user = models.ForeignKey("AppUser", on_delete=models.CASCADE)
     dormitory = models.CharField(max_length=100)
+    status = models.CharField(max_length=50, default="Pending")
+    description = models.TextField(blank=True, null=True)
 
     def extend_visit(self, days=1):
         self.end_date += timedelta(days=days)
