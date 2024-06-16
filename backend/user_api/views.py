@@ -16,6 +16,8 @@ import logging
 import smtplib
 import ssl
 import json
+import mimetypes
+import qrcode
 
 # Inicjalizacja loggera
 logger = logging.getLogger(__name__)
@@ -106,14 +108,30 @@ class UserVisit(APIView):
         # Formatowanie daty i godziny
         start_datetime = f"{data['start_date']} {data['start_time']}"
         end_datetime = f"{data['end_date']} {data['end_time']}"
-        
+    
+        # Generowanie kodu QR
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(change_status_url)
+        qr.make(fit=True)
+        img = qr.make_image(fill='black', back_color='white')
+
+        # Zapisanie obrazu kodu QR do pliku
+        qr_filename = "change_status_qr.png"
+        img.save(qr_filename)
+
         # Tworzenie wiadomości
         message = (
             f"Zaplanowano wizytę dla {data['guest_first_name']} {data['guest_last_name']} "
             f"w terminie od {start_datetime} do {end_datetime} w {data['dormitory']}.\n\n"
             "Aby zmienic status wizyty na 'w trakcie', nacisnij link:\n"
-            f"{change_status_url}"
-    )
+            f"{change_status_url}\n\n"
+            "Alternatywnie, możesz zeskanować dołączony kod QR."
+        )
         from_email = os.environ.get("EMAIL")
         email_password = os.environ.get("EMAIL_PASSWORD")
 
@@ -123,14 +141,28 @@ class UserVisit(APIView):
             em["To"] = guest_email
             em["Subject"] = subject
             em.set_content(message)
+
+            # Określenie typu MIME pliku
+            ctype, encoding = mimetypes.guess_type(qr_filename)
+            if ctype is None or encoding is not None:
+                ctype = "application/octet-stream"
+            maintype, subtype = ctype.split("/", 1)
+
+            # Załączenie pliku kodu QR do wiadomości e-mail
+            with open(qr_filename, "rb") as qr_file:
+                em.add_attachment(qr_file.read(), maintype=maintype, subtype=subtype, filename=qr_filename)
+
             context = ssl.create_default_context()
             with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
                 smtp.login(from_email, email_password)
-                smtp.sendmail(from_email, guest_email, em.as_string())
+                smtp.send_message(em)
             logger.info(f"Email sent successfully to {guest_email}")
         except Exception as e:
             logger.error(f"Error sending email to {guest_email}: {e}")
-
+        finally:
+            # Usunięcie pliku kodu QR po wysłaniu wiadomości e-mail
+            if os.path.exists(qr_filename):
+                os.remove(qr_filename)
 
 class ChangeStatus(APIView):
     permission_classes = (permissions.AllowAny,)
@@ -171,10 +203,28 @@ class ChangeStatus(APIView):
         complete_visit_url = request.build_absolute_uri(
             f"/api/complete_visit/{visit.id}/"
         )
+
+        # Generowanie kodu QR
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(complete_visit_url)
+        qr.make(fit=True)
+        img = qr.make_image(fill='black', back_color='white')
+
+        # Zapisanie obrazu kodu QR do pliku
+        qr_filename = "complete_visit_qr.png"
+        img.save(qr_filename)
+
+        # Tworzenie wiadomości
         message = (
             f"Status twojej wizyty {visit.id} zmienił się na trwająca.\n\n"
             f"Aby zakończyć wizytę, naciśnij link:\n"
-            f"{complete_visit_url}"
+            f"{complete_visit_url}\n\n"
+            "Alternatywnie, możesz zeskanować dołączony kod QR."
         )
         from_email = os.environ.get("EMAIL")
         email_password = os.environ.get("EMAIL_PASSWORD")
@@ -185,13 +235,28 @@ class ChangeStatus(APIView):
             em["To"] = guest_email
             em["Subject"] = subject
             em.set_content(message)
+
+            # Określenie typu MIME pliku
+            ctype, encoding = mimetypes.guess_type(qr_filename)
+            if ctype is None or encoding is not None:
+                ctype = "application/octet-stream"
+            maintype, subtype = ctype.split("/", 1)
+
+            # Załączenie pliku kodu QR do wiadomości e-mail
+            with open(qr_filename, "rb") as qr_file:
+                em.add_attachment(qr_file.read(), maintype=maintype, subtype=subtype, filename=qr_filename)
+
             context = ssl.create_default_context()
             with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
                 smtp.login(from_email, email_password)
-                smtp.sendmail(from_email, guest_email, em.as_string())
+                smtp.send_message(em)
             logger.info(f"Email sent successfully to {guest_email}")
         except Exception as e:
             logger.error(f"Error sending email to {guest_email}: {e}")
+        finally:
+            # Usunięcie pliku kodu QR po wysłaniu wiadomości e-mail
+            if os.path.exists(qr_filename):
+                os.remove(qr_filename)
 
 
 class CompleteVisit(APIView):
