@@ -6,6 +6,26 @@ import { Row, Col, Container, Card, Table, Button } from "react-bootstrap";
 import "./Home.css";
 import moment from "moment";
 
+import { Calendar } from 'fullcalendar'
+import Fullcalendar from '@fullcalendar/react'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import timeGridPlugin from '@fullcalendar/timegrid'
+import interactionPlugin from '@fullcalendar/interaction'
+import * as bootstrap from 'bootstrap'
+import 'bootstrap/dist/css/bootstrap.min.css'
+
+function formatHours(date)
+{
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+
+    hours = hours < 10 ? '0' + hours : hours;
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+
+    return hours + ':' + minutes;
+}
+
+
 const Home = () => {
    const { currentUser, isAuthenticated, isLoading } = useContext(AuthContext);
    const { userVisits, getUserVisits, setGetUserVisits } =
@@ -86,6 +106,23 @@ const Home = () => {
       return timeString.substr(0, 5); // Trims string to format HH:mm
    };
 
+   const events = userVisits.map(visit => {
+        const startDateTimeStr = visit.start_date + "T" + visit.start_time;
+        const startDateTime = new Date(startDateTimeStr);
+
+        const endDateTimeStr = visit.end_date + "T" + visit.end_time;
+        const endDateTime = new Date(endDateTimeStr);
+
+        return {
+            title: visit.guest_first_name + " " + visit.guest_last_name,
+            start: startDateTime,
+            end: endDateTime,
+            backgroundColor: "#2c3e50",
+            groupId: getStatusText(visit.status)
+        }
+
+    });
+
    if (isLoading) {
       return <div>Loading...</div>; // Display a loading message while fetching user data
    }
@@ -132,95 +169,33 @@ const Home = () => {
                               <strong>Twoje wizyty:</strong>
                            </h2>
                         </Row>
-                        <Row>
-                           {userVisits.map((visit, index) => (
-                              <Col md={3} key={index} className="mb-4">
-                                 <Card className="card-hover">
-                                    <Card.Header className="card_header">
-                                       <strong>
-                                          {visit.guest_first_name}{" "}
-                                          {visit.guest_last_name}
-                                       </strong>
-                                    </Card.Header>
-                                    <Card.Body>
-                                       <Table borderless size="sm">
-                                          <tbody>
-                                             <tr>
-                                                <td>
-                                                   <strong>Rozpoczęcie:</strong>
-                                                </td>
-                                                <td>{visit.start_date}</td>
-                                                <td>
-                                                   {formatTime(
-                                                      visit.start_time
-                                                   )}
-                                                </td>
-                                             </tr>
-                                             <tr>
-                                                <td>
-                                                   <strong>Zakończenie:</strong>
-                                                </td>
-                                                <td>{visit.end_date}</td>
-                                                <td>
-                                                   {formatTime(visit.end_time)}
-                                                </td>
-                                             </tr>
-                                             <tr>
-                                                <td>
-                                                   <strong>
-                                                      Status Wizyty:
-                                                   </strong>
-                                                </td>
-                                                <td colSpan="2">
-                                                   {getStatusText(visit.status)}
-                                                </td>
-                                             </tr>
-                                             <tr>
-                                                <td>
-                                                   <strong>
-                                                      Status przedłużenia:
-                                                   </strong>
-                                                </td>
-                                                <td colSpan="2">
-                                                   {getExtentionText(
-                                                      visit.extensionStatus
-                                                   )}
-                                                </td>
-                                             </tr>
-                                          </tbody>
-                                       </Table>
-                                       <div className="button-container">
-                                          <Button
-                                             className="btn-custom"
-                                             onClick={() =>
-                                                handleExtensionRequest(visit)
-                                             }
-                                             disabled={
-                                                visit.extensionStatus !== "Brak"
-                                             }
-                                          >
-                                             Przedłuż wizytę
-                                          </Button>
-                                       </div>
-
-                                       <div className="button-container">
-                                          <Button
-                                             className="btn-custom"
-                                             onClick={() =>
-                                                handleCancelRequest(visit)
-                                             }
-                                             disabled={
-                                                visit.status !== "Pending"
-                                             }
-                                          >
-                                             Anuluj wizytę
-                                          </Button>
-                                       </div>
-                                    </Card.Body>
-                                 </Card>
-                              </Col>
-                           ))}
-                        </Row>
+                        <Fullcalendar
+                            //plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                            initialView={"dayGridMonth"}
+                            headerToolbar = {{
+                            start: "today prev, next",
+                            center: "title",
+                            end: "dayGridMonth,timeGridWeek,timeGridDay",
+                            }}
+                            height={"100vh"}
+                            eventColor={"#2c3e50"}
+                            eventDisplay={"block"}
+                            events = {events}
+                            eventDidMount={(info) => {
+                                return new bootstrap.Popover(info.el, {
+                                    title: info.event.title,
+                                    placement: "auto",
+                                    trigger: "hover",
+                                    customClass: "popoverStyle",
+                                    content:
+                                      "<p> Godzina rozpoczęcia: " + formatHours(info.event.start) + "<br>Godzina zakończenia: " + formatHours(info.event.end) +
+                                      "<br>Status wizyty: " + info.event.groupId + "</p>",
+                                    html: true,
+                                    sanitize: false,
+                                    });
+                                    }}
+                            />
+                        <br></br>
                      </div>
                   )}
                   {userVisits && userVisits.length === 0 && (

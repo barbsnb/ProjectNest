@@ -15,6 +15,11 @@ const CustomNavbar = () => {
         navigate('/home');
     };
 
+    const goToManageVisists = () =>
+    {
+        navigate('/manage_visits');
+    };
+
     const goToInfoPage = () => {
         navigate('/');
     };
@@ -56,6 +61,7 @@ const CustomNavbar = () => {
                                 {/* Warunek dla zalogowanego użytkownika */}
                                 {currentUser.user.is_receptionist === false && currentUser.user.is_community_member === false && (
                                 <>
+                                    <button onClick={goToManageVisists} className="mx-2 navbar_btn">Zarządzaj wizytami</button>
                                     <button onClick={goToAppointmentPage} className="mx-2 navbar_btn">Umów wizytę</button>
                                     <button onClick={goToHomePage} className="mx-2 navbar_btn">Strona główna</button>
                                     
@@ -72,6 +78,7 @@ const CustomNavbar = () => {
                                 {/* Warunek dla członka społeczności */}
                                 {currentUser.user.is_community_member === true && (
                                     <>
+                                        <button onClick={goToManageVisists} className="mx-2 navbar_btn">Zarządzaj wizytami</button>
                                         <button onClick={goToAppointmentPage} className="mx-2 navbar_btn">Umów wizytę</button>
                                         <button onClick={goToHomePage} className="mx-2 navbar_btn">Strona główna</button>
                                         <button onClick={goToAppointmentExtentionPage} className="mx-2 navbar_btn">Przedłużenie wizyty</button>
