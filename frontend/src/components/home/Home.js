@@ -177,7 +177,7 @@ const Home = () => {
                             center: "title",
                             end: "dayGridMonth,timeGridWeek,timeGridDay",
                             }}
-                            height={"100vh"}
+                            height={"auto"}
                             eventColor={"#2c3e50"}
                             eventDisplay={"block"}
                             events = {events}
