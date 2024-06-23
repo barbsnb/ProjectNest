@@ -47,6 +47,10 @@ const CustomNavbar = () => {
     const goToAppointmentRequestPage = () => {
         navigate('/visit_extension'); //do poprawy - powinno przechodzic do innej strony
     };
+
+    const goToReportsPage = () => {
+        navigate('/reports');
+    };
      
     console.log(currentUser)
 
@@ -72,6 +76,7 @@ const CustomNavbar = () => {
                                 {currentUser.user.is_receptionist === true && (
                                     <>
                                         <button onClick={goToAllAppointmentsPage} className="mx-2 navbar_btn">Strona główna</button>
+                                        <button onClick={goToReportsPage} className="mx-2 navbar_btn">Raporty</button>
                                     </>
                                 )}
 

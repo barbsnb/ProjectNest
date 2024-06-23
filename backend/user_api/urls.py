@@ -37,8 +37,22 @@ urlpatterns = [
     ),
     path('cancel_visit/<int:visit_id>', 
          views.CancelVisit.as_view(), 
-         name='cancel_visit'),
+         name='cancel_visit'
+         ),
     path('admin_cancel_visit/<int:visit_id>/', 
          views.AdminCancelVisit.as_view(), 
-         name='admin_cancel_visit'),
+         name='admin_cancel_visit'
+         ),
+    path('user/<int:user_id>/guests/',
+        views.HostVisitsView.as_view(),
+        name='host-guests'
+      ),
+    path('reception/stats/',
+        views.ReceptionStatsView.as_view(),
+        name='reception-stats'
+      ),
+    path('monthly/report/<int:year>/<int:month>/',
+        views.MonthlyReportView.as_view(),
+        name='monthly-report'
+      ),
 ]

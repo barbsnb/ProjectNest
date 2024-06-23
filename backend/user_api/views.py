@@ -3,12 +3,12 @@ from rest_framework.authentication import SessionAuthentication, TokenAuthentica
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics
-from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer
 from rest_framework import permissions, status
+from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer, UserVisitSerializer, VisitExtensionSerializer, VisitSerializer
 from .validations import custom_validation, validate_email, validate_password
 from .models import Visit, AppUser, VisitExtension
-from .serializers import UserVisitSerializer, VisitExtensionSerializer
-from datetime import timedelta
+from datetime import datetime, timedelta
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from email.message import EmailMessage
 import os
@@ -567,6 +567,81 @@ class UserDetailView(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (permissions.IsAuthenticated,)
+
+class HostVisitsView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def get(self, request, user_id):
+        try:
+            visits = Visit.objects.filter(user_id=user_id)
+            if not visits.exists():
+                return Response({'error': 'No guests found for this user.'}, status=status.HTTP_404_NOT_FOUND)
+
+            serializer = VisitSerializer(visits, many=True)
+            return Response({'guests': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class ReceptionStatsView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def get(self, request):
+        try:
+            start_date = request.GET.get('start_date')
+            end_date = request.GET.get('end_date')
+
+            if start_date and end_date:
+                stats = {
+                    'total_visits': Visit.objects.filter(start_date__range=[start_date, end_date]).count(),
+                    'active_visits': Visit.objects.filter(status='inprogress', start_date__range=[start_date, end_date]).count(),
+                    'cancelled_visits': Visit.objects.filter(status='cancelled', start_date__range=[start_date, end_date]).count(),
+                    'completed_visits': Visit.objects.filter(status='completed', start_date__range=[start_date, end_date]).count(),
+                    'pending_visits': Visit.objects.filter(status='pending', start_date__range=[start_date, end_date]).count(),
+                    'expelled_visits': Visit.objects.filter(status='expelled', start_date__range=[start_date, end_date]).count(),
+                }
+            else:
+                stats = {
+                    'total_visits': Visit.objects.count(),
+                    'active_visits': Visit.objects.filter(status='inprogress').count(),
+                    'cancelled_visits': Visit.objects.filter(status='cancelled').count(),
+                    'completed_visits': Visit.objects.filter(status='completed').count(),
+                    'pending_visits': Visit.objects.filter(status='pending').count(),
+                    'expelled_visits': Visit.objects.filter(status='expelled').count(),
+                }
+
+            translated_stats = {
+                'total_visits': 'Łączna liczba wizyt',
+                'active_visits': 'Wizyty w toku',
+                'cancelled_visits': 'Anulowane wizyty',
+                'completed_visits': 'Zakończone wizyty',
+                'pending_visits': 'Oczekujące wizyty',
+                'expelled_visits': 'Wydalone wizyty'
+            }
+
+            response = {translated_stats[key]: value for key, value in stats.items()}
+
+            return Response(response)
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
+
+
+class MonthlyReportView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def get(self, request, year, month):
+        try:
+            start_date = datetime(year, month, 1)
+            end_date = datetime(year, month, 28 if month == 2 else 30)
+            visits = Visit.objects.filter(start_date__range=(start_date, end_date))
+            if not visits.exists():
+                return Response({'error': 'No visits found for this period.'}, status=404)
+            stats = visits.values('start_date').annotate(total=Count('id'))
+            return Response(stats)
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
 
 
 # class VisitListView(generics.ListCreateAPIView):
