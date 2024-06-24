@@ -1,4 +1,5 @@
 import React, { useState, useContext } from "react";
+import Autosuggest from 'react-autosuggest';
 import { AuthContext } from "../../contexts/AuthContext";
 import client from "../../axiosClient";
 import Row from "react-bootstrap/Row";
@@ -6,10 +7,18 @@ import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import DatePicker from "react-datepicker";
+import _ from "lodash";
 import "./ReportingComponent.css";
 import "react-datepicker/dist/react-datepicker.css";
-
 import moment from "moment";
+
+// Funkcje pomocnicze dla Autosuggest
+const getSuggestionValue = suggestion => `${suggestion.first_name} ${suggestion.last_name}`;
+const renderSuggestion = suggestion => (
+    <div className="autosuggest-suggestion">
+        {suggestion.first_name} {suggestion.last_name} - {suggestion.email} - {suggestion.room_number}
+    </div>
+);
 
 const ReportingComponent = () => {
     const { currentUser } = useContext(AuthContext);
@@ -19,15 +28,13 @@ const ReportingComponent = () => {
     const [endDate, setEndDate] = useState(new Date());
     const [reportData, setReportData] = useState(null);
     const [error, setError] = useState('');
+    const [suggestions, setSuggestions] = useState([]);
+    const [value, setValue] = useState('');
 
     const handleReportTypeChange = (e) => {
         setReportType(e.target.value);
         setReportData(null);
         setError('');
-    };
-
-    const handleUserIdChange = (e) => {
-        setUserId(e.target.value);
     };
 
     const fetchReportData = async () => {
@@ -56,6 +63,39 @@ const ReportingComponent = () => {
                 setError('There was an error fetching the report!');
             }
         }
+    };
+
+    const onSuggestionsFetchRequested = ({ value }) => {
+        const fetchSuggestions = async () => {
+            try {
+                const response = await client.get(`/api/user_search/?q=${value}`);
+                setSuggestions(response.data);
+            } catch (error) {
+                console.error(error);
+                setSuggestions([]);
+            }
+        };
+
+        fetchSuggestions();
+    };
+
+    const onSuggestionsClearRequested = () => {
+        setSuggestions([]);
+    };
+
+    const onChange = (event, { newValue }) => {
+        setValue(newValue);
+    };
+
+    const onSuggestionSelected = (event, { suggestion }) => {
+        setUserId(suggestion.id);  // Ustaw userId na wartość pola id
+    };
+
+    const inputProps = {
+        placeholder: 'Wyszukaj użytkownika',
+        value,
+        onChange: onChange,
+        className: 'autosuggest-input'
     };
 
     const renderTable = () => {
@@ -152,7 +192,21 @@ const ReportingComponent = () => {
                         <Col>
                             <Form.Group controlId="userId" className="form-group">
                                 <Form.Label>ID użytkownika</Form.Label>
-                                <Form.Control type="text" value={userId} onChange={handleUserIdChange} className="form-control"/>
+                                <Autosuggest
+                                    suggestions={suggestions}
+                                    onSuggestionsFetchRequested={onSuggestionsFetchRequested}
+                                    onSuggestionsClearRequested={onSuggestionsClearRequested}
+                                    getSuggestionValue={getSuggestionValue}
+                                    renderSuggestion={renderSuggestion}
+                                    inputProps={inputProps}
+                                    onSuggestionSelected={onSuggestionSelected}
+                                    theme={{
+                                        container: 'autosuggest-container',
+                                        suggestionsContainer: 'autosuggest-suggestions-container',
+                                        suggestion: 'autosuggest-suggestion',
+                                        suggestionHighlighted: 'autosuggest-suggestion--highlighted'
+                                    }}
+                                />
                             </Form.Group>
                         </Col>
                     </Row>

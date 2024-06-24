@@ -643,6 +643,25 @@ class MonthlyReportView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=500)
 
+class UserSearchView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def get(self, request):
+        query = request.GET.get('q', '')
+
+        if query:
+            users = User.objects.filter(
+                Q(user_id__icontains=query) |
+                Q(first_name__icontains=query) |
+                Q(last_name__icontains=query) |
+                Q(email__icontains=query) |
+                Q(room_number__icontains=query)
+            )
+            results = [{'id': user.user_id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email, 'room_number': user.room_number} for user in users]
+            return Response(results, status=status.HTTP_200_OK)
+        return Response({'error': 'No query provided'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 # class VisitListView(generics.ListCreateAPIView):
 #     permission_classes = (permissions.IsAuthenticated,)

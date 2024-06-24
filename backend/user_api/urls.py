@@ -55,4 +55,8 @@ urlpatterns = [
         views.MonthlyReportView.as_view(),
         name='monthly-report'
       ),
+    path('user_search/',
+        views.UserSearchView.as_view(),
+        name='user_search'
+      ),
 ]
