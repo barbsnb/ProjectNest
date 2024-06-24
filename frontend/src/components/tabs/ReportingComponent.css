@@ -71,7 +71,7 @@
     box-sizing: border-box;
 }
 
-
+/* Container for the autosuggest suggestions */
 .autosuggest-suggestions-container {
     border: 1px solid #ccc;
     max-height: 200px;
@@ -82,7 +82,7 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-
+/* Styling each suggestion */
 .autosuggest-suggestion {
     padding: 5px;
     border-bottom: 1px solid #eee;
@@ -91,12 +91,12 @@
     justify-content: space-between;
 }
 
-
+/* Styling for highlighted suggestion */
 .autosuggest-suggestion--highlighted {
     background-color: #ddd;
 }
 
-
+/* Styling the input */
 .autosuggest-input {
     width: 100%;
     padding: 10px;

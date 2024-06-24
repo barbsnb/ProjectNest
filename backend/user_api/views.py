@@ -704,16 +704,17 @@ class HostVisitsDownloadView(APIView):
                 return Response({'error': 'No guests found for this user.'}, status=status.HTTP_404_NOT_FOUND)
 
             response = HttpResponse(content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename="guest_list.csv"'
+            response['Content-Disposition'] = 'attachment; filename="Lista_gości_dla_hosta.csv"'
 
             writer = csv.writer(response)
-            writer.writerow(['ID', 'First Name', 'Last Name', 'Start Date'])
+            writer.writerow(['ID', 'Guest First Name', 'Guest Last Name', 'Start Date'])
             for visit in visits:
                 writer.writerow([visit.id, visit.guest_first_name, visit.guest_last_name, visit.start_date])
 
             return response
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class ReceptionStatsDownloadView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -733,7 +734,7 @@ class ReceptionStatsDownloadView(APIView):
             total_visits = visits.count()
 
             response = HttpResponse(content_type='text/csv')
-            response['Content-Disposition'] = f'attachment; filename="reception_stats_{start_date}_to_{end_date}.csv"'
+            response['Content-Disposition'] = f'attachment; filename="Statystyki_aktywności_recepcji_{start_date}_do_{end_date}.csv"'
 
             writer = csv.writer(response)
             writer.writerow(['Start Date', 'End Date'])
@@ -747,7 +748,6 @@ class ReceptionStatsDownloadView(APIView):
             return response
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 
 
@@ -772,7 +772,7 @@ class MonthlyReportDownloadView(APIView):
                 return Response({'error': 'No visits found for this period.'}, status=status.HTTP_404_NOT_FOUND)
 
             response = HttpResponse(content_type='text/csv')
-            response['Content-Disposition'] = f'attachment; filename="monthly_report_{start_date_str}_to_{end_date_str}.csv"'
+            response['Content-Disposition'] = f'attachment; filename="Raport_wizyt_w_wybranym_okresie_{start_date_str}_do_{end_date_str}.csv"'
 
             writer = csv.writer(response)
             writer.writerow(['Start Date', 'End Date'])

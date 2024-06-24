@@ -41,16 +41,21 @@ const ReportingComponent = () => {
 
     const fetchReportData = async (download = false) => {
         let url = '';
+        let filename = 'report.csv';
+
         if (reportType === 'guestList') {
             url = `/api/user/${userId}/guests/`;
+            filename = 'Lista_gości_dla_hosta.csv';
         } else if (reportType === 'receptionStats') {
             const formattedStartDate = moment(startDate).format('YYYY-MM-DD');
             const formattedEndDate = moment(endDate).format('YYYY-MM-DD');
             url = `/api/reception/stats/?start_date=${formattedStartDate}&end_date=${formattedEndDate}`;
+            filename = `Statystyki_aktywności_recepcji_${formattedStartDate}_do_${formattedEndDate}.csv`;
         } else if (reportType === 'monthlyReport') {
             const formattedStartDate = moment(startDate).format('YYYY-MM-DD');
             const formattedEndDate = moment(endDate).format('YYYY-MM-DD');
             url = `/api/monthly/report/?start_date=${formattedStartDate}&end_date=${formattedEndDate}`;
+            filename = `Raport_wizyt_w_wybranym_okresie_${formattedStartDate}_do_${formattedEndDate}.csv`;
         }
 
         if (download) {
@@ -69,7 +74,7 @@ const ReportingComponent = () => {
             try {
                 const response = await client.get(url, { responseType: 'blob' });
                 const blob = new Blob([response.data], { type: 'text/csv' });
-                saveAs(blob, 'report.csv');
+                saveAs(blob, filename);
             } catch (error) {
                 console.error(error);
             }
@@ -88,6 +93,7 @@ const ReportingComponent = () => {
             }
         }
     };
+
 
     const onSuggestionsFetchRequested = ({ value }) => {
         const fetchSuggestions = async () => {
@@ -116,7 +122,7 @@ const ReportingComponent = () => {
     };
 
     const inputProps = {
-        placeholder: 'Wyszukaj użytkownika',
+        placeholder: 'Wyszukaj hosta',
         value,
         onChange: onChange,
         className: 'autosuggest-input'
