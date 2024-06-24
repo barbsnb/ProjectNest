@@ -61,3 +61,62 @@
     border: 1px solid #ccc;
     border-radius: 4px;
 }
+
+.form-control {
+    height: auto;
+    padding: 8px 12px;
+    font-size: 16px;
+    line-height: 1.5;
+    box-sizing: border-box;
+}
+
+/* Dodaj stylizację dla kontenera autosugestii */
+.autosuggest-suggestions-container {
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    background: #fff;
+    position: absolute;
+    z-index: 2;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+
+.autosuggest-suggestion {
+    padding: 5px 10px; 
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    display: flex;
+    flex-direction: row; 
+    align-items: center;
+    justify-content: space-between; 
+}
+
+
+.autosuggest-suggestion--highlighted {
+    background-color: #ddd;
+}
+
+
+.autosuggest-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+
+.autosuggest-suggestion span {
+    display: inline-block; 
+    margin-right: 10px; 
+    white-space: nowrap;
+}
+
+.autosuggest-suggestion span::after {
+    content: ", "; 
+}
+
+.autosuggest-suggestion span:last-child::after {
+    content: ""; 
+}

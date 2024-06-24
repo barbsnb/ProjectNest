@@ -12,13 +12,16 @@ import "./ReportingComponent.css";
 import "react-datepicker/dist/react-datepicker.css";
 import moment from "moment";
 
-// Funkcje pomocnicze dla Autosuggest
+
 const getSuggestionValue = suggestion => `${suggestion.first_name} ${suggestion.last_name}`;
 const renderSuggestion = suggestion => (
     <div className="autosuggest-suggestion">
-        {suggestion.first_name} {suggestion.last_name} - {suggestion.email} - {suggestion.room_number}
+        <span>{suggestion.first_name} {suggestion.last_name}</span>
+        <span>{suggestion.email}</span>
+        <span>{suggestion.room_number}</span>
     </div>
 );
+
 
 const ReportingComponent = () => {
     const { currentUser } = useContext(AuthContext);
@@ -106,7 +109,6 @@ const ReportingComponent = () => {
                 <table className="visits-table">
                     <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Imię gościa</th>
                         <th>Nazwisko gościa</th>
                         <th>Data wizyty</th>
@@ -115,7 +117,6 @@ const ReportingComponent = () => {
                     <tbody>
                     {reportData.guests.map(guest => (
                         <tr key={guest.id}>
-                            <td>{guest.id}</td>
                             <td>{guest.guest_first_name}</td>
                             <td>{guest.guest_last_name}</td>
                             <td>{guest.start_date}</td>

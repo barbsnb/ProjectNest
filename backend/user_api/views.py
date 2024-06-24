@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from email.message import EmailMessage
+from django.db.models import Q
 import os
 import logging
 import smtplib
@@ -593,38 +594,44 @@ class ReceptionStatsView(APIView):
             end_date = request.GET.get('end_date')
 
             if start_date and end_date:
-                stats = {
-                    'total_visits': Visit.objects.filter(start_date__range=[start_date, end_date]).count(),
-                    'active_visits': Visit.objects.filter(status='inprogress', start_date__range=[start_date, end_date]).count(),
-                    'cancelled_visits': Visit.objects.filter(status='cancelled', start_date__range=[start_date, end_date]).count(),
-                    'completed_visits': Visit.objects.filter(status='completed', start_date__range=[start_date, end_date]).count(),
-                    'pending_visits': Visit.objects.filter(status='pending', start_date__range=[start_date, end_date]).count(),
-                    'expelled_visits': Visit.objects.filter(status='expelled', start_date__range=[start_date, end_date]).count(),
-                }
+                stats_queryset = Visit.objects.filter(
+                    start_date__range=[start_date, end_date]
+                ).values("status").annotate(count=Count("status"))
             else:
-                stats = {
-                    'total_visits': Visit.objects.count(),
-                    'active_visits': Visit.objects.filter(status='inprogress').count(),
-                    'cancelled_visits': Visit.objects.filter(status='cancelled').count(),
-                    'completed_visits': Visit.objects.filter(status='completed').count(),
-                    'pending_visits': Visit.objects.filter(status='pending').count(),
-                    'expelled_visits': Visit.objects.filter(status='expelled').count(),
-                }
+                stats_queryset = Visit.objects.values("status").annotate(count=Count("status"))
+
+            
+            all_statuses = ['inprogress', 'cancelled', 'completed', 'pending', 'expelled']
+            stats = {status: 0 for status in all_statuses}
+
+         
+            for item in stats_queryset:
+                status = item['status'].strip().lower()  
+                count = item['count']
+                if status in stats:
+                    stats[status] += count
+                else:
+                    stats[status] = count
+
+        
+            print(f"Stats queryset: {stats_queryset}")
+            print(f"Computed stats: {stats}")
 
             translated_stats = {
-                'total_visits': 'Łączna liczba wizyt',
-                'active_visits': 'Wizyty w toku',
-                'cancelled_visits': 'Anulowane wizyty',
-                'completed_visits': 'Zakończone wizyty',
-                'pending_visits': 'Oczekujące wizyty',
-                'expelled_visits': 'Wydalone wizyty'
+                'inprogress': 'Wizyty w toku',
+                'cancelled': 'Anulowane wizyty',
+                'completed': 'Zakończone wizyty',
+                'pending': 'Oczekujące wizyty',
+                'expelled': 'Wydalone wizyty'
             }
 
-            response = {translated_stats[key]: value for key, value in stats.items()}
-
+            response = {translated_stats.get(key, key): value for key, value in stats.items()}
+            response['Łączna liczba wizyt'] = sum(stats.values())
             return Response(response)
         except Exception as e:
-            return Response({'error': str(e)}, status=500)
+            logger.error(f"Error retrieving reception stats: {e}")
+            return Response({"error": "Internal server error"}, status=500)
+
 
 
 class MonthlyReportView(APIView):
