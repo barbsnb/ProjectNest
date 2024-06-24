@@ -1,6 +1,8 @@
 import React, { useContext, useState } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
 import { UserVisitsContext } from "../../contexts/UserVisitsContext";
+
+
 import client from "../../axiosClient"; // Ensure the path is correct
 import { Row, Col, Container, Card, Table, Button } from "react-bootstrap";
 import "./ManageVisits.css";
@@ -74,9 +76,11 @@ const Home = () => {
 
    const getExtentionText = (status) => {
       if (status === "Approved") {
-         return "Wniosek zaakceptowany";
+         return "Zaakceptowany";
       } else if (status === "Rejected") {
-         return "Wniosek odrzucony";
+         return "Odrzucony";
+      } else if (status === "Pending") {
+         return "Oczekujący";
       } else {
          return " - ";
       }

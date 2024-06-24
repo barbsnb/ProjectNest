@@ -100,7 +100,7 @@ const RegistrationForm = () => {
       room_number
     })
       .then(res => {
-        setCurrentUser(res.data);
+        // setCurrentUser(res.data);
         window.location.href = '/'; // Przekierowanie na stronę główną po rejestracji
       })
       .catch(err => console.error("Registration failed: ", err));

@@ -36,17 +36,15 @@ const CustomNavbar = () => {
         navigate('/register');
     };
 
-    const goToAppointmentExtentionPage = () => {
-        navigate('/visit_extension'); //do poprawy - powinno przechodzic do innej strony
-    };
+    // const goToAppointmentExtentionPage = () => {
+    //     navigate('/visit_extension'); //do poprawy - powinno przechodzic do innej strony
+    // };
 
     const goToAllAppointmentsPage = () => {
         navigate('/visit_list'); 
     };
 
-    const goToAppointmentRequestPage = () => {
-        navigate('/visit_extension'); //do poprawy - powinno przechodzic do innej strony
-    };
+
      
     console.log(currentUser)
 
@@ -81,8 +79,6 @@ const CustomNavbar = () => {
                                         <button onClick={goToManageVisists} className="mx-2 navbar_btn">Zarządzaj wizytami</button>
                                         <button onClick={goToAppointmentPage} className="mx-2 navbar_btn">Umów wizytę</button>
                                         <button onClick={goToHomePage} className="mx-2 navbar_btn">Strona główna</button>
-                                        <button onClick={goToAppointmentExtentionPage} className="mx-2 navbar_btn">Przedłużenie wizyty</button>
-                                        <button onClick={goToAppointmentRequestPage} className="mx-2 navbar_btn">Wnioski</button>
                                         <button onClick={goToAllAppointmentsPage} className="mx-2 navbar_btn">Lista wszystkich wizyt</button>
                                     </>
                                 )}

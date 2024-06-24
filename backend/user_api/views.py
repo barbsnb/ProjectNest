@@ -450,23 +450,29 @@ class AllVisitListView(APIView):
 
     def get(self, request):
         try:
+            print(request.user.is_authenticated)
+            print(request.user.is_community_member)
+            
             if not request.user.is_authenticated:
+                print("a")
                 return Response(
                     {"error": "User not authenticated"},
                     status=status.HTTP_401_UNAUTHORIZED,
                 )
 
-            if not request.user.is_receptionist:
+            if not request.user.is_receptionist and not request.user.is_community_member:
                 return Response(
-                    {"error": "User is not a receptionist"},
+                    {"error": "User is neither a receptionist nor a community member"},
                     status=status.HTTP_403_FORBIDDEN,
                 )
 
+            print(request.user.dormitory)
             visits = Visit.objects.filter(dormitory=request.user.dormitory)
             serializer = UserVisitSerializer(visits, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         except Exception as e:
+            print(f"Error fetching visit list: {e}")
             logger.error(f"Error fetching visit list: {e}")
             return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -529,7 +535,7 @@ class ApproveRejectExtension(APIView):
         elif action == "reject":
             extension.status = "Rejected"
             self.send_email_api(
-                extension.visit.guest_email, "Your visit extension has been rejected."
+                extension.visit.guest_email, f"Your visit extension has been rejected. Reason: {comment}"
             )
         else:
             return Response(
