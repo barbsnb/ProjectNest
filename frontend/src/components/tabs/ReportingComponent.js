@@ -7,21 +7,20 @@ import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import DatePicker from "react-datepicker";
-import _ from "lodash";
 import "./ReportingComponent.css";
 import "react-datepicker/dist/react-datepicker.css";
 import moment from "moment";
+import { saveAs } from 'file-saver';
 
-
+// Helper functions for Autosuggest
 const getSuggestionValue = suggestion => `${suggestion.first_name} ${suggestion.last_name}`;
 const renderSuggestion = suggestion => (
-    <div className="autosuggest-suggestion">
+    <div>
         <span>{suggestion.first_name} {suggestion.last_name}</span>
         <span>{suggestion.email}</span>
         <span>{suggestion.room_number}</span>
     </div>
 );
-
 
 const ReportingComponent = () => {
     const { currentUser } = useContext(AuthContext);
@@ -40,7 +39,7 @@ const ReportingComponent = () => {
         setError('');
     };
 
-    const fetchReportData = async () => {
+    const fetchReportData = async (download = false) => {
         let url = '';
         if (reportType === 'guestList') {
             url = `/api/user/${userId}/guests/`;
@@ -49,21 +48,43 @@ const ReportingComponent = () => {
             const formattedEndDate = moment(endDate).format('YYYY-MM-DD');
             url = `/api/reception/stats/?start_date=${formattedStartDate}&end_date=${formattedEndDate}`;
         } else if (reportType === 'monthlyReport') {
-            const year = moment(startDate).format('YYYY');
-            const month = moment(startDate).format('MM');
-            url = `/api/monthly/report/${year}/${month}/`;
+            const formattedStartDate = moment(startDate).format('YYYY-MM-DD');
+            const formattedEndDate = moment(endDate).format('YYYY-MM-DD');
+            url = `/api/monthly/report/?start_date=${formattedStartDate}&end_date=${formattedEndDate}`;
         }
 
-        try {
-            const response = await client.get(url);
-            setReportData(response.data);
-            setError('');
-        } catch (error) {
-            setReportData(null);
-            if (error.response) {
-                setError(error.response.data.error || 'There was an error fetching the report!');
-            } else {
-                setError('There was an error fetching the report!');
+        if (download) {
+            if (reportType === 'guestList') {
+                url = `/api/user/${userId}/guests/download/`;
+            } else if (reportType === 'receptionStats') {
+                const formattedStartDate = moment(startDate).format('YYYY-MM-DD');
+                const formattedEndDate = moment(endDate).format('YYYY-MM-DD');
+                url = `/api/reception/stats/download/?start_date=${formattedStartDate}&end_date=${formattedEndDate}`;
+            } else if (reportType === 'monthlyReport') {
+                const formattedStartDate = moment(startDate).format('YYYY-MM-DD');
+                const formattedEndDate = moment(endDate).format('YYYY-MM-DD');
+                url = `/api/monthly/report/download/?start_date=${formattedStartDate}&end_date=${formattedEndDate}`;
+            }
+
+            try {
+                const response = await client.get(url, { responseType: 'blob' });
+                const blob = new Blob([response.data], { type: 'text/csv' });
+                saveAs(blob, 'report.csv');
+            } catch (error) {
+                console.error(error);
+            }
+        } else {
+            try {
+                const response = await client.get(url);
+                setReportData(response.data);
+                setError('');
+            } catch (error) {
+                setReportData(null);
+                if (error.response) {
+                    setError(error.response.data.error || 'There was an error fetching the report!');
+                } else {
+                    setError('There was an error fetching the report!');
+                }
             }
         }
     };
@@ -192,7 +213,7 @@ const ReportingComponent = () => {
                     <Row className="mb-3">
                         <Col>
                             <Form.Group controlId="userId" className="form-group">
-                                <Form.Label>ID użytkownika</Form.Label>
+                                <Form.Label>Wyszukaj Hosta</Form.Label>
                                 <Autosuggest
                                     suggestions={suggestions}
                                     onSuggestionsFetchRequested={onSuggestionsFetchRequested}
@@ -240,7 +261,8 @@ const ReportingComponent = () => {
                     </Row>
                 )}
 
-                <Button id="filter_btn" onClick={fetchReportData} className="btn btn-primary">Generuj raport</Button>
+                <Button id="filter_btn" onClick={() => fetchReportData(false)} className="btn btn-primary">Generuj raport</Button>
+                {reportData && <Button id="download_btn" onClick={() => fetchReportData(true)} className="btn btn-secondary">Pobierz raport</Button>}
             </Form>
 
             {error && <div className="error">{error}</div>}

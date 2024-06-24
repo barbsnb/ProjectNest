@@ -51,12 +51,12 @@ urlpatterns = [
         views.ReceptionStatsView.as_view(),
         name='reception-stats'
       ),
-    path('monthly/report/<int:year>/<int:month>/',
-        views.MonthlyReportView.as_view(),
-        name='monthly-report'
-      ),
+    path('monthly/report/', views.MonthlyReportView.as_view(), name='monthly-report'),
     path('user_search/',
         views.UserSearchView.as_view(),
         name='user_search'
       ),
+    path('user/<int:user_id>/guests/download/', views.HostVisitsDownloadView.as_view(), name='host-guests-download'),
+    path('reception/stats/download/', views.ReceptionStatsDownloadView.as_view(), name='reception-stats-download'),
+    path('monthly/report/download/', views.MonthlyReportDownloadView.as_view(), name='monthly-report-download'),
 ]
