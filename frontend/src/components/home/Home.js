@@ -173,11 +173,17 @@ const Home = () => {
                             //plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                             initialView={"dayGridMonth"}
                             headerToolbar = {{
-                            start: "today prev, next",
-                            center: "title",
-                            end: "dayGridMonth",
+                            start: "title",
+                            center: "",
+                            end: "today prev,next",
+                            }}
+                            buttonText =
+                            {{
+                            today: "Bieżący miesiąc",
+                            month: ""
                             }}
                             height={"auto"}
+                            locale={"pl"}
                             eventColor={"#2c3e50"}
                             eventDisplay={"block"}
                             events = {events}
