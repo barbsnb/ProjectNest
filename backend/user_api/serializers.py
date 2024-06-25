@@ -95,3 +95,9 @@ class VisitExtensionSerializer(serializers.ModelSerializer):
     class Meta:
         model = VisitExtension
         fields = "__all__"
+
+
+class VisitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Visit
+        fields = ['id', 'guest_first_name', 'guest_last_name', 'start_date']

@@ -3,14 +3,17 @@ from rest_framework.authentication import SessionAuthentication, TokenAuthentica
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics
-from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer
 from rest_framework import permissions, status
+from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer, UserVisitSerializer, VisitExtensionSerializer, VisitSerializer
 from .validations import custom_validation, validate_email, validate_password
 from .models import Visit, AppUser, VisitExtension
-from .serializers import UserVisitSerializer, VisitExtensionSerializer
-from datetime import timedelta
+from datetime import datetime, timedelta
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from email.message import EmailMessage
+from django.db.models import Q
+from django.http import HttpResponse
+import csv
 import os
 import logging
 import smtplib
@@ -576,6 +579,220 @@ class UserDetailView(generics.RetrieveAPIView):
     serializer_class = UserSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
+class HostVisitsView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def get(self, request, user_id):
+        try:
+            visits = Visit.objects.filter(user_id=user_id)
+            if not visits.exists():
+                return Response({'error': 'No guests found for this user.'}, status=status.HTTP_404_NOT_FOUND)
+
+            if 'download' in request.GET:
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="guest_list.csv"'
+
+                writer = csv.writer(response)
+                writer.writerow(['ID', 'Guest First Name', 'Guest Last Name', 'Start Date'])
+                for visit in visits:
+                    writer.writerow([visit.id, visit.guest_first_name, visit.guest_last_name, visit.start_date])
+
+                return response
+
+            serializer = VisitSerializer(visits, many=True)
+            return Response({'guests': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ReceptionStatsView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def get(self, request):
+        try:
+            start_date = request.GET.get('start_date')
+            end_date = request.GET.get('end_date')
+
+            if start_date and end_date:
+                stats_queryset = Visit.objects.filter(
+                    start_date__range=[start_date, end_date]
+                ).values("status").annotate(count=Count("status"))
+            else:
+                stats_queryset = Visit.objects.values("status").annotate(count=Count("status"))
+
+            all_statuses = ['inprogress', 'cancelled', 'completed', 'pending', 'expelled']
+            stats = {status: 0 for status in all_statuses}
+
+            for item in stats_queryset:
+                stats[item['status'].lower()] = item['count']
+
+            if request.GET.get('download') == 'true':
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="reception_stats.csv"'
+
+                writer = csv.writer(response)
+                writer.writerow(['Rodzaj', 'Wartość'])
+                writer.writerow(['Data początkowa', start_date])
+                writer.writerow(['Data końcowa', end_date])
+
+                for key, value in stats.items():
+                    writer.writerow([key, value])
+
+                return response
+
+            translated_stats = {
+                'inprogress': 'Wizyty w toku',
+                'cancelled': 'Anulowane wizyty',
+                'completed': 'Zakończone wizyty',
+                'pending': 'Oczekujące wizyty',
+                'expelled': 'Wydalone wizyty'
+            }
+
+            response = {translated_stats.get(key, key): value for key, value in stats.items()}
+            return Response(response)
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
+
+class MonthlyReportView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def get(self, request):
+        try:
+            start_date_str = request.GET.get('start_date')
+            end_date_str = request.GET.get('end_date')
+
+            if not start_date_str or not end_date_str:
+                return Response({'error': 'Start date and end date are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+
+            visits = Visit.objects.filter(start_date__range=(start_date, end_date))
+
+            if not visits.exists():
+                return Response({'error': 'No visits found for this period.'}, status=status.HTTP_404_NOT_FOUND)
+
+            stats = visits.values('start_date').annotate(total=Count('id'))
+            return Response(stats, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+class UserSearchView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def get(self, request):
+        query = request.GET.get('q', '')
+
+        if query:
+            users = User.objects.filter(
+                Q(user_id__icontains=query) |
+                Q(first_name__icontains=query) |
+                Q(last_name__icontains=query) |
+                Q(email__icontains=query) |
+                Q(room_number__icontains=query)
+            )
+            results = [{'id': user.user_id, 'first_name': user.first_name, 'last_name': user.last_name, 'email': user.email, 'room_number': user.room_number} for user in users]
+            return Response(results, status=status.HTTP_200_OK)
+        return Response({'error': 'No query provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+class HostVisitsDownloadView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def get(self, request, user_id):
+        try:
+            visits = Visit.objects.filter(user_id=user_id)
+            if not visits.exists():
+                return Response({'error': 'No guests found for this user.'}, status=status.HTTP_404_NOT_FOUND)
+
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="Lista_gości_dla_hosta.csv"'
+
+            writer = csv.writer(response)
+            writer.writerow(['ID', 'Guest First Name', 'Guest Last Name', 'Start Date'])
+            for visit in visits:
+                writer.writerow([visit.id, visit.guest_first_name, visit.guest_last_name, visit.start_date])
+
+            return response
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ReceptionStatsDownloadView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def get(self, request):
+        try:
+            start_date = request.GET.get('start_date')
+            end_date = request.GET.get('end_date')
+
+            if start_date and end_date:
+                visits = Visit.objects.filter(start_date__range=[start_date, end_date])
+            else:
+                visits = Visit.objects.all()
+
+            stats = visits.values('status').annotate(count=Count('status'))
+            total_visits = visits.count()
+
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = f'attachment; filename="Statystyki_aktywności_recepcji_{start_date}_do_{end_date}.csv"'
+
+            writer = csv.writer(response)
+            writer.writerow(['Start Date', 'End Date'])
+            writer.writerow([start_date, end_date])
+            writer.writerow([])
+            writer.writerow(['Status', 'Count'])
+            for stat in stats:
+                writer.writerow([stat['status'], stat['count']])
+            writer.writerow(['Total', total_visits])
+
+            return response
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+class MonthlyReportDownloadView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def get(self, request):
+        try:
+            start_date_str = request.GET.get('start_date')
+            end_date_str = request.GET.get('end_date')
+
+            if not start_date_str or not end_date_str:
+                return Response({'error': 'Start date and end date are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+
+            visits = Visit.objects.filter(start_date__range=(start_date, end_date))
+
+            if not visits.exists():
+                return Response({'error': 'No visits found for this period.'}, status=status.HTTP_404_NOT_FOUND)
+
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = f'attachment; filename="Raport_wizyt_w_wybranym_okresie_{start_date_str}_do_{end_date_str}.csv"'
+
+            writer = csv.writer(response)
+            writer.writerow(['Start Date', 'End Date'])
+            writer.writerow([start_date_str, end_date_str])
+            writer.writerow([])
+            writer.writerow(['ID', 'Start Date', 'End Date', 'Status'])
+            for visit in visits:
+                writer.writerow([visit.id, visit.start_date, visit.end_date, visit.status])
+
+            return response
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # class VisitListView(generics.ListCreateAPIView):
 #     permission_classes = (permissions.IsAuthenticated,)

@@ -1,0 +1,106 @@
+.container {
+    margin-top: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+#filter_btn, #download_btn {
+    margin-top: 10px;
+    margin-right: 10px;
+    padding: 8px 16px;
+    font-size: 16px;
+    background-color: rgb(50, 50, 64);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Adagio_slab', sans-serif;
+}
+
+#filter_btn:hover, #download_btn:hover {
+    background-color: #555;
+}
+
+.visits-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.visits-table th,
+.visits-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.visits-table th {
+    background-color: rgb(50, 50, 64);
+    color: #fff;
+    font-family: 'Adagio_slab', sans-serif;
+}
+
+.visits-table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.error {
+    color: red;
+    margin-top: 20px;
+}
+
+.react-datepicker-wrapper {
+    width: 100%;
+}
+
+.react-datepicker__input-container input {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.form-control {
+    height: auto;
+    padding: 8px 12px;
+    font-size: 16px;
+    line-height: 1.5;
+    box-sizing: border-box;
+}
+
+/* Container for the autosuggest suggestions */
+.autosuggest-suggestions-container {
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    background: #fff;
+    position: absolute;
+    z-index: 2;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Styling each suggestion */
+.autosuggest-suggestion {
+    padding: 5px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Styling for highlighted suggestion */
+.autosuggest-suggestion--highlighted {
+    background-color: #ddd;
+}
+
+/* Styling the input */
+.autosuggest-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
