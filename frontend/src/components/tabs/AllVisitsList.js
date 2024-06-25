@@ -33,8 +33,7 @@ const AllVisitsList = () => {
    const [showRejectModal, setShowRejectModal] = useState(false);
    const [selectedExtention, setSelectedExtention] = useState(null);
    const [selectedAction, setSelectedAction] = useState(null);
-   
-   
+
    const [cancelReason, setCancelReason] = useState("");
    const [extentionRejectionReason, setExtentionRejectionReason] = useState("");
 
@@ -45,11 +44,15 @@ const AllVisitsList = () => {
 
    const handleRejectClick = (extention, action) => {
       setSelectedExtention(extention);
-      setSelectedAction(action)
+      setSelectedAction(action);
       setShowRejectModal(true);
    };
 
-   const handleActionClick = async (extensionId, action, extentionRejectionReason) => {
+   const handleActionClick = async (
+      extensionId,
+      action,
+      extentionRejectionReason
+   ) => {
       try {
          const response = await client.put(
             `/api/approve_reject_extension/${extensionId}/${action}/`
@@ -71,11 +74,10 @@ const AllVisitsList = () => {
       }
    };
 
-
    const handleRejectionSubmit = async () => {
-      console.log(selectedExtention)
-      console.log(selectedAction)
-      console.log(extentionRejectionReason)
+      console.log(selectedExtention);
+      console.log(selectedAction);
+      console.log(extentionRejectionReason);
 
       if (selectedAction === "reject") {
          if (!extentionRejectionReason) {
@@ -84,31 +86,32 @@ const AllVisitsList = () => {
          }
       }
       try {
-            const response = await client.put(
-               `/api/approve_reject_extension/${selectedExtention}/${selectedAction}/`,
-               { comment: extentionRejectionReason }
-            );
-            console.log(response.data);
-            setVisitsWithUserData((prevVisits) =>
-               prevVisits.map((visit) =>
-                  visit.extensionId === selectedExtention
-                     ? {
-                        ...visit,
-                        extensionStatus:
-                           selectedAction === "approve" ? "Approved" : "Rejected",
-                     }
-                     : visit
-               )
-            );
-            setShowRejectModal(false);
-            setExtentionRejectionReason("");
-            // setGetAllRequests(true)
-            setSelectedExtention(null);
-            setSelectedAction(null)
+         const response = await client.put(
+            `/api/approve_reject_extension/${selectedExtention}/${selectedAction}/`,
+            { comment: extentionRejectionReason }
+         );
+         console.log(response.data);
+         setVisitsWithUserData((prevVisits) =>
+            prevVisits.map((visit) =>
+               visit.extensionId === selectedExtention
+                  ? {
+                       ...visit,
+                       extensionStatus:
+                          selectedAction === "approve"
+                             ? "Approved"
+                             : "Rejected",
+                    }
+                  : visit
+            )
+         );
+         setShowRejectModal(false);
+         setExtentionRejectionReason("");
+         // setGetAllRequests(true)
+         setSelectedExtention(null);
+         setSelectedAction(null);
       } catch (error) {
          console.error("Error updating extension status:", error);
       }
-      
    };
 
    const handleCancelSubmit = async () => {
@@ -509,7 +512,7 @@ const AllVisitsList = () => {
          </Row>
          <div>
             <h1>Lista wizyt</h1>
-            {currentUser.user.is_receptionist === true && (
+            {currentUser?.user?.is_receptionist === true && (
                <table className="visits-table">
                   <thead>
                      <tr>
@@ -550,27 +553,27 @@ const AllVisitsList = () => {
                               {visit.user.first_name} {visit.user.last_name}
                            </td>
                            <td>{getStatusText(visit.status)}</td>
-                        
-                           <td>
-                           { !(visit.status === "expelled" || visit.status === "Expelled") && (
-                              <Button
-                                 variant="danger"
-                                 onClick={() => handleCancelClick(visit)}
-                              >
-                                 Wyrzuć
-                              </Button>
-                           )}
 
-                           { (visit.status === "expelled" || visit.status === "Expelled") && (
-                              <span>-</span>
-                           )}
+                           <td>
+                              {visit.status.toLowerCase() ===
+                                 ("inprogress" || "expelled") && (
+                                 <Button
+                                    variant="danger"
+                                    disabled={
+                                       visit.status.toLowerCase() === "expelled"
+                                    }
+                                    onClick={() => handleCancelClick(visit)}
+                                 >
+                                    Wyrzuć
+                                 </Button>
+                              )}
                            </td>
                         </tr>
                      ))}
                   </tbody>
                </table>
             )}
-         {currentUser.user.is_community_member === true && (
+            {currentUser?.user?.is_community_member === true && (
                <table className="visits-table">
                   <thead>
                      <tr>
@@ -613,43 +616,38 @@ const AllVisitsList = () => {
                            <td>{getStatusText(visit.status)}</td>
                            <td>{getExtentionText(visit.extensionStatus)}</td>
                            <td>
-                           {visit.extensionStatus === "Pending" && (
-                              <div className="button-container">
-                                 <Button
-                                    variant="success"
-                                    onClick={() =>
-                                       handleActionClick(
-                                          visit.extensionId,
-                                          "approve"
-                                       )
-                                    }
-                                 >
-                                    Zaakceptuj
-                                 </Button>
-                                 <Button
-                                    variant="danger"
-                                    onClick={() =>
-                                       handleRejectClick(
-                                          visit.extensionId,
-                                          "reject"
-                                       )
-                                       
-                                    }
-                                 >
-                                    Odrzuć
-                                 </Button>
-                              </div>
-                           )}
-                        </td>
-                        
+                              {visit.extensionStatus === "Pending" && (
+                                 <div className="button-container">
+                                    <Button
+                                       variant="success"
+                                       onClick={() =>
+                                          handleActionClick(
+                                             visit.extensionId,
+                                             "approve"
+                                          )
+                                       }
+                                    >
+                                       Zaakceptuj
+                                    </Button>
+                                    <Button
+                                       variant="danger"
+                                       onClick={() =>
+                                          handleRejectClick(
+                                             visit.extensionId,
+                                             "reject"
+                                          )
+                                       }
+                                    >
+                                       Odrzuć
+                                    </Button>
+                                 </div>
+                              )}
+                           </td>
                         </tr>
                      ))}
                   </tbody>
                </table>
             )}
-
-
-
          </div>
 
          <Modal show={showCancelModal} onHide={() => setShowCancelModal(false)}>
@@ -694,7 +692,9 @@ const AllVisitsList = () => {
                         as="textarea"
                         rows={3}
                         value={extentionRejectionReason}
-                        onChange={(e) => setExtentionRejectionReason(e.target.value)}
+                        onChange={(e) =>
+                           setExtentionRejectionReason(e.target.value)
+                        }
                      />
                   </Form.Group>
                </Form>
@@ -711,7 +711,6 @@ const AllVisitsList = () => {
                </Button>
             </Modal.Footer>
          </Modal>
-
       </div>
    );
 };

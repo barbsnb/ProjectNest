@@ -1,30 +1,28 @@
 import React, { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
 import { UserVisitsContext } from "../../contexts/UserVisitsContext";
-import client from "../../axiosClient"; // Ensure the path is correct
+import client from "../../axiosClient";
 import { Row, Col, Container, Card, Table, Button } from "react-bootstrap";
 import "./Home.css";
 import moment from "moment";
 
-import { Calendar } from 'fullcalendar'
-import Fullcalendar from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
-import interactionPlugin from '@fullcalendar/interaction'
-import * as bootstrap from 'bootstrap'
-import 'bootstrap/dist/css/bootstrap.min.css'
+import { Calendar } from "fullcalendar";
+import Fullcalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import * as bootstrap from "bootstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
 
-function formatHours(date)
-{
-    let hours = date.getHours();
-    let minutes = date.getMinutes();
+function formatHours(date) {
+   let hours = date.getHours();
+   let minutes = date.getMinutes();
 
-    hours = hours < 10 ? '0' + hours : hours;
-    minutes = minutes < 10 ? '0' + minutes : minutes;
+   hours = hours < 10 ? "0" + hours : hours;
+   minutes = minutes < 10 ? "0" + minutes : minutes;
 
-    return hours + ':' + minutes;
+   return hours + ":" + minutes;
 }
-
 
 const Home = () => {
    const { currentUser, isAuthenticated, isLoading } = useContext(AuthContext);
@@ -106,22 +104,21 @@ const Home = () => {
       return timeString.substr(0, 5); // Trims string to format HH:mm
    };
 
-   const events = userVisits.map(visit => {
-        const startDateTimeStr = visit.start_date + "T" + visit.start_time;
-        const startDateTime = new Date(startDateTimeStr);
+   const events = userVisits.map((visit) => {
+      const startDateTimeStr = visit.start_date + "T" + visit.start_time;
+      const startDateTime = new Date(startDateTimeStr);
 
-        const endDateTimeStr = visit.end_date + "T" + visit.end_time;
-        const endDateTime = new Date(endDateTimeStr);
+      const endDateTimeStr = visit.end_date + "T" + visit.end_time;
+      const endDateTime = new Date(endDateTimeStr);
 
-        return {
-            title: visit.guest_first_name + " " + visit.guest_last_name,
-            start: startDateTime,
-            end: endDateTime,
-            backgroundColor: "#2c3e50",
-            groupId: getStatusText(visit.status)
-        }
-
-    });
+      return {
+         title: visit.guest_first_name + " " + visit.guest_last_name,
+         start: startDateTime,
+         end: endDateTime,
+         backgroundColor: "#2c3e50",
+         groupId: getStatusText(visit.status),
+      };
+   });
 
    if (isLoading) {
       return <div>Loading...</div>; // Display a loading message while fetching user data
@@ -170,37 +167,41 @@ const Home = () => {
                            </h2>
                         </Row>
                         <Fullcalendar
-                            //plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                            initialView={"dayGridMonth"}
-                            headerToolbar = {{
-                            start: "title",
-                            center: "",
-                            end: "today prev,next",
-                            }}
-                            buttonText =
-                            {{
-                            today: "Bieżący miesiąc",
-                            month: ""
-                            }}
-                            height={"auto"}
-                            locale={"pl"}
-                            eventColor={"#2c3e50"}
-                            eventDisplay={"block"}
-                            events = {events}
-                            eventDidMount={(info) => {
-                                return new bootstrap.Popover(info.el, {
-                                    title: info.event.title,
-                                    placement: "auto",
-                                    trigger: "hover",
-                                    customClass: "popoverStyle",
-                                    content:
-                                      "<p> Godzina rozpoczęcia: " + formatHours(info.event.start) + "<br>Godzina zakończenia: " + formatHours(info.event.end) +
-                                      "<br>Status wizyty: " + info.event.groupId + "</p>",
-                                    html: true,
-                                    sanitize: false,
-                                    });
-                                    }}
-                            />
+                           //plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                           initialView={"dayGridMonth"}
+                           headerToolbar={{
+                              start: "title",
+                              center: "",
+                              end: "today prev,next",
+                           }}
+                           buttonText={{
+                              today: "Bieżący miesiąc",
+                              month: "",
+                           }}
+                           height={"auto"}
+                           locale={"pl"}
+                           eventColor={"#2c3e50"}
+                           eventDisplay={"block"}
+                           events={events}
+                           eventDidMount={(info) => {
+                              return new bootstrap.Popover(info.el, {
+                                 title: info.event.title,
+                                 placement: "auto",
+                                 trigger: "hover",
+                                 customClass: "popoverStyle",
+                                 content:
+                                    "<p> Godzina rozpoczęcia: " +
+                                    formatHours(info.event.start) +
+                                    "<br>Godzina zakończenia: " +
+                                    formatHours(info.event.end) +
+                                    "<br>Status wizyty: " +
+                                    info.event.groupId +
+                                    "</p>",
+                                 html: true,
+                                 sanitize: false,
+                              });
+                           }}
+                        />
                         <br></br>
                      </div>
                   )}
