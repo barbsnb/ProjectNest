@@ -649,12 +649,12 @@ const AllVisitsList = () => {
 
          <Modal show={showCancelModal} onHide={() => setShowCancelModal(false)}>
             <Modal.Header closeButton>
-               <Modal.Title>Cancel Visit</Modal.Title>
+               <Modal.Title>Anuluj wizytę</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                <Form>
                   <Form.Group controlId="cancelReason">
-                     <Form.Label>Reason for Cancellation</Form.Label>
+                     <Form.Label>Wprowadź powód anulowania wizyty</Form.Label>
                      <Form.Control
                         as="textarea"
                         rows={3}
@@ -669,22 +669,22 @@ const AllVisitsList = () => {
                   variant="secondary"
                   onClick={() => setShowCancelModal(false)}
                >
-                  Close
+                  Anuluj
                </Button>
                <Button variant="danger" onClick={handleCancelSubmit}>
-                  Cancel Visit
+                  Anuluj wizytę
                </Button>
             </Modal.Footer>
          </Modal>
 
          <Modal show={showRejectModal} onHide={() => setShowRejectModal(false)}>
             <Modal.Header closeButton>
-               <Modal.Title>Reject Visit Extension</Modal.Title>
+               <Modal.Title>Odrzucenie wniosku o przedłużenie wizyty</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                <Form>
                   <Form.Group controlId="rejectReason">
-                     <Form.Label>Reason for Rejection</Form.Label>
+                     <Form.Label>Wprowadź powód odrzucenia wniosku:</Form.Label>
                      <Form.Control
                         as="textarea"
                         rows={3}
@@ -701,10 +701,10 @@ const AllVisitsList = () => {
                   variant="secondary"
                   onClick={() => setShowRejectModal(false)}
                >
-                  Close
+                  Anuluj
                </Button>
                <Button variant="danger" onClick={handleRejectionSubmit}>
-                  Reject Visit Extension
+                  Odrzuć
                </Button>
             </Modal.Footer>
          </Modal>
