@@ -21,7 +21,7 @@ urlpatterns = [
         name="request-extension",
     ),
     path(
-        "approve_reject_extension/<int:extension_id>/<str:action>",
+        "approve_reject_extension/<int:extension_id>/<str:action>/",
         views.ApproveRejectExtension.as_view(),
         name="approve_reject_extension",
     ),

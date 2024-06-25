@@ -106,7 +106,7 @@ class UserVisit(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def send_email_api(self, guest_email, data, change_status_url):
-        subject = "Your data has been saved"
+        subject = "Zaplanowano wizytę w akademiku"
     
         # Formatowanie daty i godziny
         start_datetime = f"{data['start_date']} {data['start_time']}"
@@ -190,11 +190,13 @@ class ChangeStatus(APIView):
                 self.send_status_changed_email(request, guest_email, visit)
 
             return Response({"status": "Inprogress"}, status=status.HTTP_200_OK)
+        
         except Visit.DoesNotExist:
             logger.error(f"Visit with id {visit_id} does not exist")
             return Response(
                 {"error": "Visit not found"}, status=status.HTTP_404_NOT_FOUND
             )
+            
         except Exception as e:
             logger.error(f"Error changing status for visit {visit_id}: {e}")
             return Response(
@@ -202,7 +204,7 @@ class ChangeStatus(APIView):
             )
 
     def send_status_changed_email(self, request, guest_email, visit):
-        subject = "Status Changed to Inprogress"
+        subject = "Wizyta w akademiku rozpoczęta"
         complete_visit_url = request.build_absolute_uri(
             f"/api/complete_visit/{visit.id}/"
         )
@@ -297,7 +299,7 @@ class CompleteVisit(APIView):
             )
 
     def send_status_completed_email(self, guest_email, visit):
-        subject = "Status Changed to Completed"
+        subject = "Zakończono wizytę w akademiku"
         message = f"Status Twojej wizyty {visit.id} zmienił się na zakończoną."
         from_email = os.environ.get("EMAIL")
         email_password = os.environ.get("EMAIL_PASSWORD")
@@ -352,7 +354,7 @@ class CancelVisit(APIView):
             )
 
     def send_status_cancelled_email(self, guest_email, visit):
-        subject = "Status Changed to Cancelled"
+        subject = "Anulowano Twoją wizytę w akademiku"
         message = f"Status twojej wizyty {visit.id}, gość: {visit.guest_first_name} {visit.guest_last_name} zmienił się na anulowaną."
         from_email = os.environ.get("EMAIL")
         email_password = os.environ.get("EMAIL_PASSWORD")
@@ -409,7 +411,7 @@ class AdminCancelVisit(APIView):
             )
 
     def send_status_cancelled_email(self, guest_email, visit):
-        subject = "Status Changed to Cancelled"
+        subject = "Zostałeś wydalony z akademika"
         message = f"Twoja wizyta została anulowana przez administratora {visit.id}, gość: {visit.guest_first_name} {visit.guest_last_name}. Powód: {visit.description}"
         from_email = os.environ.get("EMAIL")
         email_password = os.environ.get("EMAIL_PASSWORD")
@@ -453,23 +455,29 @@ class AllVisitListView(APIView):
 
     def get(self, request):
         try:
+            print(request.user.is_authenticated)
+            print(request.user.is_community_member)
+            
             if not request.user.is_authenticated:
+                print("a")
                 return Response(
                     {"error": "User not authenticated"},
                     status=status.HTTP_401_UNAUTHORIZED,
                 )
 
-            if not request.user.is_receptionist:
+            if not request.user.is_receptionist and not request.user.is_community_member:
                 return Response(
-                    {"error": "User is not a receptionist"},
+                    {"error": "User is neither a receptionist nor a community member"},
                     status=status.HTTP_403_FORBIDDEN,
                 )
 
+            print(request.user.dormitory)
             visits = Visit.objects.filter(dormitory=request.user.dormitory)
             serializer = UserVisitSerializer(visits, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         except Exception as e:
+            print(f"Error fetching visit list: {e}")
             logger.error(f"Error fetching visit list: {e}")
             return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -527,12 +535,12 @@ class ApproveRejectExtension(APIView):
             extension.status = "Approved"
             extension.visit.extend_visit()
             self.send_email_api(
-                extension.visit.guest_email, "Your visit extension has been approved."
+                extension.visit.guest_email, "Twoja przedłużka została zaakceptowana."
             )
         elif action == "reject":
             extension.status = "Rejected"
             self.send_email_api(
-                extension.visit.guest_email, "Your visit extension has been rejected."
+                extension.visit.guest_email, f"Twoja przedłużka została odrzucona. Powód: {comment}"
             )
         else:
             return Response(
@@ -546,7 +554,7 @@ class ApproveRejectExtension(APIView):
         )
 
     def send_email_api(self, guest_email, message):
-        subject = "Your data has been saved"
+        subject = "Zmieniono status przedłużenia"
         message = message
         from_email = os.environ.get("EMAIL")
         email_password = os.environ.get("EMAIL_PASSWORD")

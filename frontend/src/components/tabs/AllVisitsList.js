@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import { AllVisitsContext } from "../../contexts/AllVisitsContext";
 import { AuthContext } from "../../contexts/AuthContext";
-import UserFetcher from "../tabs/UserFetcher";
+
+// import UserFetcher from "../tabs/UserFetcher";
 import client from "../../axiosClient";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -13,6 +14,7 @@ import "./AllVisitsList.css";
 const AllVisitsList = () => {
    const { AllVisits } = useContext(AllVisitsContext);
    const { currentUser } = useContext(AuthContext);
+
    const [visitsWithUserData, setVisitsWithUserData] = useState([]);
    const [filteredVisits, setFilteredVisits] = useState([]);
    const [searchFilter, setSearchFilter] = useState("");
@@ -27,12 +29,33 @@ const AllVisitsList = () => {
 
    const [showCancelModal, setShowCancelModal] = useState(false);
    const [selectedVisit, setSelectedVisit] = useState(null);
-   const [cancelReason, setCancelReason] = useState("");
 
-   const handleActionClick = async (extensionId, action) => {
+   const [showRejectModal, setShowRejectModal] = useState(false);
+   const [selectedExtention, setSelectedExtention] = useState(null);
+   const [selectedAction, setSelectedAction] = useState(null);
+
+   const [cancelReason, setCancelReason] = useState("");
+   const [extentionRejectionReason, setExtentionRejectionReason] = useState("");
+
+   const handleCancelClick = (visit) => {
+      setSelectedVisit(visit);
+      setShowCancelModal(true);
+   };
+
+   const handleRejectClick = (extention, action) => {
+      setSelectedExtention(extention);
+      setSelectedAction(action);
+      setShowRejectModal(true);
+   };
+
+   const handleActionClick = async (
+      extensionId,
+      action,
+      extentionRejectionReason
+   ) => {
       try {
          const response = await client.put(
-            `/api/approve_reject_extension/${extensionId}/${action}`
+            `/api/approve_reject_extension/${extensionId}/${action}/`
          );
          console.log(response.data);
          setVisitsWithUserData((prevVisits) =>
@@ -51,9 +74,44 @@ const AllVisitsList = () => {
       }
    };
 
-   const handleCancelClick = (visit) => {
-      setSelectedVisit(visit);
-      setShowCancelModal(true);
+   const handleRejectionSubmit = async () => {
+      console.log(selectedExtention);
+      console.log(selectedAction);
+      console.log(extentionRejectionReason);
+
+      if (selectedAction === "reject") {
+         if (!extentionRejectionReason) {
+            alert("Please provide a reason for cancellation.");
+            return;
+         }
+      }
+      try {
+         const response = await client.put(
+            `/api/approve_reject_extension/${selectedExtention}/${selectedAction}/`,
+            { comment: extentionRejectionReason }
+         );
+         console.log(response.data);
+         setVisitsWithUserData((prevVisits) =>
+            prevVisits.map((visit) =>
+               visit.extensionId === selectedExtention
+                  ? {
+                       ...visit,
+                       extensionStatus:
+                          selectedAction === "approve"
+                             ? "Approved"
+                             : "Rejected",
+                    }
+                  : visit
+            )
+         );
+         setShowRejectModal(false);
+         setExtentionRejectionReason("");
+         // setGetAllRequests(true)
+         setSelectedExtention(null);
+         setSelectedAction(null);
+      } catch (error) {
+         console.error("Error updating extension status:", error);
+      }
    };
 
    const handleCancelSubmit = async () => {
@@ -266,6 +324,32 @@ const AllVisitsList = () => {
       return status === "Inprogress" && endDateTime < now;
    };
 
+   const getStatusText = (status) => {
+      if (status === "Inprogress" || status === "inprogress") {
+         return "W trakcie";
+      } else if (status === "Cancelled" || status === "cancelled") {
+         return "Anulowana";
+      } else if (status === "Completed" || status === "completed") {
+         return "Zakończona";
+      } else if (status === "Pending" || status === "pending") {
+         return "Zaplanowana";
+      } else if (status === "expelled" || status === "Expelled") {
+         return "Gość wyrzucony";
+      }
+   };
+
+   const getExtentionText = (status) => {
+      if (status === "Approved") {
+         return "Zaakceptowany";
+      } else if (status === "Rejected") {
+         return "Odrzucony";
+      } else if (status === "Pending") {
+         return "Oczekujący";
+      } else {
+         return " - ";
+      }
+   };
+
    return (
       <div className="container mt-4">
          <h2>Filtruj wyniki</h2>
@@ -428,87 +512,142 @@ const AllVisitsList = () => {
          </Row>
          <div>
             <h1>Lista wizyt</h1>
-            <table className="visits-table">
-               <thead>
-                  <tr>
-                     <th>Gość</th>
-                     <th>Data rozpoczęcia</th>
-                     <th>Godzina rozpoczęcia</th>
-                     <th>Data zakończenia</th>
-                     <th>Godzina zakończenia</th>
-                     <th>Host</th>
-                     <th>Status wizyty</th>
-                     <th>Wniosek o przedłużenie</th>
-                     <th>Decyzja</th>
-                     <th>Akcje</th>
-                  </tr>
-               </thead>
-               <tbody>
-                  {filteredVisits.map((visit) => (
-                     <tr
-                        key={visit.id}
-                        className={
-                           isOverdueInProgress(
-                              visit.end_date,
-                              visit.end_time,
-                              visit.status
-                           )
-                              ? "overdue-inprogress"
-                              : ""
-                        }
-                     >
-                        <td>
-                           {visit.guest_first_name} {visit.guest_last_name}
-                        </td>
-                        <td>{visit.start_date}</td>
-                        <td>{visit.start_time}</td>
-                        <td>{visit.end_date}</td>
-                        <td>{visit.end_time}</td>
-                        <td>
-                           {visit.user.first_name} {visit.user.last_name}
-                        </td>
-                        <td>{visit.status}</td>
-                        <td>{visit.extensionStatus}</td>
-                        <td>
-                           {visit.extensionStatus === "Pending" && (
-                              <div className="button-container">
-                                 <Button
-                                    variant="success"
-                                    onClick={() =>
-                                       handleActionClick(
-                                          visit.extensionId,
-                                          "approve"
-                                       )
-                                    }
-                                 >
-                                    Approve
-                                 </Button>
+            {currentUser?.user?.is_receptionist === true && (
+               <table className="visits-table">
+                  <thead>
+                     <tr>
+                        <th>Gość</th>
+                        <th>Data rozpoczęcia</th>
+                        <th>Godzina rozpoczęcia</th>
+                        <th>Data zakończenia</th>
+                        <th>Godzina zakończenia</th>
+                        <th>Host</th>
+                        <th>Status wizyty</th>
+                        {/* <th>Wniosek o przedłużenie</th> */}
+                        {/* <th>Decyzja</th> */}
+                        <th>Akcje</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     {filteredVisits.map((visit) => (
+                        <tr
+                           key={visit.id}
+                           className={
+                              isOverdueInProgress(
+                                 visit.end_date,
+                                 visit.end_time,
+                                 visit.status
+                              )
+                                 ? "overdue-inprogress"
+                                 : ""
+                           }
+                        >
+                           <td>
+                              {visit.guest_first_name} {visit.guest_last_name}
+                           </td>
+                           <td>{visit.start_date}</td>
+                           <td>{visit.start_time}</td>
+                           <td>{visit.end_date}</td>
+                           <td>{visit.end_time}</td>
+                           <td>
+                              {visit.user.first_name} {visit.user.last_name}
+                           </td>
+                           <td>{getStatusText(visit.status)}</td>
+
+                           <td>
+                              {visit.status.toLowerCase() ===
+                                 ("inprogress" || "expelled") && (
                                  <Button
                                     variant="danger"
-                                    onClick={() =>
-                                       handleActionClick(
-                                          visit.extensionId,
-                                          "reject"
-                                       )
+                                    disabled={
+                                       visit.status.toLowerCase() === "expelled"
                                     }
+                                    onClick={() => handleCancelClick(visit)}
                                  >
-                                    Reject
+                                    Wyrzuć
                                  </Button>
-                              </div>
-                           )}
-                        </td>
-                        <td>
-                           <Button
-                              variant="danger"
-                              onClick={() => handleCancelClick(visit)}
-                           >
-                              Wyrzuć
-                           </Button>
-                        </td>
+                              )}
+                           </td>
+                        </tr>
+                     ))}
+                  </tbody>
+               </table>
+            )}
+            {currentUser?.user?.is_community_member === true && (
+               <table className="visits-table">
+                  <thead>
+                     <tr>
+                        <th>Gość</th>
+                        <th>Data rozpoczęcia</th>
+                        <th>Godzina rozpoczęcia</th>
+                        <th>Data zakończenia</th>
+                        <th>Godzina zakończenia</th>
+                        <th>Host</th>
+                        <th>Status wizyty</th>
+                        <th>Wniosek o przedłużenie</th>
+                        <th>Decyzja</th>
+                        {/* <th>Akcje</th> */}
                      </tr>
-                  ))}
-               </tbody>
-            </table>
+                  </thead>
+                  <tbody>
+                     {filteredVisits.map((visit) => (
+                        <tr
+                           key={visit.id}
+                           className={
+                              isOverdueInProgress(
+                                 visit.end_date,
+                                 visit.end_time,
+                                 visit.status
+                              )
+                                 ? "overdue-inprogress"
+                                 : ""
+                           }
+                        >
+                           <td>
+                              {visit.guest_first_name} {visit.guest_last_name}
+                           </td>
+                           <td>{visit.start_date}</td>
+                           <td>{visit.start_time}</td>
+                           <td>{visit.end_date}</td>
+                           <td>{visit.end_time}</td>
+                           <td>
+                              {visit.user.first_name} {visit.user.last_name}
+                           </td>
+                           <td>{getStatusText(visit.status)}</td>
+                           <td>{getExtentionText(visit.extensionStatus)}</td>
+                           <td>
+                              {visit.extensionStatus === "Pending" && (
+                                 <div className="button-container">
+                                    <Button
+                                       variant="success"
+                                       onClick={() =>
+                                          handleActionClick(
+                                             visit.extensionId,
+                                             "approve"
+                                          )
+                                       }
+                                    >
+                                       Zaakceptuj
+                                    </Button>
+                                    <Button
+                                       variant="danger"
+                                       onClick={() =>
+                                          handleRejectClick(
+                                             visit.extensionId,
+                                             "reject"
+                                          )
+                                       }
+                                    >
+                                       Odrzuć
+                                    </Button>
+                                 </div>
+                              )}
+                           </td>
+                        </tr>
+                     ))}
+                  </tbody>
+               </table>
+            )}
          </div>
 
          <Modal show={showCancelModal} onHide={() => setShowCancelModal(false)}>
@@ -537,6 +676,38 @@ const AllVisitsList = () => {
                </Button>
                <Button variant="danger" onClick={handleCancelSubmit}>
                   Cancel Visit
+               </Button>
+            </Modal.Footer>
+         </Modal>
+
+         <Modal show={showRejectModal} onHide={() => setShowRejectModal(false)}>
+            <Modal.Header closeButton>
+               <Modal.Title>Reject Visit Extension</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+               <Form>
+                  <Form.Group controlId="rejectReason">
+                     <Form.Label>Reason for Rejection</Form.Label>
+                     <Form.Control
+                        as="textarea"
+                        rows={3}
+                        value={extentionRejectionReason}
+                        onChange={(e) =>
+                           setExtentionRejectionReason(e.target.value)
+                        }
+                     />
+                  </Form.Group>
+               </Form>
+            </Modal.Body>
+            <Modal.Footer>
+               <Button
+                  variant="secondary"
+                  onClick={() => setShowRejectModal(false)}
+               >
+                  Close
+               </Button>
+               <Button variant="danger" onClick={handleRejectionSubmit}>
+                  Reject Visit Extension
                </Button>
             </Modal.Footer>
          </Modal>

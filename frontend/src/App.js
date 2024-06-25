@@ -1,10 +1,10 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 //providers:
-import { AuthProvider } from './contexts/AuthContext';
-import { UserVisitsProvider } from './contexts/UserVisitsContext';
-import { AllVisitsProvider } from './contexts/AllVisitsContext';
+import { AuthProvider } from "./contexts/AuthContext";
+import { UserVisitsProvider } from "./contexts/UserVisitsContext";
+import { AllVisitsProvider } from "./contexts/AllVisitsContext";
 
 //routes:
 import LoginForm from './components/auth/LoginForm';
@@ -18,6 +18,8 @@ import AppointmentExtension from './components/tabs/AppointmentExtention';
 import ManageVisits from './components/tabs/ManageVisits'
 import ReportingComponent from './components/tabs/ReportingComponent';
 
+import StartVisit from "./components/tabs/StartVisit";
+import CompleteVisit from "./components/tabs/CompleteVisit";
 
 function App() {
   return (

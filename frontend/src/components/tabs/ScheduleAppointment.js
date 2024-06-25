@@ -4,10 +4,14 @@ import { AuthContext } from '../../contexts/AuthContext';
 import client from '../../axiosClient';  // Ensure you have the axiosClient setup correctly to handle requests
 import './ScheduleForm.css';
 import { UserVisitsContext } from '../../contexts/UserVisitsContext';
+import { AllVisitsContext } from '../../contexts/AllVisitsContext';
 
 const ScheduleAppointment = () => {
-  const { currentUser } = useContext(AuthContext);
+  const { currentUser, setGetCurrentUser } = useContext(AuthContext);
   const { setGetUserVisits } = useContext(UserVisitsContext);
+  const { setGetAllVisits } = useContext(AllVisitsContext);
+
+
   const [visit, setVisit] = useState(''); 
   const [visitFormToggle, setvisitFormToggle] = useState(false);
   const [start_date, setStartDate] = useState('');
@@ -100,7 +104,9 @@ const ScheduleAppointment = () => {
     })
     .then(response => {
       setVisit(response.data);
+      setGetCurrentUser(true);
       setGetUserVisits(true);
+      setGetAllVisits(true);
       setvisitFormToggle(true);
       console.log('Appointment scheduled successfully:', response);
     })
