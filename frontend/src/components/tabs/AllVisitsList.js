@@ -240,13 +240,8 @@ const AllVisitsList = () => {
          }
 
          let matchesVisitStatusFilter =
-            visitStatusFilter === "all" ||
-            getStatus(
-               visit.start_date,
-               visit.start_time,
-               visit.end_date,
-               visit.end_time
-            ) === visitStatusFilter;
+            visitStatusFilter === "all" || visit.status === visitStatusFilter;
+
          let matchesExtensionStatusFilter =
             extensionStatusFilter === "all" ||
             visit.extensionStatus === extensionStatusFilter;
@@ -460,9 +455,11 @@ const AllVisitsList = () => {
                         style={{ minHeight: "38px" }}
                      >
                         <option value="all">Wszystkie</option>
-                        <option value="nierozpoczęta">Nierozpoczęta</option>
-                        <option value="trwa">Trwa</option>
-                        <option value="zakończona">Zakończona</option>
+                        <option value="Pending">Zaplanowana</option>
+                        <option value="Inprogress">Trwa</option>
+                        <option value="Completed">Zakończona</option>
+                        <option value="Expelled">Gość wyrzucony</option>
+                        <option value="Cancelled">Anulowana</option>
                      </Form.Control>
                   </Form.Group>
                </Col>

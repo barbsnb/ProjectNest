@@ -131,9 +131,9 @@ class UserVisit(APIView):
         message = (
             f"Zaplanowano wizytę dla {data['guest_first_name']} {data['guest_last_name']} "
             f"w terminie od {start_datetime} do {end_datetime} w {data['dormitory']}.\n\n"
-            "Aby zmienic status wizyty na 'w trakcie', nacisnij link:\n"
-            f"{change_status_url}\n\n"
-            "Alternatywnie, możesz zeskanować dołączony kod QR."
+            #"Aby zmienic status wizyty na 'w trakcie', nacisnij link:\n"
+            #f"{change_status_url}\n\n"
+            "Aby rozpocząć wizytę, zeskanuj dołączony kod QR w kamerze przy recepcji"
         )
         from_email = os.environ.get("EMAIL")
         email_password = os.environ.get("EMAIL_PASSWORD")
@@ -227,9 +227,9 @@ class ChangeStatus(APIView):
         # Tworzenie wiadomości
         message = (
             f"Status twojej wizyty {visit.id} zmienił się na trwająca.\n\n"
-            f"Aby zakończyć wizytę, naciśnij link:\n"
-            f"{complete_visit_url}\n\n"
-            "Alternatywnie, możesz zeskanować dołączony kod QR."
+            #f"Aby zakończyć wizytę, naciśnij link:\n"
+            #f"{complete_visit_url}\n\n"
+            "Aby zakończyć wizytę, zeskanuj dołączony kod QR w kamerze przy recepcji."
         )
         from_email = os.environ.get("EMAIL")
         email_password = os.environ.get("EMAIL_PASSWORD")
