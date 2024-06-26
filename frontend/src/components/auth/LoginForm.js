@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Alert } from "react-bootstrap";
 import { AuthContext } from "../../contexts/AuthContext";
 import { UserVisitsContext } from "../../contexts/UserVisitsContext";
 import { AllVisitsContext } from "../../contexts/AllVisitsContext";
@@ -14,6 +14,7 @@ const LoginForm = () => {
    const { setGetUserVisits } = useContext(UserVisitsContext);
    const { setGetAllVisits } = useContext(AllVisitsContext);
    const [errors, setErrors] = useState({});
+   const [loginError, setLoginError] = useState("");
 
    const validate = () => {
       const errors = {};
@@ -43,8 +44,10 @@ const LoginForm = () => {
             setGetCurrentUser(true);
             setGetUserVisits(true);
             setGetAllVisits(true);
+            setLoginError(""); // Reset login error on successful login
          })
          .catch((err) => {
+            setLoginError("Podano błędne dane logowania. Proszę spróbować ponownie.");
             console.error("Login failed: ", err);
          });
    }
@@ -52,6 +55,7 @@ const LoginForm = () => {
    return (
       <div className="form-container">
          <Form onSubmit={submitLogin}>
+            {loginError && <Alert variant="danger">{loginError}</Alert>}
             <Form.Group className="mb-3" controlId="formBasicEmail">
                <Form.Label>Adres e-mail</Form.Label>
                <Form.Control
