@@ -1,12 +1,16 @@
 import React, { useContext, useState } from 'react';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import { AuthContext } from '../../contexts/AuthContext';
+import { ChatContext } from '../../contexts/ChatContext';
 import client from '../../axiosClient';
 import './NewProject.css';
+import { useNavigate } from 'react-router-dom';
 
 const NewProject = () => {
   const { currentUser, setGetCurrentUser } = useContext(AuthContext);
+  const { setChatStarted, setProjectData } = useContext(ChatContext);
 
+  const navigate = useNavigate();
   const [project, setProject] = useState(null);
   const [projectFormToggle, setProjectFormToggle] = useState(false);
   const [name, setName] = useState('');
@@ -40,9 +44,12 @@ const NewProject = () => {
     })
       .then(response => {
         setProject(response.data);
-        setGetCurrentUser(true);
+        setProjectData(response.data); 
+        setChatStarted(true); 
+        // setGetCurrentUser(true);
         setProjectFormToggle(true);
         console.log('Projekt został utworzony:', response.data);
+        navigate('/chat');
       })
       .catch(error => {
         console.error('Błąd podczas tworzenia projektu:', error);
