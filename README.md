@@ -1,6 +1,14 @@
-# System przedłużania wizyt w akademiku
+Asystent AI dla Studentów – System Wsparcia Akademickiego
+Projekt aplikacji webowej umożliwiającej studentom interakcję z inteligentnym asystentem AI, który pomaga m.in. w organizacji studiów, odpowiadaniu na pytania oraz zarządzaniu projektami. Stworzony w ramach kursu APSI na Politechnice Warszawskiej.
 
-Projekt realizowany na potrzeby przedmiotu APSI.
+ Funkcjonalności
+🔹 Czat z AI — studenci mogą prowadzić rozmowę z asystentem opartym na sztucznej inteligencji.
+
+🔹 System logowania i autoryzacji.
+
+🔹 Zarządzanie projektami użytkownika.
+
+🔹 Interfejs przyjazny dla użytkownika (UI oparty na React i Bootstrap).
 
 ## Instalacja
 

@@ -3,8 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 //providers:
 import { AuthProvider } from "./contexts/AuthContext";
-import { UserVisitsProvider } from "./contexts/UserVisitsContext";
-import { AllVisitsProvider } from "./contexts/AllVisitsContext";
+import { UserProjectsProvider } from "./contexts/UserProjectsContext";
 
 //routes:
 <<<<<<< HEAD
@@ -13,6 +12,7 @@ import RegistrationForm from './components/auth/RegistrationForm';
 import Home from './components/home/Home';
 import Info from './components/home/Info';
 import CustomNavbar from './components/common/Navbar';
+<<<<<<< HEAD
 import ScheduleAppointment from './components/tabs/ScheduleAppointment';
 import AllVisitsList from './components/tabs/AllVisitsList';
 import AppointmentExtension from './components/tabs/AppointmentExtention';
@@ -32,28 +32,27 @@ import ManageVisits from "./components/tabs/ManageVisits";
 
 import StartVisit from "./components/tabs/StartVisit";
 import CompleteVisit from "./components/tabs/CompleteVisit";
+=======
+import NewProject from './components/tabs/NewProject';
+import ManageProjects from './components/tabs/ManageProjects'
+>>>>>>> 21f5840 (commit)
 
 function App() {
 <<<<<<< HEAD
   return (
     <Router>
       <AuthProvider>
-        <AllVisitsProvider>
-          <UserVisitsProvider>
+          <UserProjectsProvider>
             <CustomNavbar />
               <Routes>
                 <Route path="/" element={<Info/>} />
                 <Route path="/home" element={<Home />} />
                 <Route path="/login" element={<LoginForm />} />
                 <Route path="/register" element={<RegistrationForm />} />
-                <Route path="/schedule" element={<ScheduleAppointment />} />
-                <Route path="/visit_list" element={<AllVisitsList/>} />
-                <Route path="/visit_extension" element={<AppointmentExtension/>} />
-                <Route path="/manage_visits" element={<ManageVisits/>} />
-                <Route path="/reports" element={<ReportingComponent />} />
+                <Route path="/project" element={<NewProject />} />
+                <Route path="/manage_projects" element={<ManageProjects/>} />
               </Routes>
-            </UserVisitsProvider>
-          </AllVisitsProvider>
+            </UserProjectsProvider>
       </AuthProvider>
     </Router>
   );

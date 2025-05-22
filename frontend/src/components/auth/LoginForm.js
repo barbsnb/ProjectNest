@@ -1,8 +1,7 @@
 import React, { useContext, useState } from "react";
 import { Form, Button, Alert } from "react-bootstrap";
 import { AuthContext } from "../../contexts/AuthContext";
-import { UserVisitsContext } from "../../contexts/UserVisitsContext";
-import { AllVisitsContext } from "../../contexts/AllVisitsContext";
+import { UserProjectsContext } from "../../contexts/UserProjectsContext";
 
 import client from "../../axiosClient";
 import "./LoginForm.css";
@@ -11,8 +10,7 @@ const LoginForm = () => {
    const { setGetCurrentUser } = useContext(AuthContext);
    const [email, setEmail] = useState("");
    const [password, setPassword] = useState("");
-   const { setGetUserVisits } = useContext(UserVisitsContext);
-   const { setGetAllVisits } = useContext(AllVisitsContext);
+   const { setGetUserProjects } = useContext(UserProjectsContext);
    const [errors, setErrors] = useState({});
    const [loginError, setLoginError] = useState("");
 
@@ -42,8 +40,7 @@ const LoginForm = () => {
          .post("/api/login", { email, password })
          .then((res) => {
             setGetCurrentUser(true);
-            setGetUserVisits(true);
-            setGetAllVisits(true);
+            setGetUserProjects(true);
             setLoginError(""); // Reset login error on successful login
          })
          .catch((err) => {

@@ -3,7 +3,6 @@ import { Navbar } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { AuthContext } from '../../contexts/AuthContext';
 import LogoutButton from '../auth/LogoutButton';
-import PWLogo from '../../assets/images/znak_pw.png'
 import './Navbar.css'
 
 const CustomNavbar = () => {
@@ -15,17 +14,17 @@ const CustomNavbar = () => {
         navigate('/home');
     };
 
-    const goToManageVisists = () =>
+    const goToManageProjects = () =>
     {
-        navigate('/manage_visits');
+        navigate('/manage_projects');
     };
 
     const goToInfoPage = () => {
         navigate('/');
     };
     // Function to navigate to the appointment scheduling page
-    const goToAppointmentPage = () => {
-        navigate('/schedule');
+    const goToNewProjectPage = () => {
+        navigate('/project');
     };
 
     const goToLogin = () => {
@@ -36,10 +35,8 @@ const CustomNavbar = () => {
         navigate('/register');
     };
 
-    // const goToAppointmentExtentionPage = () => {
-    //     navigate('/visit_extension'); //do poprawy - powinno przechodzic do innej strony
-    // };
 
+<<<<<<< HEAD
     const goToAllAppointmentsPage = () => {
         navigate('/visit_list'); 
     };
@@ -55,6 +52,8 @@ const CustomNavbar = () => {
 =======
 
 >>>>>>> d5a2659 (community member)
+=======
+>>>>>>> 21f5840 (commit)
      
     console.log(currentUser)
 
@@ -67,32 +66,13 @@ const CustomNavbar = () => {
                             <>
                                 <LogoutButton />
                                 {/* Warunek dla zalogowanego użytkownika */}
-                                {currentUser.user.is_receptionist === false && currentUser.user.is_community_member === false && (
+                
                                 <>
-                                    <button onClick={goToManageVisists} className="mx-2 navbar_btn">Zarządzaj wizytami</button>
-                                    <button onClick={goToAppointmentPage} className="mx-2 navbar_btn">Umów wizytę</button>
+                                    {/* <button onClick={goToManageProjects} className="mx-2 navbar_btn">Zarządzaj projektami</button> */}
+                                    <button onClick={goToNewProjectPage} className="mx-2 navbar_btn">Nowy projekt</button>
                                     <button onClick={goToHomePage} className="mx-2 navbar_btn">Strona główna</button>
                                     
                                 </>
-                                )}
-
-                                {/* Warunek dla recepcjonisty */}
-                                {currentUser.user.is_receptionist === true && (
-                                    <>
-                                        <button onClick={goToAllAppointmentsPage} className="mx-2 navbar_btn">Strona główna</button>
-                                        <button onClick={goToReportsPage} className="mx-2 navbar_btn">Raporty</button>
-                                    </>
-                                )}
-
-                                {/* Warunek dla członka społeczności */}
-                                {currentUser.user.is_community_member === true && (
-                                    <>
-                                        <button onClick={goToManageVisists} className="mx-2 navbar_btn">Zarządzaj wizytami</button>
-                                        <button onClick={goToAppointmentPage} className="mx-2 navbar_btn">Umów wizytę</button>
-                                        <button onClick={goToHomePage} className="mx-2 navbar_btn">Strona główna</button>
-                                        <button onClick={goToAllAppointmentsPage} className="mx-2 navbar_btn">Lista wszystkich wizyt</button>
-                                    </>
-                                )}
 
                             </>
                         ) : (
@@ -105,13 +85,7 @@ const CustomNavbar = () => {
                     </Navbar.Text>
                 </Navbar.Collapse>
             </Navbar>
-            <div id="header-position">
-                <div id="image_logo" className="container">
-                    <div className="image_logo-middle">
-                        <img src={PWLogo} alt="Politechnika Warszawska Logo" />
-                    </div>
-                </div>
-            </div>
+            
         </>
     );
 };
