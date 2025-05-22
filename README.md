@@ -1,7 +1,9 @@
-Asystent AI dla Studentów – System Wsparcia Akademickiego
+# Asystent AI dla Studentów – System Wsparcia Akademickiego
+
 Projekt aplikacji webowej umożliwiającej studentom interakcję z inteligentnym asystentem AI, który pomaga m.in. w organizacji studiów, odpowiadaniu na pytania oraz zarządzaniu projektami. Stworzony w ramach kursu APSI na Politechnice Warszawskiej.
 
- Funkcjonalności
+## Funkcjonalności
+
 🔹 Czat z AI — studenci mogą prowadzić rozmowę z asystentem opartym na sztucznej inteligencji.
 
 🔹 System logowania i autoryzacji.

@@ -1,13 +1,13 @@
 import React, { useContext, useState } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
-import { UserProjectsContext } from "../../contexts/UserProjectsContext";  // import kontekstu
+import { UserProjectsContext } from "../../contexts/UserProjectsContext";
 import { Row, Col, Container, Button, Card } from "react-bootstrap";
 import "./Home.css";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const { currentUser, isLoading } = useContext(AuthContext);
-  const { userProjects } = useContext(UserProjectsContext);  // pobieramy projekty z kontekstu
+  const { userProjects } = useContext(UserProjectsContext);
   const [chatStarted, setChatStarted] = useState(false);
   const navigate = useNavigate();
 
@@ -16,7 +16,11 @@ const Home = () => {
   }
 
   const startChat = () => {
-    navigate("/project"); 
+    navigate("/project");
+  };
+
+  const goToAnalysis = (projectId) => {
+    navigate(`/analysis/${projectId}`);
   };
 
   return (
@@ -31,7 +35,7 @@ const Home = () => {
                 </h2>
               </div>
               {!chatStarted ? (
-                <Button variant="primary" onClick={startChat}>
+                <Button id="chat_btn" onClick={startChat}>
                   Rozpocznij czat z asystentem
                 </Button>
               ) : (
@@ -46,7 +50,7 @@ const Home = () => {
 
               {/* Lista projektów z kontekstu */}
               <div className="projects-list mt-5">
-                <h3>Twoje projekty:</h3>
+                <h2>Twoje projekty:</h2>
                 {userProjects.length === 0 ? (
                   <p>Brak dodanych projektów.</p>
                 ) : (
@@ -55,6 +59,12 @@ const Home = () => {
                       <Card.Body>
                         <Card.Title>{project.name}</Card.Title>
                         <Card.Text>{project.description}</Card.Text>
+                        <Button 
+                           id="chat_btn2"
+                          onClick={() => goToAnalysis(project.id)}
+                        >
+                          Przejdź do analizy
+                        </Button>
                       </Card.Body>
                     </Card>
                   ))

@@ -84,3 +84,26 @@
 .h3 {
   font-family: adagio_slab;
 }
+
+
+#chat_btn {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-size: 20px;
+    background-color: rgb(50, 50, 64);  /* Ciemne tło */
+    color: #fff; /* Biały napis */
+    border: none;
+    font-family: adagio_slab;
+    display: inline-block;
+}
+
+#chat_btn2 {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-size: 20px;
+    background-color: rgb(106, 106, 131);  /* Ciemne tło */
+    color: #fff; /* Biały napis */
+    border: none;
+    font-family: adagio_slab;
+    display: inline-block;
+}

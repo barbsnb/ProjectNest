@@ -4,15 +4,36 @@ import '../../App.css';
 const Info = () => {
   return (
     <div className="container">
-      <main>
-        <section>
+      <main style={{ 
+        display: 'flex', 
+        gap: '20px', 
+        justifyContent: 'center', 
+        flexWrap: 'wrap',
+        marginTop: '40px'  // <-- przesunięcie w dół
+      }}>
+        <section style={{
+          border: '1px solid #ccc',
+          borderRadius: '8px',
+          padding: '20px',
+          width: '400px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          backgroundColor: 'white',
+        }}>
           <h1>Asystent AI do oceny projektów informatycznych</h1>
           <p>
             Nasza aplikacja to inteligentny asystent stworzony z myślą o studentach kierunków informatycznych. 
             Umożliwia on szybkie i automatyczne generowanie feedbacku do projektów programistycznych — zarówno indywidualnych, jak i zespołowych.
           </p>
         </section>
-        <section>
+
+        <section style={{
+          border: '1px solid #ccc',
+          borderRadius: '8px',
+          padding: '20px',
+          width: '400px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          backgroundColor: 'white',
+        }}>
           <h1>Jak to działa?</h1>
           <p>
             Wystarczy, że wgrasz swój kod lub opis projektu, a asystent AI przeanalizuje jego jakość, strukturę i funkcjonalność. 
@@ -20,7 +41,15 @@ const Info = () => {
             Dzięki temu możesz szybciej poprawić swoje rozwiązania i przygotować się do zaliczenia lub prezentacji.
           </p>
         </section>
-        <section>
+
+        <section style={{
+          border: '1px solid #ccc',
+          borderRadius: '8px',
+          padding: '20px',
+          width: '400px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          backgroundColor: 'white',
+        }}>
           <h1>Dla kogo jest ta aplikacja?</h1>
           <p>
             Narzędzie zostało zaprojektowane z myślą o studentach, prowadzących oraz mentorach akademickich, którzy chcą usprawnić proces oceny i uzyskiwania informacji zwrotnej na temat projektów zaliczeniowych.

@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 //providers:
 import { AuthProvider } from "./contexts/AuthContext";
 import { UserProjectsProvider } from "./contexts/UserProjectsContext";
+import { ChatProvider } from "./contexts/ChatContext";
 
 //routes:
 <<<<<<< HEAD
@@ -35,7 +36,11 @@ import CompleteVisit from "./components/tabs/CompleteVisit";
 =======
 import NewProject from './components/tabs/NewProject';
 import ManageProjects from './components/tabs/ManageProjects'
+<<<<<<< HEAD
 >>>>>>> 21f5840 (commit)
+=======
+import Chat from "./components/tabs/Chat";
+>>>>>>> 6ce1929 (zaslepka na chat)
 
 function App() {
 <<<<<<< HEAD
@@ -43,15 +48,18 @@ function App() {
     <Router>
       <AuthProvider>
           <UserProjectsProvider>
-            <CustomNavbar />
-              <Routes>
-                <Route path="/" element={<Info/>} />
-                <Route path="/home" element={<Home />} />
-                <Route path="/login" element={<LoginForm />} />
-                <Route path="/register" element={<RegistrationForm />} />
-                <Route path="/project" element={<NewProject />} />
-                <Route path="/manage_projects" element={<ManageProjects/>} />
-              </Routes>
+            <ChatProvider>
+              <CustomNavbar />
+                  <Routes>
+                    <Route path="/" element={<Info/>} />
+                    <Route path="/home" element={<Home />} />
+                    <Route path="/login" element={<LoginForm />} />
+                    <Route path="/register" element={<RegistrationForm />} />
+                    <Route path="/project" element={<NewProject />} />
+                    <Route path="/manage_projects" element={<ManageProjects/>} />
+                    <Route path="/chat" element={<Chat />} />
+                  </Routes>
+              </ChatProvider>
             </UserProjectsProvider>
       </AuthProvider>
     </Router>
