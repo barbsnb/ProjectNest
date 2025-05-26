@@ -5,6 +5,7 @@ import { AuthContext } from '../../contexts/AuthContext';
 import LogoutButton from '../auth/LogoutButton';
 import './Navbar.css'
 
+
 const CustomNavbar = () => {
     const { currentUser } = useContext(AuthContext);
     const navigate = useNavigate(); // Create a navigate function
@@ -14,15 +15,15 @@ const CustomNavbar = () => {
         navigate('/home');
     };
 
-    const goToManageProjects = () =>
-    {
-        navigate('/manage_projects');
-    };
+    // const goToManageProjects = () =>
+    // {
+    //     navigate('/manage_projects');
+    // };
 
     const goToInfoPage = () => {
         navigate('/');
     };
-    // Function to navigate to the appointment scheduling page
+    
     const goToNewProjectPage = () => {
         navigate('/project');
     };
@@ -31,9 +32,9 @@ const CustomNavbar = () => {
         navigate('/login');
     };
 
-    const goToRegister = () => {
-        navigate('/register');
-    };
+    // const goToRegister = () => {
+    //     navigate('/register');
+    // };
 
 
 <<<<<<< HEAD
@@ -78,7 +79,7 @@ const CustomNavbar = () => {
                         ) : (
                             <>
                             <button onClick={goToLogin} className='navbar_btn'>Logowanie</button>
-                            <button onClick={goToRegister} className='navbar_btn'>Rejestracja</button>
+                            {/* <button onClick={goToRegister} className='navbar_btn'>Rejestracja</button> */}
                             <button onClick={goToInfoPage} className="navbar_btn">Strona główna</button>
                             </>
                         )}      

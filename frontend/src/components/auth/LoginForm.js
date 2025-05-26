@@ -6,6 +6,7 @@ import { UserProjectsContext } from "../../contexts/UserProjectsContext";
 import client from "../../axiosClient";
 import "./LoginForm.css";
 
+
 const LoginForm = () => {
    const { setGetCurrentUser } = useContext(AuthContext);
    const [email, setEmail] = useState("");
@@ -37,7 +38,7 @@ const LoginForm = () => {
       }
 
       client
-         .post("/api/login", { email, password })
+         .post("/api/login", { email, password }, { withCredentials: true })
          .then((res) => {
             setGetCurrentUser(true);
             setGetUserProjects(true);
@@ -50,39 +51,42 @@ const LoginForm = () => {
    }
 
    return (
-      <div className="form-container">
-         <Form onSubmit={submitLogin}>
-            {loginError && <Alert variant="danger">{loginError}</Alert>}
-            <Form.Group className="mb-3" controlId="formBasicEmail">
-               <Form.Label>Adres e-mail</Form.Label>
-               <Form.Control
-                  type="email"
-                  placeholder="Wprowadź adres e-mail"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  isInvalid={!!errors.email}
-               />
-               <Form.Control.Feedback type="invalid">
-                  {errors.email}
-               </Form.Control.Feedback>
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="formBasicPassword">
-               <Form.Label>Hasło</Form.Label>
-               <Form.Control
-                  type="password"
-                  placeholder="Wprowadź hasło"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  isInvalid={!!errors.password}
-               />
-               <Form.Control.Feedback type="invalid">
-                  {errors.password}
-               </Form.Control.Feedback>
-            </Form.Group>
-            <Button id="form_btn" variant="primary" type="submit">
-               Zaloguj
-            </Button>
-         </Form>
+      <div className="login-page-wrapper">
+         <div className="form-container">
+            <Form onSubmit={submitLogin}>
+               <h4>Wprowadź dane logowania</h4>
+               {loginError && <Alert variant="danger">{loginError}</Alert>}
+               <Form.Group className="mb-3" controlId="formBasicEmail">
+                  <Form.Label>Adres e-mail</Form.Label>
+                  <Form.Control
+                     type="email"
+                     placeholder="Wprowadź adres e-mail"
+                     value={email}
+                     onChange={(e) => setEmail(e.target.value)}
+                     isInvalid={!!errors.email}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                     {errors.email}
+                  </Form.Control.Feedback>
+               </Form.Group>
+               <Form.Group className="mb-3" controlId="formBasicPassword">
+                  <Form.Label>Hasło</Form.Label>
+                  <Form.Control
+                     type="password"
+                     placeholder="Wprowadź hasło"
+                     value={password}
+                     onChange={(e) => setPassword(e.target.value)}
+                     isInvalid={!!errors.password}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                     {errors.password}
+                  </Form.Control.Feedback>
+               </Form.Group>
+               <Button id="form_btn" variant="primary" type="submit">
+                  Zaloguj
+               </Button>
+            </Form>
+         </div>
       </div>
    );
 };

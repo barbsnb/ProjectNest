@@ -29,11 +29,11 @@ const Home = () => {
         <Col>
           {currentUser && currentUser.user && (
             <div>
-              <div className="info_text_bold">
+              {/* <div className="info_text_bold">
                 <h2>
                   <strong>Witaj {currentUser.user.username}!</strong>
                 </h2>
-              </div>
+              </div> */}
               {!chatStarted ? (
                 <Button id="chat_btn" onClick={startChat}>
                   Rozpocznij czat z asystentem
@@ -50,7 +50,7 @@ const Home = () => {
 
               {/* Lista projektów z kontekstu */}
               <div className="projects-list mt-5">
-                <h2>Twoje projekty:</h2>
+                <h2>Twoje analizy projektów:</h2>
                 {userProjects.length === 0 ? (
                   <p>Brak dodanych projektów.</p>
                 ) : (

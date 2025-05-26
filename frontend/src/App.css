@@ -32,3 +32,16 @@ h2 {
   font-weight: bold;
 }
 
+h3 {
+  font-size: 1.2rem; /* lub np. 18px */
+  color: #333333;
+  font-family: adagio_slab;
+  font-weight: bold;
+}
+
+h4 {
+  font-size: 1rem; /* lub np. 16px */
+  color: #333333;
+  font-family: adagio_slab;
+  font-weight: bold;
+}

@@ -1,10 +1,18 @@
 .form-container {
-    max-width: 100%;
-    margin: 0 auto; /* Wyśrodkowuje kontener formularza na stronie */
-    display: flex; /* Ustawia kontener formularza jako kontener flexbox */
-    justify-content: center; /* Wyśrodkowuje zawartość wzdłuż osi X */
-    align-items: center; /* Wyśrodkowuje zawartość wzdłuż osi Y */
+  max-width: 600px;
+  display: flex;
+  justify-content: flex-start; 
+  align-items: center;
+  /* usuń margin-top i padding-top */
 }
+
+.login-page-wrapper {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 
 .form-label {
     font-weight: bold;
@@ -37,13 +45,15 @@
     margin-top: 10px;
     margin-bottom: 15px;
     font-size: 20px;
-    background-color: #333; /* Ciemne tło */
-    color: #fff; /* Biały napis */
+    background-color: #333; 
+    color: #fff; 
     border: none;
     font-family: adagio_slab;
-    float: right; /* Umieszczanie przycisku z prawej strony */
+    float: right; 
 }
 
 #form_btn:hover {
-    background-color: #555; /* Ciemniejsze tło po najechaniu */
-}
+    background-color: #555; 
+} 
+
+

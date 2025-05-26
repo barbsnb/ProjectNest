@@ -1,27 +1,17 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
-import { AuthContext } from '../../contexts/AuthContext';
+// import { AuthContext } from '../../contexts/AuthContext';
 import client from '../../axiosClient';
 import './RegistrationForm.css';
 
-const optionsDirection = [
-  "Frontend",
-  "Backend",
-  "Fullstack",
-  "Data Science",
-  "DevOps",
-];
-
-const optionsFocus = [
-  "Projekty praktyczne",
-  "Technologie i narzędzia",
-  "Umiejętności miękkie",
-  "Certyfikaty",
-];
 
 const Survey = ({ onComplete }) => {
+  const [step, setStep] = useState(1);
   const [direction, setDirection] = useState([]);
   const [focus, setFocus] = useState([]);
+  const [experience, setExperience] = useState("");
+  const [timeAvailable, setTimeAvailable] = useState("");
+  const [learningGoal, setLearningGoal] = useState("");
 
   const toggleSelection = (option, selectedArray, setSelectedArray) => {
     if (selectedArray.includes(option)) {
@@ -31,101 +21,194 @@ const Survey = ({ onComplete }) => {
     }
   };
 
+  const nextStep = () => setStep((s) => s + 1);
+  const prevStep = () => setStep((s) => s - 1);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (direction.length > 0 && focus.length > 0) {
-      onComplete({ direction, focus });
-    } else {
-      alert("Proszę wybrać przynajmniej jedną opcję w obu kategoriach.");
-    }
+    const allData = {
+      direction,
+      focus,
+      experience,
+      timeAvailable,
+      learningGoal,
+    };
+    onComplete(allData);
   };
 
   return (
     <div style={{ maxWidth: 600, margin: "2rem auto", fontFamily: "Arial" }}>
-      <h2>Ankieta dotycząca kierunku rozwoju</h2>
-      <form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit}>
+        {step === 1 && (
+          <>
+            <h2>Krok 1: Kierunek rozwoju</h2>
+            <p>W jakim kierunku chcesz się rozwijać?</p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+               {["Frontend", 
+                  "Backend", 
+                  "Fullstack", 
+                  "Data Science", 
+                  "AI", 
+                  "DevOps",
+                  "Cyberbezpieczeństwo"].map((opt) => (
+                <label key={opt} style={getOptionStyle(direction.includes(opt))}>
+                  <input
+                    type="checkbox"
+                    value={opt}
+                    checked={direction.includes(opt)}
+                    onChange={() => toggleSelection(opt, direction, setDirection)}
+                    style={{ display: "none" }}
+                  />
+                  {opt}
+                </label>
+              ))}
+            </div>
+            <StepButtons disabled={direction.length === 0} onNext={nextStep} />
+          </>
+        )}
 
-        <div>
-          <p><strong>Wybierz kierunek rozwoju:</strong></p>
-          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-            {optionsDirection.map((opt) => (
-              <label
-                key={opt}
-                style={{
-                  border: direction.includes(opt) ? "2px solid #333" : "2px solid #ccc",
-                  padding: "10px 20px",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                  userSelect: "none",
-                  backgroundColor: direction.includes(opt) ? "#eee" : "white",
-                  display: "inline-block",
-                }}
+        {step === 2 && (
+          <>
+            <h2>Krok 2: Priorytety w portfolio</h2>
+            <p>Na co chcesz kłaść nacisk w swoim portfolio?</p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+              {["Projekty praktyczne", 
+                "Technologie i narzędzia", 
+                "Umiejętności miękkie", 
+                "Certyfikaty",
+                "Studia przypadku"].map((opt) => (
+                <label key={opt} style={getOptionStyle(focus.includes(opt))}>
+                  <input
+                    type="checkbox"
+                    value={opt}
+                    checked={focus.includes(opt)}
+                    onChange={() => toggleSelection(opt, focus, setFocus)}
+                    style={{ display: "none" }}
+                  />
+                  {opt}
+                </label>
+              ))}
+            </div>
+            <StepButtons onBack={prevStep} disabled={focus.length === 0} onNext={nextStep} />
+          </>
+        )}
+
+        {step === 3 && (
+          <>
+            <h2>Krok 3: Informacje dodatkowe</h2>
+            <Form.Group controlId="experienceSelect" style={{ marginBottom: "1rem" }}>
+              <p>Poziom doświadczenia:</p>
+              <Form.Control
+                as="select"
+                value={experience}
+                onChange={(e) => setExperience(e.target.value)}
+                required
+                style={{ width: '100%', height: '50px' }} 
               >
-                <input
-                  type="checkbox"
-                  value={opt}
-                  checked={direction.includes(opt)}
-                  onChange={() => toggleSelection(opt, direction, setDirection)}
-                  style={{ display: "none" }}
-                />
-                {opt}
-              </label>
-            ))}
-          </div>
-        </div>
+                <option value="">Wybierz...</option>
+                <option value="Początkujący">Początkujący</option>
+                <option value="Średniozaawansowany">Średniozaawansowany</option>
+                <option value="Zaawansowany">Zaawansowany</option>
+              </Form.Control>
+            </Form.Group>
 
-        <div style={{ marginTop: "2rem" }}>
-          <p><strong>Na co chcesz kłaść nacisk w portfolio?</strong></p>
-          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-            {optionsFocus.map((opt) => (
-              <label
-                key={opt}
-                style={{
-                  border: focus.includes(opt) ? "2px solid #333" : "2px solid #ccc",
-                  padding: "10px 20px",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                  userSelect: "none",
-                  backgroundColor: focus.includes(opt) ? "#eee" : "white",
-                  display: "inline-block",
-                }}
+            <Form.Group controlId="timeAvailableSelect" style={{ marginBottom: "1rem" }}>
+              <p>Ile czasu tygodniowo możesz poświęcić na pracę nad projektami?</p>
+              <Form.Control
+                as="select"
+                value={timeAvailable}
+                onChange={(e) => setTimeAvailable(e.target.value)}
+                required
+                style={{ width: '100%', height: '50px' }} 
               >
-                <input
-                  type="checkbox"
-                  value={opt}
-                  checked={focus.includes(opt)}
-                  onChange={() => toggleSelection(opt, focus, setFocus)}
-                  style={{ display: "none" }}
-                />
-                {opt}
-              </label>
-            ))}
-          </div>
-        </div>
+                <option value="">Wybierz...</option>
+                <option value="<2">Mniej niż 2h</option>
+                <option value="2-5">2–5h</option>
+                <option value="5-10">5–10h</option>
+                <option value=">10">Ponad 10h</option>
+              </Form.Control>
+            </Form.Group>
 
-        <button
-          type="submit"
-          style={{
-            backgroundColor: "#333",
-            color: "white",
-            border: "none",
-            padding: "0.75rem 1.5rem",
-            cursor: "pointer",
-            fontSize: "1rem",
-            fontFamily: "Arial",
-            marginTop: "2rem",
-            display: "block",
-          }}
-        >
-          Dalej
-        </button>
-      </form>
+            <Form.Group controlId="learningGoalSelect">
+              <p>Dlaczego się uczysz?</p>
+              <Form.Control
+                as="select"
+                value={learningGoal}
+                onChange={(e) => setLearningGoal(e.target.value)}
+                required
+                style={{ width: '100%', height: '50px' }} 
+              >
+                <option value="">Wybierz...</option>
+                <option value="Zmiana pracy">Zmiana pracy</option>
+                <option value="Freelancing">Freelancing</option>
+                <option value="Dla przyjemności">Dla przyjemności</option>
+                <option value="Rozwój w obecnej pracy">Rozwój w obecnej pracy</option>
+              </Form.Control>
+            </Form.Group>
+
+            <StepButtons
+              onBack={prevStep}
+              disabled={!experience || !timeAvailable || !learningGoal}
+              isSubmit
+            />
+          </>
+        )}
+      </Form>
     </div>
   );
 };
 
+const getOptionStyle = (selected) => ({
+  border: selected ? "2px solid #333" : "2px solid #ccc",
+  padding: "10px 20px",
+  borderRadius: "5px",
+  cursor: "pointer",
+  backgroundColor: selected ? "#eee" : "white",
+  userSelect: "none",
+  flex: "0 0 auto"
+});
+
+const StepButtons = ({ onBack, onNext, isSubmit = false, disabled = false }) => (
+  <div style={{ marginTop: "2rem", display: "flex", justifyContent: "space-between" }}>
+    {onBack && (
+      <Button
+        id="form_btn"
+        variant="primary"
+        onClick={onBack}
+        type="button"
+      >
+        Wstecz
+      </Button>
+    )}
+    {isSubmit ? (
+      <Button
+        id="form_btn"
+        variant="primary"
+        disabled={disabled}
+        type="submit"
+      >
+        Dalej
+      </Button>
+    ) : (
+      <Button
+        id="form_btn"
+        variant="primary"
+        onClick={onNext}
+        disabled={disabled}
+        type="button"
+      >
+        Dalej
+      </Button>
+    )}
+  </div>
+);
+
+
+
+
+
 const RegistrationForm = () => {
-  const { setCurrentUser } = useContext(AuthContext);
+  // const { setCurrentUser } = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -195,6 +278,7 @@ const RegistrationForm = () => {
   return (
     <div className="form-container">
       <Form onSubmit={submitRegistration}>
+        <h3>Wprowadź dane logowania </h3>
         {formError && <Alert variant="danger">{formError}</Alert>}
 
         <Form.Group className="mb-3" controlId="formBasicEmail">
