@@ -58,4 +58,13 @@
   .visit_info p {
     margin: 5px 0; 
   }
+
+.login-page-wrapper {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 200px;
+  align-items: center;
+}
+
   

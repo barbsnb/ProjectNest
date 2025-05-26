@@ -72,49 +72,51 @@ const NewProject = () => {
           )}
         </div>
       ) : (
-        <div className="form-container">
-          <Form onSubmit={handleSubmit}>
-            <Row>
-              <Col>
-                <Form.Group controlId="formProjectName">
-                  <Form.Label>Nazwa projektu</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Wprowadź nazwę projektu"
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                    isInvalid={!!errors.name}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {errors.name}
-                  </Form.Control.Feedback>
-                </Form.Group>
+        <div className="login-page-wrapper">
+          <div className="form-container">
+            <Form onSubmit={handleSubmit}>
+              <Row>
+                <Col>
+                  <Form.Group controlId="formProjectName">
+                    <Form.Label>Nazwa projektu</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="Wprowadź nazwę projektu"
+                      value={name}
+                      onChange={e => setName(e.target.value)}
+                      isInvalid={!!errors.name}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      {errors.name}
+                    </Form.Control.Feedback>
+                  </Form.Group>
 
-                <Form.Group controlId="formProjectDescription">
-                  <Form.Label>Opis projektu</Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    rows={4}
-                    placeholder="Wprowadź opis projektu"
-                    value={description}
-                    onChange={e => setDescription(e.target.value)}
-                    isInvalid={!!errors.description}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {errors.description}
-                  </Form.Control.Feedback>
-                </Form.Group>
+                  <Form.Group controlId="formProjectDescription">
+                    <Form.Label>Opis projektu</Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      rows={4}
+                      placeholder="Wprowadź opis projektu"
+                      value={description}
+                      onChange={e => setDescription(e.target.value)}
+                      isInvalid={!!errors.description}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      {errors.description}
+                    </Form.Control.Feedback>
+                  </Form.Group>
 
-                <Button id="form_btn" variant="primary">
-                  Dodaj pliki źródłowe
-                </Button>
+                  <Button id="form_btn" variant="primary">
+                    Dodaj pliki źródłowe
+                  </Button>
 
-                <Button id="form_btn" variant="primary" type="submit">
-                  Rozpocznij czat z asystentem
-                </Button>
-              </Col>
-            </Row>
-          </Form>
+                  <Button id="form_btn" variant="primary" type="submit">
+                    Rozpocznij czat z asystentem
+                  </Button>
+                </Col>
+              </Row>
+            </Form>
+          </div>
         </div>
       )}
     </>

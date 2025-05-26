@@ -4,22 +4,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import permissions, status
-from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer, UserProjectSerializer
+from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer, UserProjectSerializer, ProjectAnalysisSerializer
 from .validations import custom_validation, validate_email, validate_password
-from .models import Project
-from datetime import datetime, timedelta
-from django.db.models import Count
+from .models import Project, ProjectAnalysis
 from django.shortcuts import get_object_or_404
-from email.message import EmailMessage
-from django.db.models import Q
-from django.http import HttpResponse
-import csv
-import os
 import logging
-import smtplib
-import ssl
-import json
-import mimetypes
+from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView
 
 
 # Inicjalizacja loggera
@@ -72,10 +62,7 @@ class UserView(APIView):
 
     ##
     def get(self, request):
-        # print(f"Request: {request}")
-        # print(f"Before serializer: {request.user}")
         serializer = UserSerializer(request.user)
-        # print(f"After serializer: {serializer.data}")
         return Response({"user": serializer.data}, status=status.HTTP_200_OK)
 
 
@@ -111,4 +98,25 @@ class ProjectListView(generics.ListAPIView):
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+class ProjectAnalysisCreateView(CreateAPIView):
+    serializer_class = ProjectAnalysisSerializer
+    permission_classes = [permissions.IsAuthenticated,]
+    authentication_classes = [SessionAuthentication]
 
+    def perform_create(self, serializer):
+        project_id = self.request.data.get("project")
+        project = get_object_or_404(Project, pk=project_id, user=self.request.user)
+        serializer.save(project=project)
+
+
+class ProjectAnalysisDetailView(RetrieveUpdateAPIView):
+    serializer_class = ProjectAnalysisSerializer
+    permission_classes = [permissions.IsAuthenticated,]
+    authentication_classes = [SessionAuthentication]
+
+    def get_queryset(self):
+        return ProjectAnalysis.objects.filter(project__user=self.request.user)
+
+    def get_object(self):
+        project_id = self.kwargs.get("project_id")
+        return get_object_or_404(ProjectAnalysis, project__id=project_id, project__user=self.request.user)

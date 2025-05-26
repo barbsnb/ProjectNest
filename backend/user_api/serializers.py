@@ -1,7 +1,7 @@
 # do przekształcania danych modeli django na forme przesylana przez siec
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
-from .models import Project
+from .models import Project, ProjectAnalysis
 
 # konteneryzacja danych do formatu json
 
@@ -63,4 +63,9 @@ class UserProjectSerializer(serializers.ModelSerializer):
             "user",
         )
 
+class ProjectAnalysisSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProjectAnalysis
+        fields = "__all__"
+        read_only_fields = ["project", "created_at"]
 
