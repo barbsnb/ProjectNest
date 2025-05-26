@@ -14,7 +14,10 @@ import Info from './components/home/Info';
 import CustomNavbar from './components/common/Navbar';
 import NewProject from './components/tabs/NewProject';
 import ManageProjects from './components/tabs/ManageProjects'
-import Chat from "./components/tabs/Chat";
+import Chat from "./components/chat/Chat";
+import ProjectAnalysisView from "./components/chat/ProjectAnalysis";
+
+
 
 function App() {
   return (
@@ -31,6 +34,7 @@ function App() {
                     <Route path="/project" element={<NewProject />} />
                     <Route path="/manage_projects" element={<ManageProjects/>} />
                     <Route path="/chat" element={<Chat />} />
+                    <Route path="/analysis/:projectId" element={<ProjectAnalysisView />} />
                   </Routes>
               </ChatProvider>
             </UserProjectsProvider>
