@@ -132,14 +132,26 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.info-card h2,
+
+
+.info-card h2 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
 .info-card p {
   display: -webkit-box;
-  -webkit-line-clamp: 3; /* liczba linii */
+  -webkit-line-clamp: 4; /* liczba widocznych linii */
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 0.95rem;
+  color: #555;
+  line-height: 1.4;
 }
+
+
 
 
 

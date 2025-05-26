@@ -37,10 +37,17 @@ import CompleteVisit from "./components/tabs/CompleteVisit";
 import NewProject from './components/tabs/NewProject';
 import ManageProjects from './components/tabs/ManageProjects'
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 21f5840 (commit)
 =======
 import Chat from "./components/tabs/Chat";
 >>>>>>> 6ce1929 (zaslepka na chat)
+=======
+import Chat from "./components/chat/Chat";
+import ProjectAnalysisView from "./components/chat/ProjectAnalysis";
+
+
+>>>>>>> 9cf03ab (Dodana analiza do fronta)
 
 function App() {
 <<<<<<< HEAD
@@ -58,6 +65,7 @@ function App() {
                     <Route path="/project" element={<NewProject />} />
                     <Route path="/manage_projects" element={<ManageProjects/>} />
                     <Route path="/chat" element={<Chat />} />
+                    <Route path="/analysis/:projectId" element={<ProjectAnalysisView />} />
                   </Routes>
               </ChatProvider>
             </UserProjectsProvider>

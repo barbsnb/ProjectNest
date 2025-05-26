@@ -109,14 +109,14 @@ class ProjectAnalysisCreateView(CreateAPIView):
         serializer.save(project=project)
 
 
-class ProjectAnalysisDetailView(RetrieveUpdateAPIView):
-    serializer_class = ProjectAnalysisSerializer
-    permission_classes = [permissions.IsAuthenticated,]
-    authentication_classes = [SessionAuthentication]
+class ProjectAnalysisDetailView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
 
-    def get_queryset(self):
-        return ProjectAnalysis.objects.filter(project__user=self.request.user)
+    def get(self, request, project_id):
+        try:
+            analysis = get_object_or_404(ProjectAnalysis, project__id=project_id)
+            serializer = ProjectAnalysisSerializer(analysis)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def get_object(self):
-        project_id = self.kwargs.get("project_id")
-        return get_object_or_404(ProjectAnalysis, project__id=project_id, project__user=self.request.user)
