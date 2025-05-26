@@ -1,5 +1,56 @@
-co w analizie/raportu:
-1. Czystość/przejrzystość kodu, dokumentacja (readme/komenatarze funkcji itp.)
-2. Frameworki/biblioteki - użyte i sugerowane
-3. oferty pracy 
-4. architektura - 
+1. Kategorie oceny projektu kodu
+A. Jakość kodu
+Czytelność (readability): Nazewnictwo, formatowanie, komentarze, jasność intencji.
+
+Struktura (structure): Organizacja plików, klas, funkcji.
+
+DRY / KISS / YAGNI: Unikanie powtórzeń, prostota, brak zbędnych elementów.
+
+B. Architektura i projekt
+Modularność: Podział na moduły, rozdzielenie odpowiedzialności.
+
+Rozszerzalność: Łatwość dodawania nowych funkcjonalności.
+
+Spójność i zgodność z wzorcami projektowymi (jeśli są stosowane).
+
+C. Bezpieczeństwo
+Walidacja danych wejściowych.
+
+Zarządzanie uprawnieniami.
+
+Unikanie typowych podatności (np. SQL Injection, XSS).
+
+D. Testowalność i jakość testów
+Pokrycie testami jednostkowymi/integracyjnymi.
+
+Jakość testów (czy pokrywają przypadki brzegowe).
+
+Automatyzacja testów.
+
+E. Wydajność
+Złożoność obliczeniowa (jeśli istotna).
+
+Efektywność wykorzystania zasobów.
+
+F. Dokumentacja
+Komentarze w kodzie.
+
+Dokumentacja techniczna / README.
+
+Instrukcje uruchomienia / instalacji.
+
+G. Zgodność z dobrymi praktykami
+Styl kodowania (np. PEP8, ESLint, etc.).
+
+Użycie narzędzi CI/CD, linterów, formatowania.
+
+2. Metryki (ilościowe)
+Pokrycie kodu testami: np. 85%
+
+Liczba błędów ze statycznej analizy (np. pylint score).
+
+Złożoność cyklomatyczna funkcji.
+
+Liczba linii kodu na plik/klasę/funkcję.
+
+Liczba commitów/zmian — może wspierać ocenę aktywności.
