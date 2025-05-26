@@ -50,6 +50,30 @@ class Project(models.Model):
 
     def __str__(self):
         return self.name
+    
+class ChatSession(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="chat_sessions")
+    created_at = models.DateTimeField(auto_now_add=True)
+    title = models.CharField(max_length=255, default="Nowa rozmowa")
+
+    def __str__(self):
+        return f"{self.title} - {self.project.name}"
+
+
+class Message(models.Model):
+    CHAT_SENDER_CHOICES = [
+        ("user", "Użytkownik"),
+        ("ai", "Asystent AI"),
+    ]
+
+    session = models.ForeignKey(ChatSession, on_delete=models.CASCADE, related_name="messages")
+    sender = models.CharField(max_length=10, choices=CHAT_SENDER_CHOICES)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.sender} @ {self.timestamp}: {self.content[:30]}"
+
 
 
 

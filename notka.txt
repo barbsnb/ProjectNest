@@ -1,0 +1,5 @@
+co w analizie/raportu:
+1. Czystość/przejrzystość kodu, dokumentacja (readme/komenatarze funkcji itp.)
+2. Frameworki/biblioteki - użyte i sugerowane
+3. oferty pracy 
+4. architektura - 

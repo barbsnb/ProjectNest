@@ -1,0 +1,151 @@
+.info-container {
+  margin-top: 40px;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.info-section {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  width: 400px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: white;
+}
+
+#form_btn {
+    margin-top: 10px;
+    margin-bottom: 15px;
+    font-size: 20px;
+    background-color: #333; /* Ciemne tło */
+    color: #fff; /* Biały napis */
+    border: none;
+    font-family: adagio_slab;
+    float: right; /* Umieszczanie przycisku z prawej strony */
+}
+
+#form_btn:hover {
+    background-color: #555; /* Ciemniejsze tło po najechaniu */
+}
+
+.login-form {
+  width: 300px;
+  margin: 0 auto; /* <-- to powoduje centrowanie */
+}
+
+.info-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  margin: 2rem auto;
+  max-width: 1200px;
+}
+
+.info-card {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  width: 300px;
+  min-height: 300px; /* kwadratowy kształt */
+  padding: 2rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.info-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+.info-card h2 {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.info-card p {
+  font-size: 1rem;
+  color: #666;
+}
+
+.info-cards {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin: 3rem 0;
+}
+
+.register-section {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0 4rem;
+}
+
+.register-card {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 900px;
+  padding: 2rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+
+.register-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+.register-card h2 {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.register-card p {
+  font-size: 1rem;
+  color: #666;
+}
+
+
+
+.hero-section {
+  text-align: center;
+  padding: 4rem 1rem;
+  background: linear-gradient(135deg, #f4f6fa, #e2e8f0);
+  border-radius: 1rem;
+  margin-bottom: 3rem;
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  color: #555;
+  margin-bottom: 2rem;
+}
+
+.hero-button {
+  background-color: #333;
+  color: white;
+  font-size: 1.2rem;
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}

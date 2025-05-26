@@ -1,61 +1,64 @@
 .form-container {
-    max-width: 500px;
-    margin: 0 auto; /* Wyśrodkowuje kontener formularza na stronie */
-    display: flex; /* Ustawia kontener formularza jako kontener flexbox */
-    justify-content: center; /* Wyśrodkowuje zawartość wzdłuż osi X */
-    align-items: center; /* Wyśrodkowuje zawartość wzdłuż osi Y */
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .form-label {
-    font-weight: bold;
-    font-size: 20px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    font-family: adagio_slab, sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-family: 'Adagio Slab', sans-serif;
 }
 
 .form-control {
-    width: 100%;
-    max-width: 400px;
-    height: 30px;
-    font-size: 16px;
-    font-family: adagio_slab, sans-serif;
-    border-radius: 10px;
-    border-color: #a09898;
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-family: 'Adagio Slab', sans-serif;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #666;
+  outline: none;
 }
 
 .form-group,
 .input-group {
-    width: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .form-inline {
-    width: 100%;
+  width: 100%;
 }
 
 #form_btn {
-    margin-top: 10px;
-    margin-bottom: 15px;
-    font-size: 20px;
-    background-color: #333; /* Ciemne tło */
-    color: #fff; /* Biały napis */
-    border: none;
-    font-family: adagio_slab;
-    float: right; /* Umieszczanie przycisku z prawej strony */
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Adagio Slab', sans-serif;
+  align-self: flex-end;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 #form_btn:hover {
-    background-color: #555; /* Ciemniejsze tło po najechaniu */
+  background-color: #555;
 }
-
-.visit_info {
-    max-width: 500px;
-    margin: 0 auto;
-    text-align: center; /* Wyśrodkowanie tekstu */
-    font-family: adagio_slab, sans-serif; /* Ustawienie czcionki */
-  }
-  
-  .visit_info p {
-    margin: 5px 0; /* Mniejszy odstęp między wierszami */
-  }
-  

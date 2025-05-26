@@ -1,60 +1,54 @@
 import React from 'react';
-import '../../App.css';
+import './Info.css';
+import LoginForm from '../auth/LoginForm';
+import RegistrationForm from '../auth/RegistrationForm';
 
 const Info = () => {
+  const scrollToRegistration = () => {
+    const element = document.getElementById("register-section");
+    if (element) element.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <div className="container">
-      <main style={{ 
-        display: 'flex', 
-        gap: '20px', 
-        justifyContent: 'center', 
-        flexWrap: 'wrap',
-        marginTop: '40px'  // <-- przesunięcie w dół
-      }}>
-        <section style={{
-          border: '1px solid #ccc',
-          borderRadius: '8px',
-          padding: '20px',
-          width: '400px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          backgroundColor: 'white',
-        }}>
-          <h1>Asystent AI do oceny projektów informatycznych</h1>
-          <p>
-            Nasza aplikacja to inteligentny asystent stworzony z myślą o studentach kierunków informatycznych. 
-            Umożliwia on szybkie i automatyczne generowanie feedbacku do projektów programistycznych — zarówno indywidualnych, jak i zespołowych.
+      <main className="info-container">
+        
+        {/* Hero section */}
+        <section className="hero-section">
+          <h1 className="hero-title">Chcesz ulepszyć swój projekt informatyczny?</h1>
+          <p className="hero-subtitle">
+            Korzystaj z inteligentnych analiz, automatycznego feedbacku i buduj portfolio gotowe na rynek pracy.
           </p>
+          <button className="hero-button" onClick={scrollToRegistration}>
+            Zarejestruj się za darmo
+          </button>
         </section>
 
-        <section style={{
-          border: '1px solid #ccc',
-          borderRadius: '8px',
-          padding: '20px',
-          width: '400px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          backgroundColor: 'white',
-        }}>
-          <h1>Jak to działa?</h1>
-          <p>
-            Wystarczy, że wgrasz swój kod lub opis projektu, a asystent AI przeanalizuje jego jakość, strukturę i funkcjonalność. 
-            Ocenia projekt w kilku kluczowych kategoriach, takich jak jakość kodu, dokumentacja, innowacyjność, czy doświadczenie użytkownika (UX). 
-            Dzięki temu możesz szybciej poprawić swoje rozwiązania i przygotować się do zaliczenia lub prezentacji.
-          </p>
+        {/* Info Cards */}
+        <section className="info-cards">
+          <div className="info-card">
+            <h2>Automatyczny feedback</h2>
+            <p>Wgraj projekt, a nasz AI przeanalizuje jakość kodu, strukturę i funkcjonalność.</p>
+          </div>
+          <div className="info-card">
+            <h2>Konsultacje projektów</h2>
+            <p>Otrzymuj szczegółowe uwagi i propozycje ulepszeń — jakbyś miał osobistego mentora.</p>
+          </div>
+          <div className="info-card">
+            <h2>Buduj portfolio</h2>
+            <p>Twórz spersonalizowane CV i dokumentuj swoje projekty zgodnie z oczekiwaniami rynku.</p>
+          </div>
         </section>
 
-        <section style={{
-          border: '1px solid #ccc',
-          borderRadius: '8px',
-          padding: '20px',
-          width: '400px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          backgroundColor: 'white',
-        }}>
-          <h1>Dla kogo jest ta aplikacja?</h1>
-          <p>
-            Narzędzie zostało zaprojektowane z myślą o studentach, prowadzących oraz mentorach akademickich, którzy chcą usprawnić proces oceny i uzyskiwania informacji zwrotnej na temat projektów zaliczeniowych.
-          </p>
+        {/* Rejestracja */}
+        <section id="register-section" className="register-section">
+          <div className="register-card">
+            <h1>Nie masz konta?</h1>
+            <p>Odpowiedz na kilka pytań, a dostosujemy asystenta AI do Twoich potrzeb.</p>
+            <RegistrationForm />
+          </div>
         </section>
+
       </main>
     </div>
   );
