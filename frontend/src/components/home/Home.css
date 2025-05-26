@@ -107,3 +107,57 @@
     font-family: adagio_slab;
     display: inline-block;
 }
+
+.info-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start; /* wyrównanie do lewej */
+  gap: 2rem;
+  margin: 2rem auto;
+  max-width: 1280px;
+}
+
+.info-card {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  width: calc(25% - 1.5rem); /* 4 karty w rzędzie przy zachowaniu odstępu */
+  aspect-ratio: 1 / 1; /* kwadratowy kształt */
+  padding: 2rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.info-card h2,
+.info-card p {
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* liczba linii */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+
+@media (max-width: 1200px) {
+  .info-card {
+    width: calc(33.33% - 1.5rem); /* 3 karty w rzędzie */
+  }
+}
+
+@media (max-width: 900px) {
+  .info-card {
+    width: calc(50% - 1.5rem); /* 2 karty w rzędzie */
+  }
+}
+
+@media (max-width: 600px) {
+  .info-card {
+    width: 100%; /* 1 karta na całą szerokość */
+  }
+}
+

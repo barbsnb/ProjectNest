@@ -29,11 +29,6 @@ const Home = () => {
         <Col>
           {currentUser && currentUser.user && (
             <div>
-              {/* <div className="info_text_bold">
-                <h2>
-                  <strong>Witaj {currentUser.user.username}!</strong>
-                </h2>
-              </div> */}
               {!chatStarted ? (
                 <Button id="chat_btn" onClick={startChat}>
                   Rozpocznij czat z asystentem
@@ -54,22 +49,23 @@ const Home = () => {
                 {userProjects.length === 0 ? (
                   <p>Brak dodanych projektów.</p>
                 ) : (
-                  userProjects.map((project) => (
-                    <Card key={project.id} className="mb-3">
-                      <Card.Body>
-                        <Card.Title>{project.name}</Card.Title>
-                        <Card.Text>{project.description}</Card.Text>
+                  <div className="info-cards">
+                    {userProjects.map((project) => (
+                      <div key={project.id} className="info-card">
+                        <h2>{project.name}</h2>
+                        <p>{project.description}</p>
                         <Button 
-                           id="chat_btn2"
+                          id="chat_btn2"
                           onClick={() => goToAnalysis(project.id)}
                         >
                           Przejdź do analizy
                         </Button>
-                      </Card.Body>
-                    </Card>
-                  ))
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
+
             </div>
           )}
         </Col>
