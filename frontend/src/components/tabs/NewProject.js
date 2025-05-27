@@ -49,7 +49,7 @@ const NewProject = () => {
         // setGetCurrentUser(true);
         setProjectFormToggle(true);
         console.log('Projekt został utworzony:', response.data);
-        navigate('/chat');
+        // navigate('/chat');
       })
       .catch(error => {
         console.error('Błąd podczas tworzenia projektu:', error);

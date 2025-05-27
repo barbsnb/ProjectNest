@@ -55,26 +55,27 @@ const formatKey = (key) => {
   const map = {
     readability: "Czytelność",
     structure: "Struktura",
-    dry_kiss_yagni: "DRY / KISS / YAGNI",
+    // Dodane/poprawione tłumaczenia:
+    principles: "Zasady (DRY / KISS / YAGNI)", // Zgodnie z nazwą pola w modelu
     modularity: "Modularność",
     extensibility: "Rozszerzalność",
-    design_patterns: "Wzorce projektowe",
-    input_validation: "Walidacja danych",
-    permissions: "Uprawnienia",
-    vulnerabilities: "Bezpieczeństwo",
-    unit_tests: "Testy jednostkowe",
+    design_patterns: "Wzorce projektowe i spójność", // Zgodnie z nazwą pola w modelu
+    input_validation: "Walidacja danych wejściowych", // Zgodnie z nazwą pola w modelu
+    permission_management: "Zarządzanie uprawnieniami", // Zgodnie z nazwą pola w modelu
+    vulnerabilities: "Unikanie podatności", // Krótsza, ale nadal zgodna
+    test_coverage: "Pokrycie testami", // Zgodnie z nazwą pola w modelu
     test_quality: "Jakość testów",
     test_automation: "Automatyzacja testów",
     performance: "Wydajność",
-    resources: "Zasoby",
-    comments: "Komentarze w kodzie",
-    docs: "Dokumentacja techniczna",
-    instructions: "Instrukcje uruchomienia",
-    code_style: "Styl kodowania",
-    tools: "CI/CD i narzędzia",
+    comments_quality: "Komentarze w kodzie", // Zgodnie z nazwą pola w modelu
+    documentation: "Dokumentacja techniczna", // Zgodnie z nazwą pola w modelu
+    installation_instructions: "Instrukcja uruchomienia", // Zgodnie z nazwą pola w modelu
+    coding_style: "Styl kodowania",
+    tools_usage: "CI/CD i narzędzia", // Zgodnie z nazwą pola w modelu
   };
 
   return map[key] || key;
 };
+
 
 export default ProjectAnalysis;
