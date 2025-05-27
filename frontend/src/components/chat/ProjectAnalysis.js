@@ -4,25 +4,56 @@ import axios from "axios";
 import { Container } from "react-bootstrap";
 import "./ProjectAnalysis.css";
 
+const SECTION_MAP = {
+  "Jakość kodu": ["readability", "structure", "principles"],
+  "Architektura i projekt": ["modularity", "extensibility", "design_patterns"],
+  "Bezpieczeństwo": ["input_validation", "permission_management", "vulnerabilities"],
+  "Testowalność": ["test_coverage", "test_quality", "test_automation"],
+  "Wydajność": ["performance"],
+  "Dokumentacja": ["comments_quality", "documentation", "installation_instructions"],
+  "Dobre praktyki": ["coding_style", "tools_usage"],
+};
+
+const FIELD_LABELS = {
+  readability: "Czytelność",
+  structure: "Struktura",
+  principles: "Zasady (DRY / KISS / YAGNI)",
+  modularity: "Modularność",
+  extensibility: "Rozszerzalność",
+  design_patterns: "Wzorce projektowe i spójność",
+  input_validation: "Walidacja danych wejściowych",
+  permission_management: "Zarządzanie uprawnieniami",
+  vulnerabilities: "Unikanie podatności",
+  test_coverage: "Pokrycie testami",
+  test_quality: "Jakość testów",
+  test_automation: "Automatyzacja testów",
+  performance: "Wydajność",
+  comments_quality: "Komentarze w kodzie",
+  documentation: "Dokumentacja techniczna",
+  installation_instructions: "Instrukcja uruchomienia",
+  coding_style: "Styl kodowania",
+  tools_usage: "CI/CD i narzędzia",
+};
+
 const ProjectAnalysis = () => {
   const { projectId } = useParams();
   const [analysis, setAnalysis] = useState(null);
+  const [expandedFields, setExpandedFields] = useState({});
+
 
   useEffect(() => {
     const fetchAnalysis = async () => {
       try {
-        console.log(`${projectId}`);
         const response = await axios.get(`http://127.0.0.1:8000/api/analysis/${projectId}/`, { withCredentials: true });
         setAnalysis(response.data);
       } catch (error) {
         if (error.response) {
-            console.error("Status:", error.response.status);
-            console.error("Data:", error.response.data);
+          console.error("Status:", error.response.status);
+          console.error("Data:", error.response.data);
         } else {
-            console.error("Błąd:", error.message);
+          console.error("Błąd:", error.message);
         }
-        }
-
+      }
     };
 
     fetchAnalysis();
@@ -35,47 +66,39 @@ const ProjectAnalysis = () => {
   return (
     <Container className="analysis-container">
       <h2 className="analysis-header">Analiza projektu</h2>
-      <div className="info-cards">
-        {Object.entries(analysis).map(([key, value]) => {
-          if (["id", "project", "created_at"].includes(key)) return null;
+      <div className="section-cards">
+        {Object.entries(SECTION_MAP).map(([sectionTitle, fields]) => (
+          <div key={sectionTitle} className="section-card">
+            <h3>{sectionTitle}</h3>
+            {fields.map((field) => {
+            const content = analysis[field] || "Brak danych.";
+            const isExpanded = expandedFields[field];
 
-          return (
-            <div key={key} className="info-card">
-              <h2>{formatKey(key)}</h2>
-              <p>{value || "Brak danych."}</p>
-            </div>
-          );
-        })}
+            const toggleExpanded = () => {
+                setExpandedFields((prev) => ({
+                ...prev,
+                [field]: !prev[field],
+                }));
+            };
+
+            return (
+                <div
+                key={field}
+                className={`analysis-field ${isExpanded ? "expanded" : ""}`}
+                onClick={toggleExpanded}
+                title="Kliknij, aby rozwinąć / zwinąć"
+                style={{ cursor: "pointer" }}
+                >
+                <strong>{FIELD_LABELS[field]}:</strong>
+                <p>{content}</p>
+                </div>
+            );
+            })}
+          </div>
+        ))}
       </div>
     </Container>
   );
 };
-
-const formatKey = (key) => {
-  const map = {
-    readability: "Czytelność",
-    structure: "Struktura",
-    // Dodane/poprawione tłumaczenia:
-    principles: "Zasady (DRY / KISS / YAGNI)", // Zgodnie z nazwą pola w modelu
-    modularity: "Modularność",
-    extensibility: "Rozszerzalność",
-    design_patterns: "Wzorce projektowe i spójność", // Zgodnie z nazwą pola w modelu
-    input_validation: "Walidacja danych wejściowych", // Zgodnie z nazwą pola w modelu
-    permission_management: "Zarządzanie uprawnieniami", // Zgodnie z nazwą pola w modelu
-    vulnerabilities: "Unikanie podatności", // Krótsza, ale nadal zgodna
-    test_coverage: "Pokrycie testami", // Zgodnie z nazwą pola w modelu
-    test_quality: "Jakość testów",
-    test_automation: "Automatyzacja testów",
-    performance: "Wydajność",
-    comments_quality: "Komentarze w kodzie", // Zgodnie z nazwą pola w modelu
-    documentation: "Dokumentacja techniczna", // Zgodnie z nazwą pola w modelu
-    installation_instructions: "Instrukcja uruchomienia", // Zgodnie z nazwą pola w modelu
-    coding_style: "Styl kodowania",
-    tools_usage: "CI/CD i narzędzia", // Zgodnie z nazwą pola w modelu
-  };
-
-  return map[key] || key;
-};
-
 
 export default ProjectAnalysis;
