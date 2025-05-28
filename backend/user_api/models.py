@@ -191,7 +191,7 @@ class ImprovementSuggestion(models.Model):
     description = models.TextField(verbose_name="Opis sugestii")
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium', verbose_name="Priorytet")
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='new', verbose_name="Status")
-    recommendations = models.JSONField(blank=True, null=True, verbose_name="Rekomendacje")  # lista kroków do podjęcia
+    recommendations = models.TextField(verbose_name="Rekomendacje") 
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
