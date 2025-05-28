@@ -1,0 +1,6 @@
+jasno szary 106, 106, 131
+zielony ciemny 50, 64, 56
+beżowy 231, 215, 193
+czerowny 148, 41, 17
+żółty 244, 184, 96
+zielony jasny 144, 227, 154

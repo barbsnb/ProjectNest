@@ -109,7 +109,7 @@ const ProjectAnalysis = () => {
       </Tab>
 
       <Tab eventKey="path" title="Sugestie ulepszeń">
-        <ProjectSuggestions suggestionPath={analysis.suggestion_path} />
+        <ProjectSuggestions projectId={projectId} />
       </Tab>
     </Tabs>
   );
