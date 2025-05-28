@@ -29,23 +29,9 @@ const Home = () => {
         <Col>
           {currentUser && currentUser.user && (
             <div>
-              {!chatStarted ? (
-                <Button id="chat_btn" onClick={startChat}>
-                  Rozpocznij czat z asystentem
-                </Button>
-              ) : (
-                <div className="chat-container mt-3">
-                  <h4>Czat z asystentem rozpoczęty!</h4>
-                  <p>
-                    Tutaj możesz pisać wiadomości do asystenta. (Implementacja
-                    czatu w trakcie)
-                  </p>
-                </div>
-              )}
-
               {/* Lista projektów z kontekstu */}
               <div className="projects-list mt-5">
-                <h2>Twoje analizy projektów:</h2>
+                <h2 className="projects-heading"> Twoje analizy projektów</h2>
                 {userProjects.length === 0 ? (
                   <p>Brak dodanych projektów.</p>
                 ) : (

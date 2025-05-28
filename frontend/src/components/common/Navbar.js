@@ -1,20 +1,19 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Navbar } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../contexts/AuthContext';
 import LogoutButton from '../auth/LogoutButton';
-import './Navbar.css'
-
+import Sidebar from './/Sidebar';
+import './Navbar.css';
 
 const CustomNavbar = () => {
-    const { currentUser } = useContext(AuthContext);
-    const navigate = useNavigate(); // Create a navigate function
+  const { currentUser } = useContext(AuthContext);
+  const [collapsed, setCollapsed] = useState(false);
+  const navigate = useNavigate();
 
-    // Function to navigate to the homepage
-    const goToHomePage = () => {
-        navigate('/home');
-    };
+  const toggleSidebar = () => setCollapsed(!collapsed);
 
+<<<<<<< HEAD
     // const goToManageProjects = () =>
     // {
     //     navigate('/manage_projects');
@@ -89,7 +88,29 @@ const CustomNavbar = () => {
             
         </>
     );
+=======
+  return (
+    <>
+      {currentUser && <Sidebar collapsed={collapsed} toggleSidebar={toggleSidebar} />}
+      <Navbar className='navbar' style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '60px', zIndex: 1000 }}>
+        <Navbar.Collapse className="justify-content-end">
+          <Navbar.Text>
+            {currentUser ? (
+              <>
+                <LogoutButton />
+              </>
+            ) : (
+              <>
+                <button onClick={() => navigate('/login')} className='navbar_btn'>Logowanie</button>
+                <button onClick={() => navigate('/')} className='navbar_btn'>Strona główna</button>
+              </>
+            )}
+          </Navbar.Text>
+        </Navbar.Collapse>
+      </Navbar>
+    </>
+  );
+>>>>>>> db447ae (Dodany sidebar, zmiana głównej strony)
 };
 
 export default CustomNavbar;
-

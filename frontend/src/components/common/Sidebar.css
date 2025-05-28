@@ -1,0 +1,69 @@
+.sidebar-container {
+  position: fixed;
+  top: 60px; /* start pod navbar */
+  left: 0;
+  width: 200px; /* szerokość sidebar */
+  height: calc(100vh - 60px); /* wysokość okna minus navbar */
+  background-color: #ffffff; /* przykładowy kolor */
+  overflow-y: auto; /* scroll wertykalny */
+  border-right: 1px solid #ddd;
+  padding: 20px 10px;
+  display: flex;
+  flex-direction: column;
+  z-index: 999;
+}
+
+.sidebar-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sidebar-container button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  padding: 10px;
+  text-align: left;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.sidebar-container button:hover {
+  background-color: #f5f5f5;
+}
+
+.sidebar-project-item {
+  color: #333;
+  background: none;
+  border: none;
+  padding: 0.3rem;
+  cursor: pointer;
+  text-align: left;
+  border-radius: 3px;
+  width: 100%;
+}
+
+.sidebar-project-item:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+
+#chat_btn {
+    margin-top: 2px;
+    margin-bottom: 2px;
+    font-size: 18px;
+    background-color: rgb(106, 106, 131);  /* Ciemne tło */
+    color: #fff; /* Biały napis */
+    border: none;
+    font-family: adagio_slab;
+    display: inline-block;
+}
+
+#chat_btn:hover {
+  background-color: #333;
+}
