@@ -5,6 +5,7 @@ import { Container, Button, Tabs, Tab } from "react-bootstrap";
 import "./ProjectAnalysis.css";
 import { useNavigate } from "react-router-dom";
 import ProjectSuggestions from "./ProjectSuggestions"
+import Chat from "./Chat"
 
 
 const SECTION_MAP = {
@@ -111,6 +112,11 @@ const ProjectAnalysis = () => {
       <Tab eventKey="path" title="Sugestie ulepszeń">
         <ProjectSuggestions projectId={projectId} />
       </Tab>
+
+      <Tab eventKey="path" title="Czat z asystentem">
+        <Chat/>
+      </Tab>
+
     </Tabs>
   );
 };
