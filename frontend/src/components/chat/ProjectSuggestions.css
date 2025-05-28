@@ -27,3 +27,62 @@
   font-size: 1rem;
   line-height: 1.6;
 }
+
+.section-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  max-width: 1300px;
+  margin: 0 auto;
+  width: 100%; 
+}
+
+.section-card {
+  background-color: #ffffff;
+  border: 1px solid rgb(106, 106, 131);
+  border-radius: 12px;
+  width: 100%;   /* pełna szerokość rodzica */
+  max-width: 800px; /* np. max szerokość, możesz dopasować */
+  height: auto;  /* wysokość dopasowana do treści */
+  padding: 1.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+  margin: 0 auto; /* wycentrowanie kart */
+}
+
+
+
+.section-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+.section-card h3 {
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+
+.priority-badge.high {
+  background-color: rgb(148, 41, 17) !important;
+  color: white !important;
+}
+
+.priority-badge.medium {
+  background-color: rgb(244, 184, 96) !important;
+  color: white !important;
+}
+
+.priority-badge.low {
+  background-color: rgb(106, 106, 131) !important;
+  color: white !important;
+}
+
+
