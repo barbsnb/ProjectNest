@@ -4,12 +4,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import permissions, status
-from .serializers import UserRegisterSerializer, UserLoginSerializer, UserSerializer, UserProjectSerializer, ProjectAnalysisSerializer
+from .serializers import UserRegisterSerializer, ImprovementSuggestionSerializer, UserLoginSerializer, UserSerializer, UserProjectSerializer, ProjectAnalysisSerializer
 from .validations import custom_validation, validate_email, validate_password
-from .models import Project, ProjectAnalysis
+from .models import Project, ProjectAnalysis, ImprovementSuggestion
 from django.shortcuts import get_object_or_404
 import logging
-from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView
 
 
 # Inicjalizacja loggera
@@ -98,16 +97,6 @@ class ProjectListView(generics.ListAPIView):
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-class ProjectAnalysisCreateView(CreateAPIView):
-    serializer_class = ProjectAnalysisSerializer
-    permission_classes = [permissions.IsAuthenticated,]
-    authentication_classes = [SessionAuthentication]
-
-    def perform_create(self, serializer):
-        project_id = self.request.data.get("project")
-        project = get_object_or_404(Project, pk=project_id, user=self.request.user)
-        serializer.save(project=project)
-
 
 class ProjectAnalysisDetailView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -120,3 +109,18 @@ class ProjectAnalysisDetailView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+class ImprovementSuggestionListView(generics.ListAPIView):
+    serializer_class = ImprovementSuggestionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        project_id = self.kwargs.get('project_id')
+        return ImprovementSuggestion.objects.filter(project_id=project_id)
+
+
+# Widok pojedynczej sugestii
+class ImprovementSuggestionDetailView(generics.RetrieveAPIView):
+    queryset = ImprovementSuggestion.objects.all()
+    serializer_class = ImprovementSuggestionSerializer
+    permission_classes = [permissions.IsAuthenticated]
