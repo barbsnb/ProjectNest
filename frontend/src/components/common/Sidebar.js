@@ -42,7 +42,11 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
             Rozpocznij czat
         </Button>
 
-        <h5 style={{ marginTop: '1rem' }}>Twoje analizy:</h5>
+        <div style={{ marginTop: '1rem', padding: '0 0.5rem' }}>
+          <h5 style={{ marginBottom: '0.3rem' }}>Twoje analizy</h5>
+          <div className="section-divider"></div>
+        </div>
+
         {/* Pole do filtrowania */}
         <div className="sidebar-filter" style={{ marginTop: '0rem', padding: '0 0.5rem' }}>
           <input
