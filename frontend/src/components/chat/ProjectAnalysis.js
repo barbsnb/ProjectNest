@@ -4,7 +4,7 @@ import axios from "axios";
 import { Container, Button, Tabs, Tab } from "react-bootstrap";
 import "./ProjectAnalysis.css";
 import { useNavigate } from "react-router-dom";
-import DevPath from "./DevPath"
+import ProjectSuggestions from "./ProjectSuggestions"
 
 
 const SECTION_MAP = {
@@ -108,8 +108,8 @@ const ProjectAnalysis = () => {
         </Container>
       </Tab>
 
-      <Tab eventKey="path" title="Ścieżka rozwoju">
-        <DevPath developmentPath={analysis.development_path} />
+      <Tab eventKey="path" title="Sugestie ulepszeń">
+        <ProjectSuggestions suggestionPath={analysis.suggestion_path} />
       </Tab>
     </Tabs>
   );

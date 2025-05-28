@@ -173,4 +173,27 @@ class ProjectAnalysis(models.Model):
         return f"Analiza: {self.project.name}"
 
 
+class ImprovementSuggestion(models.Model):
+    PRIORITY_CHOICES = [
+        ('low', 'Niski'),
+        ('medium', 'Średni'),
+        ('high', 'Wysoki'),
+    ]
+
+    STATUS_CHOICES = [
+        ('new', 'Nowa'),
+        ('in_progress', 'W trakcie'),
+        ('done', 'Zrealizowana'),
+    ]
+
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="improvement_suggestions")
+    title = models.CharField(max_length=255, verbose_name="Tytuł sugestii")
+    description = models.TextField(verbose_name="Opis sugestii")
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium', verbose_name="Priorytet")
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='new', verbose_name="Status")
+    recommendations = models.JSONField(blank=True, null=True, verbose_name="Rekomendacje")  # lista kroków do podjęcia
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} ({self.get_priority_display()})"
 
