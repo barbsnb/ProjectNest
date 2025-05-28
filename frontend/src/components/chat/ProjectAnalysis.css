@@ -1,14 +1,26 @@
 .analysis-container {
-  margin-top: 40px;
+  margin-top: 5px;
   padding: 20px;
   font-family: adagio_slab;
 }
 
 .analysis-header {
   text-align: center;
-  margin-bottom: 2rem;
-  font-size: 2rem;
-  font-weight: bold;
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  position: relative;
+}
+
+.analysis-header::after {
+  content: "";
+  display: block;
+  width: 340px;
+  height: 3px;
+  background-color:  rgb(106, 106, 131);
+  margin: 0.5rem auto 0;
+  border-radius: 2px;
 }
 
 .section-cards {
@@ -56,7 +68,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 5; /* ograniczenie linii */
+  -webkit-line-clamp: 3; /* ograniczenie linii */
   -webkit-box-orient: vertical;
   transition: all 0.3s ease;
 }
@@ -73,4 +85,41 @@
   color: #444;
   display: block;
   margin-bottom: 0.3rem;
+}
+
+
+#back-button {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-size: 20px;
+    background-color: rgb(106, 106, 131);  /* Ciemne tło */
+    color: #fff; /* Biały napis */
+    border: none;
+    font-family: adagio_slab;
+    display: inline-block;
+}
+
+#back-button:hover {
+  background-color: #333;
+}
+
+#analysis-tabs .nav-link.active {
+  background-color: #ffffff !important; /* lub inny kolor tła */
+  color: #333 !important; /* np. kolor tekstu */
+  border-color: #0d6efd !important; /* podkreślenie/obramowanie */
+  font-weight: 600;
+}
+
+#analysis-tabs .nav-link {
+  color: rgb(106, 106, 131) !important;
+  background-color: transparent !important;
+  border: none;
+  border-right: 1px solid #ccc; /* linia pionowa */
+  padding-right: 1rem;
+  margin-right: 1rem;
+}
+
+#analysis-tabs .nav-link:last-child {
+  border-right: none;
+  margin-right: 0;
 }

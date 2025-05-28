@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { Container } from "react-bootstrap";
+import { Container, Button, Tabs, Tab } from "react-bootstrap";
 import "./ProjectAnalysis.css";
+import { useNavigate } from "react-router-dom";
+import DevPath from "./DevPath"
+
 
 const SECTION_MAP = {
   "Jakość kodu": ["readability", "structure", "principles"],
@@ -39,6 +42,8 @@ const ProjectAnalysis = () => {
   const { projectId } = useParams();
   const [analysis, setAnalysis] = useState(null);
   const [expandedFields, setExpandedFields] = useState({});
+  const navigate = useNavigate();
+
 
 
   useEffect(() => {
@@ -64,40 +69,49 @@ const ProjectAnalysis = () => {
   }
 
   return (
-    <Container className="analysis-container">
-      <h2 className="analysis-header">Analiza projektu</h2>
-      <div className="section-cards">
-        {Object.entries(SECTION_MAP).map(([sectionTitle, fields]) => (
-          <div key={sectionTitle} className="section-card">
-            <h3>{sectionTitle}</h3>
-            {fields.map((field) => {
-            const content = analysis[field] || "Brak danych.";
-            const isExpanded = expandedFields[field];
+    <Tabs defaultActiveKey="analysis" id="analysis-tabs">
+      <Tab eventKey="analysis" title="Analiza projektu">
+        <Container className="analysis-container">
 
-            const toggleExpanded = () => {
-                setExpandedFields((prev) => ({
-                ...prev,
-                [field]: !prev[field],
-                }));
-            };
+          <h2 className="analysis-header">Analiza projektu</h2>
+          <div className="section-cards">
+            {Object.entries(SECTION_MAP).map(([sectionTitle, fields]) => (
+              <div key={sectionTitle} className="section-card">
+                <h3>{sectionTitle}</h3>
+                {fields.map((field) => {
+                const content = analysis[field] || "Brak danych.";
+                const isExpanded = expandedFields[field];
 
-            return (
-                <div
-                key={field}
-                className={`analysis-field ${isExpanded ? "expanded" : ""}`}
-                onClick={toggleExpanded}
-                title="Kliknij, aby rozwinąć / zwinąć"
-                style={{ cursor: "pointer" }}
-                >
-                <strong>{FIELD_LABELS[field]}:</strong>
-                <p>{content}</p>
-                </div>
-            );
-            })}
+                const toggleExpanded = () => {
+                    setExpandedFields((prev) => ({
+                    ...prev,
+                    [field]: !prev[field],
+                    }));
+                };
+
+                return (
+                    <div
+                    key={field}
+                    className={`analysis-field ${isExpanded ? "expanded" : ""}`}
+                    onClick={toggleExpanded}
+                    title="Kliknij, aby rozwinąć / zwinąć"
+                    style={{ cursor: "pointer" }}
+                    >
+                    <strong>{FIELD_LABELS[field]}:</strong>
+                    <p>{content}</p>
+                    </div>
+                );
+                })}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-    </Container>
+        </Container>
+      </Tab>
+
+      <Tab eventKey="path" title="Ścieżka rozwoju">
+        <DevPath developmentPath={analysis.development_path} />
+      </Tab>
+    </Tabs>
   );
 };
 
