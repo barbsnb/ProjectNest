@@ -1,0 +1,29 @@
+.suggestion-container {
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.suggestion-header {
+  text-align: center;
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  position: relative;
+}
+
+.suggestion-header::after {
+  content: "";
+  display: block;
+  width: 340px;
+  height: 3px;
+  background-color: rgb(106, 106, 131);
+  margin: 0.5rem auto 0;
+  border-radius: 2px;
+}
+
+.suggestion-content {
+  color: #333;
+  font-size: 1rem;
+  line-height: 1.6;
+}
