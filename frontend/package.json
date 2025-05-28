@@ -12,6 +12,7 @@
     "bootstrap": "^5.3.3",
     "file-saver": "^2.0.5",
     "fullcalendar": "^6.1.14",
+    "lucide-react": "^0.511.0",
     "moment": "^2.30.1",
     "react": "^18.2.0",
     "react-autosuggest": "^10.1.0",

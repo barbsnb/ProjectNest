@@ -44,25 +44,6 @@
   font-weight: bold;
 }
 
-.user_visits_container {
-  margin-left: 30px; /* Dodaj margines z lewej strony, aby oddzielić od kontenera danych użytkownika */
-  font-family: adagio_slab;
-}
-
-.user_visits_container ul {
-  list-style-type: none; /* Usuń domyślny styl listy */
-  padding: 0; /* Usuń wewnętrzne wypełnienie listy */
-}
-
-.user_visits_container li {
-  border: 1px solid #ccc; /* Dodaj obramowanie dla każdej wizyty */
-  margin-bottom: 10px; /* Dodaj margines na dole dla odstępu między wizytami */
-  padding: 10px; /* Dodaj wewnętrzne wypełnienie dla każdej wizyty */
-}
-
-.user_visits_container li p {
-  margin: 5px 0; /* Dodaj odstęp między paragrafami wewnątrz każdej wizyty */
-}
 
 .card-hover {
   transition: box-shadow 0.3s ease-in-out;
@@ -81,21 +62,6 @@
   text-align: center;
 }
 
-.h3 {
-  font-family: adagio_slab;
-}
-
-
-#chat_btn {
-    margin-top: 5px;
-    margin-bottom: 5px;
-    font-size: 20px;
-    background-color: rgb(50, 50, 64);  /* Ciemne tło */
-    color: #fff; /* Biały napis */
-    border: none;
-    font-family: adagio_slab;
-    display: inline-block;
-}
 
 #chat_btn2 {
     margin-top: 5px;
@@ -107,6 +73,11 @@
     font-family: adagio_slab;
     display: inline-block;
 }
+
+#chat_btn2:hover {
+  background-color: #333;
+}
+
 
 .info-cards {
   display: flex;
@@ -172,4 +143,26 @@
     width: 100%; /* 1 karta na całą szerokość */
   }
 }
+
+
+.projects-heading {
+  text-align: center;
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  position: relative;
+}
+
+.projects-heading::after {
+  content: "";
+  display: block;
+  width: 340px;
+  height: 3px;
+  background-color:  rgb(106, 106, 131);
+  margin: 0.5rem auto 0;
+  border-radius: 2px;
+}
+
+
 
