@@ -33,15 +33,6 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
           <FilePlus size={18} /> <span>Nowy projekt</span>
         </button>
 
-        {/* Nowy przycisk do rozpoczęcia czatu */}
-        
-        <Button 
-            id="chat_btn"
-            onClick={() => navigate('/project')}
-        >
-            Rozpocznij czat
-        </Button>
-
         <div style={{ marginTop: '1rem', padding: '0 0.5rem' }}>
           <h5 style={{ marginBottom: '0.3rem' }}>Twoje analizy</h5>
           <div className="section-divider"></div>
