@@ -30,7 +30,7 @@ const Home = () => {
           {currentUser && currentUser.user && (
             <div>
               {/* Lista projektów z kontekstu */}
-              <div className="projects-list mt-5">
+              <div className="projects-list mt-2">
                 <h2 className="projects-heading"> Twoje analizy projektów</h2>
                 {userProjects.length === 0 ? (
                   <p>Brak dodanych projektów.</p>

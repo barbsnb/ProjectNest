@@ -67,3 +67,13 @@
 #chat_btn:hover {
   background-color: #333;
 }
+
+.section-divider {
+  content: "";
+  display: block;
+  width: 150px;
+  height: 3px;
+  background-color:  rgb(106, 106, 131);
+  margin: 0.5rem auto 0;
+  border-radius: 2px;
+}
