@@ -34,7 +34,7 @@ class UserProjectUpdater:
         result = llm_interface.conditioning_msg(
             conditioning=ask_project_analysis,
             raw_prompt=raw_prompt
-        )
+        )[0]
 
         try:
             analysis = project.analysis  # via related_name
