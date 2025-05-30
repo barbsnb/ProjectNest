@@ -1,8 +1,8 @@
 .chat-wrapper {
-    width: 100vw;           /* pełna szerokość widoku */
-  max-width: 1200px;      /* maksymalna szerokość */
-  height: 80vh;           /* wysoka, ale nie na cały ekran */
-  margin: 20px auto;      /* wycentrowanie poziome i margines pionowy */
+  width: 100%;           
+  max-width: 1000px;      
+  height: 400px;           
+  margin: 20px auto;      
   display: flex;
   flex-direction: column;
   border: 1px solid #ccc;

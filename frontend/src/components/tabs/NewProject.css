@@ -67,4 +67,24 @@
   align-items: center;
 }
 
+.analysis-header {
+  text-align: center;
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  position: relative;
+}
+
+.analysis-header::after {
+  content: "";
+  display: block;
+  width: 340px;
+  height: 3px;
+  background-color:  rgb(106, 106, 131);
+  margin: 0.5rem auto 0;
+  border-radius: 2px;
+}
+
+
   

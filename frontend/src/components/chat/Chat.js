@@ -37,7 +37,7 @@ const initialAnalysis = `
 Przykładowa oferta: https://jobs.fakejobs.pl/frontend-react-ts-tailwind
 `;
 
-const Chat = () => {
+const Chat = ({ projectId }) => {
   const { projectData } = useContext(ChatContext);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");

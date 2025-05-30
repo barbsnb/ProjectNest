@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button} from "react-bootstrap";
 import './Sidebar.css';
-import { Home, FilePlus } from 'lucide-react';
+import { Home, FilePlus, Lightbulb } from 'lucide-react';
 import { UserProjectsContext } from '../../contexts/UserProjectsContext';
 
 const Sidebar = ({ collapsed, toggleSidebar }) => {
@@ -31,6 +31,10 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
         </button>
         <button onClick={() => goTo('/project')}>
           <FilePlus size={18} /> <span>Nowy projekt</span>
+        </button>
+
+        <button onClick={() => goTo('/devpath')}>
+          <Lightbulb size={18} /> <span>Plan rozwoju</span>
         </button>
 
         <div style={{ marginTop: '1rem', padding: '0 0.5rem' }}>

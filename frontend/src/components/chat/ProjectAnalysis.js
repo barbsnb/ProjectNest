@@ -109,12 +109,12 @@ const ProjectAnalysis = () => {
         </Container>
       </Tab>
 
-      <Tab eventKey="path" title="Sugestie ulepszeń">
+      <Tab eventKey="suggestions" title="Sugestie ulepszeń">
         <ProjectSuggestions projectId={projectId} />
       </Tab>
 
-      <Tab eventKey="path" title="Czat z asystentem">
-        <Chat/>
+      <Tab eventKey="chat" title="Czat z asystentem">
+        <Chat projectId={projectId}/>
       </Tab>
 
     </Tabs>
