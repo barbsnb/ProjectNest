@@ -1,19 +1,25 @@
 # Created by https://www.toptal.com/developers/gitignore/api/django,react
 # Edit at https://www.toptal.com/developers/gitignore?templates=django,react
+.gitignore
 .env
+
 ### Django ###
 backend/*.log
 backend/*.pot
 backend/*.pyc
 backend/__pycache__/
 backend/local_settings.py
-# backend/db.sqlite3
-# backend/db.sqlite3-journal
+backend/db.sqlite3
+backend/db.sqlite3-journal
 backend/media
 
 #pycache:
 user_api/__pycache__
 user_api/migrations/__pycache__
+llm_api/__pycache__
+llm_api/migrations/__pycache__
+projects_api/__pycache__
+projects_api/migrations/__pycache__
 
 # If your build process includes running collectstatic, then you probably don't need or want to include staticfiles/
 # in your Git repository. Update and uncomment the following line accordingly.
