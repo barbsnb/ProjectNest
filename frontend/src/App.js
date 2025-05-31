@@ -12,10 +12,9 @@ import Home from './components/home/Home';
 import Info from './components/home/Info';
 
 import NewProject from './components/tabs/NewProject';
-import ManageProjects from './components/tabs/ManageProjects';
 import Chat from "./components/chat/Chat";
-import ProjectAnalysisView from "./components/chat/ProjectAnalysis";
-import DevPath from "./components/chat/DevPath";
+import ProjectAnalysisView from "./components/tabs/ProjectAnalysis";
+import DevPath from "./components/tabs/DevPath";
 
 import Layout from './components/common/Layout';        // z sidebar
 import BaseLayout from './components/common/BaseLayout'; // bez sidebar
@@ -67,14 +66,6 @@ function App() {
                 element={
                   <Layout>
                     <NewProject />
-                  </Layout>
-                }
-              />
-              <Route
-                path="/manage_projects"
-                element={
-                  <Layout>
-                    <ManageProjects />
                   </Layout>
                 }
               />

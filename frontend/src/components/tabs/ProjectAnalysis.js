@@ -5,7 +5,7 @@ import { Container, Button, Tabs, Tab } from "react-bootstrap";
 import "./ProjectAnalysis.css";
 import { useNavigate } from "react-router-dom";
 import ProjectSuggestions from "./ProjectSuggestions"
-import Chat from "./Chat"
+import Chat from "../chat/Chat"
 
 
 const SECTION_MAP = {

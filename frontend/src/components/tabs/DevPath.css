@@ -1,0 +1,70 @@
+.development-path-container {
+  margin-top: 5px;
+  padding: 20px;
+  font-family: adagio_slab;
+}
+
+#devpath-tabs .nav-link.active {
+  background-color: #ffffff !important;
+  color: #333 !important;
+  border-color: #0d6efd !important;
+  font-weight: 600;
+}
+
+#devpath-tabs .nav-link {
+  color: rgb(106, 106, 131) !important;
+  background-color: transparent !important;
+  border: none;
+  border-right: 1px solid #ccc;
+  padding-right: 1rem;
+  margin-right: 1rem;
+}
+
+#devpath-tabs .nav-link:last-child {
+  border-right: none;
+  margin-right: 0;
+}
+
+.development-path-section {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.development-path-section h4 {
+  font-size: 1.3rem;
+  color: #333;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.development-path-section p {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+.development-path-header {
+  text-align: center;
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  position: relative;
+}
+
+.development-path-header::after {
+  content: "";
+  display: block;
+  width: 340px;
+  height: 3px;
+  background-color: rgb(106, 106, 131);
+  margin: 0.5rem auto 0;
+  border-radius: 2px;
+}

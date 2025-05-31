@@ -1,13 +1,23 @@
-
-
-
 ask_project_suggestions = """
-Prześlę Ci treść projektu, a na końcu chcę uzyskać sugestie dotyczące ulepszeń. Odpowiedz w dokładnie takim formacie, bez dodatkowej treści: 
-[{"title": "Tytuł ulepszenia",
-"description": "Opis problemu",
-"priority": "Wysoki / Średni / Niski",
-"recommendations": "Co sugerujesz, aby to poprawić"}]
-To jest zawartość projektu:"""
+Prześlę Ci treść projektu, a na końcu chcę uzyskać listę sugestii dotyczących ulepszeń.  
+Pole "priority" musi mieć wartość jednej z trzech: "low", "medium", "high".  
+
+Odpowiedz wyłącznie poprawnym JSON-em (lista obiektów) bez dodatkowego tekstu.  
+Przykład formatu odpowiedzi:
+
+[
+  {
+    "title": "Tytuł ulepszenia",
+    "description": "Opis problemu",
+    "priority": "high",
+    "recommendations": "Co sugerujesz, aby to poprawić"
+  }
+]
+
+To jest zawartość projektu:
+"""
+
+
 
 
 ask_project_analysis = """

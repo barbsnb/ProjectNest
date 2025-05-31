@@ -34,28 +34,47 @@ const NewProject = () => {
   };
 
   const handleSubmit = (event) => {
-    event.preventDefault();
+  event.preventDefault();
+  if (!validate()) return;
 
-    if (!validate()) return;
+  setIsLoading(true);
+  
+  console.log({ name, description, user: currentUser.user.user_id });
 
-    setIsLoading(true);
+  // 1. Stwórz projekt
+  client.post('/api/project/', {
+    name,
+    description,
+    user: currentUser.user.user_id,
+  })
+  .then(response => {
+    const projectId = response.data.id;
+    setProjectData(response.data);
+    console.log(response.data);
+    setGetUserProjects(true);
 
-    client.post('/api/project/', {
-      name,
-      description,
-      user: currentUser.user.user_id,
-    })
-      .then(response => {
-        setProjectData(response.data);
-        setChatStarted(true);
-        setGetUserProjects(true);
-        navigate(`/analysis/${response.data.id}`);
+    // 2. Generuj analizę
+    return client.post(`/api/project/${projectId}/generate_analysis/`)
+      .then(analysisRes => {
+        // setAnalysisData(analysisRes.data);
+        console.log(analysisRes.data.data);
+
+        // 3. Generuj sugestie
+        return client.post(`/api/project/${projectId}/generate_suggestions/`);
       })
-      .catch(error => {
-        console.error('Błąd podczas tworzenia projektu:', error);
-        setIsLoading(false);
+      .then(suggestionsRes => {
+        // setSuggestions(suggestionsRes.data);
+        setChatStarted(true);
+        console.log(suggestionsRes.data.data);
+        navigate(`/analysis/${projectId}`);
       });
-  };
+  })
+  .catch(error => {
+    console.error('Błąd:', error);
+  })
+  .finally(() => setIsLoading(false));
+};
+
 
   return (
     <div className="login-page-wrapper">

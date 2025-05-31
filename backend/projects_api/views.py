@@ -7,6 +7,7 @@ from rest_framework import permissions, status
 from .serializers import ImprovementSuggestionSerializer, UserProjectSerializer, ProjectAnalysisSerializer
 from .models import Project, ProjectAnalysis, ImprovementSuggestion
 from .services.UserProjectUpdater import UserProjectUpdater
+from .services.UserProjectSuggestionsGenerator import UserProjectSuggestionsGenerator
 from django.shortcuts import get_object_or_404
 import logging
 
@@ -20,22 +21,41 @@ class UserProject(APIView):
         serializer = UserProjectSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            project = serializer.instance  # get the saved Project instance
-
-            # Automatically update/create the related ProjectAnalysis
-            try:
-                UserProjectUpdater.update_project_analysis(
-                    project_id=project.id
-                )
-                logger.info(f"ProjectAnalysis initialized for project id {project.id}")
-            except Exception as e:
-                logger.exception(f"Failed to initialize ProjectAnalysis for project id {project.id}: {str(e)}")
-
-            logger.info("Project saved successfully")
+            project = serializer.instance
+            logger.info(f"Project {project.id} created")
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            logger.error(f"Data validation error: {serializer.errors}")
+            logger.error(f"Project creation failed with errors: {serializer.errors}")
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ProjectAnalysisGenerate(APIView):
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
+
+    def post(self, request, project_id):
+        try:
+            analysis_data = UserProjectUpdater.update_project_analysis(project_id=project_id)
+            return Response(analysis_data, status=status.HTTP_200_OK)
+        except Project.DoesNotExist:
+            return Response({"error": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(f"Error generating analysis: {e}")
+            return Response({"error": "Error generating analysis"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class ProjectSuggestionsGenerate(APIView):
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
+
+    def post(self, request, project_id):
+        try:
+            suggestions_data = UserProjectSuggestionsGenerator.generate_project_suggestions(project_id=project_id)
+            return Response(suggestions_data, status=status.HTTP_200_OK)
+        except Project.DoesNotExist:
+            return Response({"error": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            logger.error(f"Error generating suggestions: {e}")
+            return Response({"error": "Error generating suggestions"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class ProjectListView(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated,)
