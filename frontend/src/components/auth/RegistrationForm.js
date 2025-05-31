@@ -3,7 +3,7 @@ import { Form, Button, Alert } from 'react-bootstrap';
 import client from '../../axiosClient';
 import './RegistrationForm.css';
 
-const Survey = ({ onComplete }) => {
+const Survey = ({ onComplete, onBackToRegistration }) => {
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState([]);
   const [focus, setFocus] = useState([]);
@@ -55,7 +55,8 @@ const Survey = ({ onComplete }) => {
                 </label>
               ))}
             </div>
-            <StepButtons disabled={direction.length === 0} onNext={nextStep} />
+            <StepButtons disabled={direction.length === 0} onNext={nextStep} onBack={onBackToRegistration}/>
+
           </>
         )}
 
@@ -231,7 +232,7 @@ const RegistrationForm = () => {
   };
 
   if (showSurvey) {
-    return <Survey onComplete={handleSurveyComplete} />;
+    return <Survey onComplete={handleSurveyComplete} onBackToRegistration={() => setShowSurvey(false)} />;
   }
 
   return (
