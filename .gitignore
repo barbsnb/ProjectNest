@@ -178,6 +178,9 @@ backend/user_api/migrations/
 backend/projects_api/migrations
 backend/llm_api/migrations/
 
+# llm pass
+backend/llm_api/settings.py
+
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
