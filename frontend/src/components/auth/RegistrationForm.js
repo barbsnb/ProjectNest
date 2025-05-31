@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
-// import { AuthContext } from '../../contexts/AuthContext';
 import client from '../../axiosClient';
 import './RegistrationForm.css';
-
 
 const Survey = ({ onComplete }) => {
   const [step, setStep] = useState(1);
@@ -44,13 +42,7 @@ const Survey = ({ onComplete }) => {
             <h2>Krok 1: Kierunek rozwoju</h2>
             <p>W jakim kierunku chcesz się rozwijać?</p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-               {["Frontend", 
-                  "Backend", 
-                  "Fullstack", 
-                  "Data Science", 
-                  "AI", 
-                  "DevOps",
-                  "Cyberbezpieczeństwo"].map((opt) => (
+              {["Frontend", "Backend", "Fullstack", "Data Science", "AI", "DevOps", "Cyberbezpieczeństwo"].map((opt) => (
                 <label key={opt} style={getOptionStyle(direction.includes(opt))}>
                   <input
                     type="checkbox"
@@ -72,11 +64,7 @@ const Survey = ({ onComplete }) => {
             <h2>Krok 2: Priorytety w portfolio</h2>
             <p>Na co chcesz kłaść nacisk w swoim portfolio?</p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-              {["Projekty praktyczne", 
-                "Technologie i narzędzia", 
-                "Umiejętności miękkie", 
-                "Certyfikaty",
-                "Studia przypadku"].map((opt) => (
+              {["Projekty praktyczne", "Technologie i narzędzia", "Umiejętności miękkie", "Certyfikaty", "Studia przypadku"].map((opt) => (
                 <label key={opt} style={getOptionStyle(focus.includes(opt))}>
                   <input
                     type="checkbox"
@@ -103,7 +91,7 @@ const Survey = ({ onComplete }) => {
                 value={experience}
                 onChange={(e) => setExperience(e.target.value)}
                 required
-                style={{ width: '100%', height: '50px' }} 
+                style={{ width: '100%', height: '50px' }}
               >
                 <option value="">Wybierz...</option>
                 <option value="Początkujący">Początkujący</option>
@@ -119,7 +107,7 @@ const Survey = ({ onComplete }) => {
                 value={timeAvailable}
                 onChange={(e) => setTimeAvailable(e.target.value)}
                 required
-                style={{ width: '100%', height: '50px' }} 
+                style={{ width: '100%', height: '50px' }}
               >
                 <option value="">Wybierz...</option>
                 <option value="<2">Mniej niż 2h</option>
@@ -136,7 +124,7 @@ const Survey = ({ onComplete }) => {
                 value={learningGoal}
                 onChange={(e) => setLearningGoal(e.target.value)}
                 required
-                style={{ width: '100%', height: '50px' }} 
+                style={{ width: '100%', height: '50px' }}
               >
                 <option value="">Wybierz...</option>
                 <option value="Zmiana pracy">Zmiana pracy</option>
@@ -146,11 +134,7 @@ const Survey = ({ onComplete }) => {
               </Form.Control>
             </Form.Group>
 
-            <StepButtons
-              onBack={prevStep}
-              disabled={!experience || !timeAvailable || !learningGoal}
-              isSubmit
-            />
+            <StepButtons onBack={prevStep} disabled={!experience || !timeAvailable || !learningGoal} isSubmit />
           </>
         )}
       </Form>
@@ -171,57 +155,33 @@ const getOptionStyle = (selected) => ({
 const StepButtons = ({ onBack, onNext, isSubmit = false, disabled = false }) => (
   <div style={{ marginTop: "2rem", display: "flex", justifyContent: "space-between" }}>
     {onBack && (
-      <Button
-        id="form_btn"
-        variant="primary"
-        onClick={onBack}
-        type="button"
-      >
+      <Button id="form_btn" variant="primary" onClick={onBack} type="button">
         Wstecz
       </Button>
     )}
     {isSubmit ? (
-      <Button
-        id="form_btn"
-        variant="primary"
-        disabled={disabled}
-        type="submit"
-      >
-        Dalej
+      <Button id="form_btn" variant="primary" disabled={disabled} type="submit">
+        Zarejestruj
       </Button>
     ) : (
-      <Button
-        id="form_btn"
-        variant="primary"
-        onClick={onNext}
-        disabled={disabled}
-        type="button"
-      >
+      <Button id="form_btn" variant="primary" onClick={onNext} disabled={disabled} type="button">
         Dalej
       </Button>
     )}
   </div>
 );
 
-
-
-
-
 const RegistrationForm = () => {
-  // const { setCurrentUser } = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState('');
-
-  const [surveyCompleted, setSurveyCompleted] = useState(false);
-  const [surveyData, setSurveyData] = useState(null);
+  const [showSurvey, setShowSurvey] = useState(false);
 
   const validate = () => {
     const errors = {};
-
     if (!email) {
       errors.email = 'Adres e-mail jest wymagany';
     } else if (!/\S+@\S+\.\S+/.test(email)) {
@@ -246,99 +206,90 @@ const RegistrationForm = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const submitRegistration = (e) => {
+  const handleFormSubmit = (e) => {
     e.preventDefault();
-
-    if (!validate()) {
-      return;
+    if (validate()) {
+      setShowSurvey(true);
     }
+  };
 
+  const handleSurveyComplete = (surveyData) => {
     const payload = {
       email,
       username,
       password,
-      survey: surveyData, // można wysłać dane ankiety do backendu, jeśli potrzebujesz
+      survey: surveyData,
     };
 
     client.post("/api/register", payload)
-      .then(res => {
-        // setCurrentUser(res.data.user);
+      .then(() => {
         window.location.href = '/';
       })
-      .catch(err => {
+      .catch(() => {
         setFormError('Rejestracja nie powiodła się. Spróbuj ponownie.');
-        console.error("Registration failed: ", err);
       });
   };
 
-  if (!surveyCompleted) {
-    return <Survey onComplete={(data) => { setSurveyCompleted(true); setSurveyData(data); }} />;
+  if (showSurvey) {
+    return <Survey onComplete={handleSurveyComplete} />;
   }
 
   return (
     <div className="form-container">
-      <Form onSubmit={submitRegistration}>
+      <Form onSubmit={handleFormSubmit}>
         <h3>Wprowadź dane logowania </h3>
         {formError && <Alert variant="danger">{formError}</Alert>}
 
         <Form.Group className="mb-3" controlId="formBasicEmail">
           <Form.Label>Adres e-mail</Form.Label>
-          <Form.Control 
-            type="email" 
-            placeholder="Wprowadź adres e-mail" 
-            value={email} 
-            onChange={e => setEmail(e.target.value)} 
+          <Form.Control
+            type="email"
+            placeholder="Wprowadź adres e-mail"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
             isInvalid={!!errors.email}
           />
-          <Form.Control.Feedback type="invalid">
-            {errors.email}
-          </Form.Control.Feedback>
+          <Form.Control.Feedback type="invalid">{errors.email}</Form.Control.Feedback>
         </Form.Group>
 
         <Form.Group className="mb-3" controlId="formBasicUsername">
           <Form.Label>Nazwa użytkownika</Form.Label>
-          <Form.Control 
-            type="text" 
-            placeholder="Wprowadź nazwę użytkownika" 
-            value={username} 
-            onChange={e => setUsername(e.target.value)} 
+          <Form.Control
+            type="text"
+            placeholder="Wprowadź nazwę użytkownika"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
             isInvalid={!!errors.username}
           />
-          <Form.Control.Feedback type="invalid">
-            {errors.username}
-          </Form.Control.Feedback>
+          <Form.Control.Feedback type="invalid">{errors.username}</Form.Control.Feedback>
         </Form.Group>
 
         <Form.Group className="mb-3" controlId="formBasicPassword">
           <Form.Label>Hasło</Form.Label>
-          <Form.Control 
-            type="password" 
-            placeholder="Hasło powinno mieć co najmniej 8 znaków" 
-            value={password} 
-            onChange={e => setPassword(e.target.value)} 
+          <Form.Control
+            type="password"
+            placeholder="Hasło powinno mieć co najmniej 8 znaków"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
             isInvalid={!!errors.password}
           />
-          <Form.Control.Feedback type="invalid">
-            {errors.password}
-          </Form.Control.Feedback>
+          <Form.Control.Feedback type="invalid">{errors.password}</Form.Control.Feedback>
         </Form.Group>
 
         <Form.Group className="mb-3" controlId="formBasicConfirmPassword">
           <Form.Label>Potwierdź Hasło</Form.Label>
-          <Form.Control 
-            type="password" 
-            placeholder="Potwierdź hasło" 
-            value={confirmPassword} 
-            onChange={e => setConfirmPassword(e.target.value)} 
+          <Form.Control
+            type="password"
+            placeholder="Potwierdź hasło"
+            value={confirmPassword}
+            onChange={e => setConfirmPassword(e.target.value)}
             isInvalid={!!errors.confirmPassword}
           />
-          <Form.Control.Feedback type="invalid">
-            {errors.confirmPassword}
-          </Form.Control.Feedback>
+          <Form.Control.Feedback type="invalid">{errors.confirmPassword}</Form.Control.Feedback>
         </Form.Group>
 
         <Button id="form_btn" variant="primary" type="submit">
-          Zarejestruj
+          Dalej
         </Button>
       </Form>
     </div>

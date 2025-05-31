@@ -15,18 +15,25 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             "email",
             "username",
             "password",
+            "survey"
         ]
         extra_kwargs = {
             "password": {"write_only": True}
         }
 
     def create(self, validated_data):
+        survey_data = validated_data.pop("survey", None)
+
         user_obj = UserModel.objects.create_user(
             email=validated_data["email"],
             password=validated_data["password"],
             username=validated_data["username"],
         )
-        user_obj.save()
+
+        if survey_data:
+            user_obj.survey = survey_data
+            user_obj.save()
+
         return user_obj
 
 
