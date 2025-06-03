@@ -81,6 +81,7 @@ const ProjectAnalysis = () => {
   }
 
   return (
+    // <div className="tabs-header-container">
     <Tabs defaultActiveKey="analysis" id="analysis-tabs">
       <Tab eventKey="analysis" title="Analiza projektu">
         <Container className="analysis-container">
@@ -131,6 +132,7 @@ const ProjectAnalysis = () => {
       </Tab>
 
     </Tabs>
+
   );
 };
 

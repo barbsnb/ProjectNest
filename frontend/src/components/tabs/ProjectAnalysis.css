@@ -123,3 +123,25 @@
   border-right: none;
   margin-right: 0;
 }
+
+
+.tabs-header-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0 15px;
+  /* opcjonalnie, jeśli chcesz by nazwa była przy górze */
+  margin-bottom: 10px;
+}
+
+.project-name-display {
+  font-size: 1.5rem; /* większa czcionka */
+  font-weight: 700;
+  color: #333; /* lub inny kolor pasujący do Twojego UI */
+  user-select: none; /* żeby nie dało się zaznaczyć */
+  pointer-events: none; /* żeby nie reagowało na kliknięcia */
+  white-space: nowrap; /* żeby nazwa nie zawijała się na nową linię */
+  max-width: 300px; /* opcjonalnie, by się nie rozjeżdżało */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

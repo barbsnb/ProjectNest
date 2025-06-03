@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Container, Badge, Card, Spinner, Alert } from "react-bootstrap";
 import "./ProjectSuggestions.css";
-
+import axios from "axios";
 
 const statusLabels = {
   new: "Nowa",
@@ -13,6 +13,17 @@ const ProjectSuggestions = ({ projectId }) => {
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [project, setProject] = useState(null);
+
+
+  const fetchProject = async () => {
+    try {
+      const response = await axios.get(`http://127.0.0.1:8000/api/projects/${projectId}/`, { withCredentials: true });
+      setProject(response.data);
+    } catch (error) {
+      console.error("Błąd ładowania projektu:", error);
+    }
+  };
 
   useEffect(() => {
     if (!projectId) return;
@@ -39,6 +50,7 @@ const ProjectSuggestions = ({ projectId }) => {
         throw new Error('Otrzymano nie-JSONową odpowiedź z serwera');
     })
     .then(data => {
+        fetchProject();
         setSuggestions(data);
         setLoading(false);
     })
@@ -68,7 +80,7 @@ const ProjectSuggestions = ({ projectId }) => {
   if (!suggestions || suggestions.length === 0) {
     return (
       <Container className="suggestion-container mt-3">
-        <h3 className="suggestion-header">Sugestie ulepszeń</h3>
+        <h3 className="suggestion-header">Sugestie ulepszeń: {project ? project.name : "(ładowanie...)"}</h3>
         <p className="suggestion-content">Brak danych.</p>
       </Container>
     );
@@ -82,7 +94,7 @@ const ProjectSuggestions = ({ projectId }) => {
 
   return (
     <Container className="suggestion-container mt-3">
-      <h3 className="suggestion-header">Sugestie ulepszeń</h3>
+      <h3 className="suggestion-header">Sugestie ulepszeń: {project ? project.name : "(ładowanie...)"}</h3>
       {sortedSuggestions.map((suggestion) => (
         <Card
         key={suggestion.id}
