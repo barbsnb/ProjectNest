@@ -33,46 +33,51 @@ const NewProject = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = (event) => {
+const handleSubmit = (event) => {
   event.preventDefault();
   if (!validate()) return;
 
   setIsLoading(true);
-  
-  console.log({ name, description, user: currentUser.user.user_id });
 
-  // 1. Stwórz projekt
-  client.post('/api/project/', {
-    name,
-    description,
-    user: currentUser.user.user_id,
-  })
-  .then(response => {
-    const projectId = response.data.id;
-    setProjectData(response.data);
-    console.log(response.data);
-    setGetUserProjects(true);
+  client
+    .post("/api/project/", {
+      name,
+      description,
+      user: currentUser.user.user_id,
+    }, { withCredentials: true })
+    .then((response) => {
+      const projectId = response.data.id;
+      setProjectData(response.data);
+      setGetUserProjects(true);
 
-    // 2. Generuj analizę
-    return client.post(`/api/project/${projectId}/generate_analysis/`)
-      .then(analysisRes => {
-        // setAnalysisData(analysisRes.data);
-        console.log(analysisRes.data.data);
+      // 🔹 TWORZENIE SESJI CZATU
+      return client
+        .post("/api/chat/sessions/", {
+          project_id: projectId,
+          title: "Rozmowa z asystentem",
+        }, { withCredentials: true })
+        .then((sessionRes) => {
+          console.log("Utworzono sesję:", sessionRes.data.session_id);
 
-        // 3. Generuj sugestie
-        return client.post(`/api/project/${projectId}/generate_suggestions/`);
-      })
-      .then(suggestionsRes => {
-        // setSuggestions(suggestionsRes.data);
-        setChatStarted(true);
-        console.log(suggestionsRes.data.data);
-        navigate(`/analysis/${projectId}`);
-      });
-  })
-  .catch(error => {
-    console.error('Błąd:', error);
-  })
-  .finally(() => setIsLoading(false));
+          // 🔹 GENERUJ ANALIZĘ
+          return client.post(`/api/project/${projectId}/generate_analysis/`);
+        })
+        .then((analysisRes) => {
+          console.log("Analiza:", analysisRes.data.data);
+
+          // 🔹 GENERUJ SUGESTIE
+          return client.post(`/api/project/${projectId}/generate_suggestions/`);
+        })
+        .then((suggestionsRes) => {
+          console.log("Sugestie:", suggestionsRes.data.data);
+          setChatStarted(true);
+          navigate(`/analysis/${projectId}`);
+        });
+    })
+    .catch((error) => {
+      console.error("Błąd:", error);
+    })
+    .finally(() => setIsLoading(false));
 };
 
 

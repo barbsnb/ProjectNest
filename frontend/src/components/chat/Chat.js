@@ -1,90 +1,78 @@
-import React, { useContext, useEffect, useState } from "react";
-import { ChatContext } from "../../contexts/ChatContext";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import "./Chat.css";
-
-const initialAnalysis = `
-🧠 **Analiza projektu: ToDoApp – aplikacja do zarządzania zadaniami**
-
-📌 Nazwa projektu: ToDoApp  
-👨‍💻 Technologie: React.js, Node.js (Express), MongoDB
-
-✅ Co działa dobrze – plusy projektu:
-- Przejrzysta funkcjonalność CRUD.
-- Pełen stos MERN.
-- Rejestracja/logowanie.
-- Responsywny design.
-
-⚠️ Co można poprawić / rozwinąć:
-- Brak testów jednostkowych (Jest, React Testing Library).
-- Brak zarządzania stanem globalnym (Redux, Zustand).
-- UI/UX do unowocześnienia (Tailwind CSS, Material UI).
-- Obsługa błędów i komunikaty dla użytkownika.
-- Bezpieczeństwo: hash haseł (bcrypt), JWT.
-
-🚀 Sugestie rozwoju:
-- Powiadomienia i deadline’y.
-- PWA.
-- Dashboard z wykresami.
-- Tryb ciemny.
-- OAuth (logowanie przez Google).
-
-📈 Trendy w ofertach pracy:
-- React + TypeScript
-- Tailwind CSS, Zustand, React Query
-- Testowanie (Jest, Cypress)
-- DevOps (Docker, CI/CD)
-
-Przykładowa oferta: https://jobs.fakejobs.pl/frontend-react-ts-tailwind
-`;
+import ReactMarkdown from "react-markdown";
 
 const Chat = ({ projectId }) => {
-  const { projectData } = useContext(ChatContext);
+  const [sessionId, setSessionId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
 
   useEffect(() => {
-    if (projectData) {
-      simulateAssistantResponse();
+    if (projectId) {
+      loadExistingSession();
     }
-  }, [projectData]);
+  }, [projectId]);
 
-  const simulateAssistantResponse = () => {
-    const initialMessages = [
-      { from: "assistant", text: `Witaj! Oto Twoje przesłane dane:` },
-      {
-        from: "assistant",
-        text: `📁 Nazwa projektu: ${projectData.name}\n📝 Opis: ${projectData.description}`,
-      },
-      {
-        from: "assistant",
-        text: `🔍 Rozpoczynam analizę projektu...`,
-      },
-      { from: "assistant", text: initialAnalysis },
-      {
-        from: "assistant",
-        text: `Masz pytania do analizy? Śmiało wpisz je poniżej!`,
-      },
-    ];
-
-    setMessages(initialMessages);
+  const loadExistingSession = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8000/api/chat/project/${projectId}/session/`);
+      const session = response.data;
+      setSessionId(session.session_id);
+      fetchMessages(session.session_id);
+    } catch (error) {
+      console.error("Nie znaleziono sesji czatu:", error);
+    }
   };
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  const fetchMessages = async (sessionId) => {
+    try {
+      const response = await axios.get(`http://localhost:8000/api/chat/sessions/${sessionId}/messages/`);
+      const formatted = response.data.map((msg) => ({
+        from: msg.role === "user" ? "user" : "assistant",
+        text: msg.content,
+      }));
+      setMessages(formatted);
+    } catch (error) {
+      console.error("Błąd pobierania wiadomości:", error);
+    }
+  };
 
-    const userMessage = { from: "user", text: input.trim() };
-    setMessages((msgs) => [...msgs, userMessage]);
+  const handleSend = async () => {
+    if (!input.trim() || !sessionId) return;
 
-    // Prosta symulacja odpowiedzi asystenta (można rozbudować)
-    setTimeout(() => {
-      const assistantReply = {
-        from: "assistant",
-        text: `Dziękuję za pytanie: "${input.trim()}". Aktualnie jestem w trybie demo i nie potrafię jeszcze na nie odpowiedzieć, ale pracuję nad tym!`,
-      };
-      setMessages((msgs) => [...msgs, assistantReply]);
-    }, 1000);
+    const userText = input.trim();
 
+    // Dodaj tymczasowo wiadomość użytkownika
+    setMessages((prev) => [...prev, { from: "user", text: userText }]);
     setInput("");
+
+    try {
+      const response = await axios.post(
+        `http://localhost:8000/api/chat/sessions/${sessionId}/messages/`,
+        { content: userText }
+      );
+
+      // Odpowiedź zawiera wiadomość użytkownika i asystenta
+      const { assistant_message } = response.data;
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          from: "assistant",
+          text: assistant_message.content,
+        },
+      ]);
+    } catch (error) {
+      console.error("Błąd podczas wysyłania wiadomości:", error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          from: "assistant",
+          text: "❌ Wystąpił błąd podczas komunikacji z serwerem.",
+        },
+      ]);
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -98,13 +86,8 @@ const Chat = ({ projectId }) => {
     <div className="chat-wrapper">
       <div className="chat-box">
         {messages.map((msg, idx) => (
-          <div
-            key={idx}
-            className={`message ${msg.from === "assistant" ? "assistant" : "user"}`}
-          >
-            {msg.text.split("\n").map((line, i) => (
-              <p key={i}>{line}</p>
-            ))}
+          <div key={idx} className={`message ${msg.from}`}>
+            <ReactMarkdown>{msg.text}</ReactMarkdown>
           </div>
         ))}
       </div>

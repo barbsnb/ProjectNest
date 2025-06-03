@@ -72,6 +72,24 @@ class StringLLMChatInterface(LLMChatInterface):
             reply = self.llm_persistence_manager.get_response_once(raw_prompt, conditioning)
 
         return self.string_to_dict(reply)
+    
+    def conditioning_msg_string(self, conditioning: str, raw_prompt: str, session_id: str = None) -> str:
+        """
+        Get LLM response basing on the conditioning. The conditioning is required to get the answer that can be
+        transformed in Dict[str, Any] format,
+
+        :param conditioning: Conditioning added at the beginning of prompt.
+        :param raw_prompt: The original prompt string.
+        :param session_id: Optional session_id for adding context.
+        :return: The answer from the LLM formated to Dict[str, Any].
+        """
+        promt = conditioning + "\n" + raw_prompt
+        if session_id is not None:
+            reply = self.llm_persistence_manager.get_response(session_id, promt)
+        else:
+            reply = self.llm_persistence_manager.get_response_once(raw_prompt, conditioning)
+
+        return reply
 
     def conditioning_msg_files(self, conditioning: str, raw_prompt: str, file_paths: List[str], session_id: str = None) -> List[Dict[str, Any]]:
         """

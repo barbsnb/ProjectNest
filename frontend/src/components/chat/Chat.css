@@ -1,16 +1,17 @@
 .chat-wrapper {
-  width: 100%;           
-  max-width: 1000px;      
-  height: 400px;           
-  margin: 20px auto;      
+  width: 100%;
+  max-width: 1000px;
+  height: calc(100vh - 100px); /* Dopasuj do wysokości okna, zostawiając trochę miejsca */
+  margin: 20px auto;
   display: flex;
   flex-direction: column;
   border: 1px solid #ccc;
   border-radius: 8px;
   background-color: #fefefe;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
+
 
 .chat-box {
   flex-grow: 1;
@@ -32,15 +33,17 @@
 }
 
 .message.assistant {
-  background-color: #e3f2fd;
-  color: #0d47a1;
+  background-color: #484c4e;
+  color: #ffffff;
   align-self: flex-start;
+  margin-right: auto;
 }
 
 .message.user {
-  background-color: #c8e6c9;
-  color: #256029;
+  background-color: rgb(244, 244, 248);
+  color: #303130;
   align-self: flex-end;
+  margin-left: auto; 
 }
 
 .chat-input-container {
@@ -74,4 +77,26 @@
 
 #form_btn:hover {
     background-color: #474747; /* Ciemniejsze tło po najechaniu */
+}
+
+
+/* Styl dla inline code */
+.message pre {
+  background-color: rgb(39, 39, 41); /* ciemne tło */
+  color: #f8f8f2; /* jasny tekst */
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-family: 'Source Code Pro', monospace, monospace;
+  overflow-x: auto;
+  margin-bottom: 15px;
+  white-space: pre-wrap;
+}
+
+/* Styl dla inline kodu w tekście */
+.message code {
+  background-color: rgb(39, 39, 41);
+  color: #a7b4b1;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Source Code Pro', monospace, monospace;
 }

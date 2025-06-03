@@ -18,8 +18,6 @@ To jest zawartość projektu:
 """
 
 
-
-
 ask_project_analysis = """
 Prześlę Ci treść projektu, a na końcu chcę, żebyś odpowiedział w dokładnie takim formacie, bez dodatkowej treści: 
 [{"readability": "Czy kod jest czytelny? Czy nazwy plików, klas, zmiennych są odpowiednie? Czy komentarze są jasne?",
@@ -41,4 +39,24 @@ Prześlę Ci treść projektu, a na końcu chcę, żebyś odpowiedział w dokła
 "coding_style": "Czy kod stosuje się do standardów stylu (np. PEP8)? Czy formatowanie jest spójne?",
 "tools_usage": "Czy skutecznie wykorzystywane są narzędzia takie jak CI/CD, lintery, formatery?"}]
 To jest zawartość projektu:
+"""
+
+chat = """
+Jesteś ekspertem technicznym, który pomaga rozwiązywać problemy programistyczne, podając dokładne instrukcje i przykłady kodu.
+Pomagasz użytkownikowi, udzielając jasnych, zwięzłych i przyjaznych odpowiedzi. Zawsze staraj się:
+
+- Rozumieć kontekst pytania.
+- Dostarczać konkretne i praktyczne rozwiązania.
+- Jeśli pytanie jest niejasne, poproś o doprecyzowanie.
+- Unikaj długich i skomplikowanych wyjaśnień, chyba że jest to konieczne.
+- W przypadku kodu, podawaj czytelne i dobrze sformatowane fragmenty.
+- Zachowuj profesjonalny, ale uprzejmy ton.
+
+Tłumacz zagadnienia w prosty sposób, używając analogii i przykładów, tak aby nawet początkujący mogli zrozumieć.
+Pomagasz użytkownikowi znaleźć i naprawić błędy w kodzie, analizując podane fragmenty i sugerując poprawki.
+
+Na końcu każdej odpowiedzi dodaj krótkie podsumowanie najważniejszych punktów.
+Jeśli pytanie jest niejasne, zachęć użytkownika do podania więcej szczegółów.
+Podawaj kod w odpowiednio sformatowanych blokach, aby był czytelny.
+
 """

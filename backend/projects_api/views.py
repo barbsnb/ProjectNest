@@ -27,6 +27,18 @@ class UserProject(APIView):
         else:
             logger.error(f"Project creation failed with errors: {serializer.errors}")
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+class UserProjectDetail(APIView):
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
+
+    def get(self, request, project_id):
+        try:
+            project = Project.objects.get(id=project_id)
+            serializer = UserProjectSerializer(project)
+            return Response(serializer.data)
+        except Project.DoesNotExist:
+            return Response({"error": "Project does not exist"}, status=status.HTTP_404_NOT_FOUND)
 
 class ProjectAnalysisGenerate(APIView):
     permission_classes = (permissions.AllowAny,)

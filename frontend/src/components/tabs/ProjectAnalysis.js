@@ -44,7 +44,17 @@ const ProjectAnalysis = () => {
   const [analysis, setAnalysis] = useState(null);
   const [expandedFields, setExpandedFields] = useState({});
   const navigate = useNavigate();
+  const [project, setProject] = useState(null);
 
+
+  const fetchProject = async () => {
+    try {
+      const response = await axios.get(`http://127.0.0.1:8000/api/projects/${projectId}/`, { withCredentials: true });
+      setProject(response.data);
+    } catch (error) {
+      console.error("Błąd ładowania projektu:", error);
+    }
+  };
 
 
   useEffect(() => {
@@ -63,6 +73,7 @@ const ProjectAnalysis = () => {
     };
 
     fetchAnalysis();
+    fetchProject();
   }, [projectId]);
 
   if (!analysis) {
@@ -74,7 +85,9 @@ const ProjectAnalysis = () => {
       <Tab eventKey="analysis" title="Analiza projektu">
         <Container className="analysis-container">
 
-          <h2 className="analysis-header">Analiza projektu</h2>
+          <h2 className="analysis-header">
+            Analiza projektu: {project ? project.name : "(ładowanie...)"}
+          </h2>
           <div className="section-cards">
             {Object.entries(SECTION_MAP).map(([sectionTitle, fields]) => (
               <div key={sectionTitle} className="section-card">

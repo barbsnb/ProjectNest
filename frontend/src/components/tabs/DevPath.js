@@ -19,13 +19,6 @@ const DevPath = ({
           </div>
         </Tab>
 
-        <Tab eventKey="competence-map" title="Mapa kompetencji">
-          <div className="development-path-section">
-            <h4>Mapa kompetencji</h4>
-            <p>{competenceMap || "Brak danych."}</p>
-          </div>
-        </Tab>
-
         <Tab eventKey="materials" title="Proponowane materiały">
           <div className="development-path-section">
             <h4>Proponowane materiały</h4>
