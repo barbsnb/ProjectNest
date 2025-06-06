@@ -7,18 +7,8 @@ class Project(models.Model):
     description = models.TextField(verbose_name="Opis projektu")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
-    keywords = models.TextField(
-        verbose_name="Słowa kluczowe z projektu",
-        blank=True,
-        help_text="Oddzielone przecinkami, np. UI, UX, frontend, React, Django, backend")
-
     def __str__(self):
         return self.name
-
-    def get_keywords_list(self):
-        if not self.keywords:
-            return []
-        return [k.strip() for k in self.keywords.split(',')]
 
 
 class ProjectAnalysis(models.Model):
