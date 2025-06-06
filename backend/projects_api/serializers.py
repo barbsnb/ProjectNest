@@ -3,6 +3,12 @@ from rest_framework import serializers
 from .models import Project, ProjectAnalysis, ImprovementSuggestion
 
 class UserProjectSerializer(serializers.ModelSerializer):
+
+    keywords = serializers.CharField(
+        required=False, allow_blank=True, help_text="Oddzielone przecinkami, np. UI, UX, frontend"
+    )
+    keywords_list = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Project
         fields = (
@@ -10,7 +16,12 @@ class UserProjectSerializer(serializers.ModelSerializer):
             "name",
             "description",
             "user",
+            "keywords",
+            "keywords_list",
         )
+
+    def get_keywords_list(self, obj):
+        return obj.get_keywords_list()
 
 
 
