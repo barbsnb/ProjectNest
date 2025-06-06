@@ -37,8 +37,16 @@ Prześlę Ci treść projektu, a na końcu chcę, żebyś odpowiedział w dokła
 "documentation": "Czy dostępna jest dokumentacja techniczna (np. README, opisy architektury)?",
 "installation_instructions": "Czy instrukcje instalacji i konfiguracji są jasno opisane i łatwe do wykonania?",
 "coding_style": "Czy kod stosuje się do standardów stylu (np. PEP8)? Czy formatowanie jest spójne?",
-"tools_usage": "Czy skutecznie wykorzystywane są narzędzia takie jak CI/CD, lintery, formatery?"}]
+"tools_usage": "Czy skutecznie wykorzystywane są narzędzia takie jak CI/CD, lintery, formatery?"} 
 To jest zawartość projektu:
+"""
+
+keyword_project_extraction = """
+Przeanalizuj zawartość projektu i wygeneruj listę słów kluczowych oddzielonych przecinkami.  
+Słowa te powinny umożliwić późniejsze wygenerowanie pomysłów na kolejne projekty dla użytkownika,  
+głównie w kontekście doszlifowania umiejętności.
+
+Lista ta będzie wykorzystana w kodzie, więc odpowiedz wyłącznie listą słów kluczowych, bez dodatkowego tekstu.
 """
 
 chat = """

@@ -68,6 +68,17 @@ class ProjectSuggestionsGenerate(APIView):
             logger.error(f"Error generating suggestions: {e}")
             return Response({"error": "Error generating suggestions"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class KeywordsProjectSuggestionsGenerate(APIView):
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
+
+    def get(self, request):
+        try:
+            suggestions_data = UserProjectSuggestionsGenerator.generate_suggestions_for_user_from_keywords(request.user)
+            return Response(suggestions_data, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Error generating suggestions: {e}")
+            return Response({"error": "Error generating suggestions"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class ProjectListView(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated,)
