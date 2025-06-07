@@ -9,7 +9,9 @@ const Survey = ({ onComplete, onBackToRegistration }) => {
   const [focus, setFocus] = useState([]);
   const [experience, setExperience] = useState("");
   const [timeAvailable, setTimeAvailable] = useState("");
-  const [learningGoal, setLearningGoal] = useState("");
+  const [challenges, setChallenges] = useState([]);
+  const [technologies, setTechnologies] = useState([]);
+  const [techLevels, setTechLevels] = useState({});
 
   const toggleSelection = (option, selectedArray, setSelectedArray) => {
     if (selectedArray.includes(option)) {
@@ -17,6 +19,10 @@ const Survey = ({ onComplete, onBackToRegistration }) => {
     } else {
       setSelectedArray([...selectedArray, option]);
     }
+  };
+
+  const handleTechLevelChange = (tech, level) => {
+    setTechLevels(prev => ({ ...prev, [tech]: level }));
   };
 
   const nextStep = () => setStep((s) => s + 1);
@@ -29,10 +35,16 @@ const Survey = ({ onComplete, onBackToRegistration }) => {
       focus,
       experience,
       timeAvailable,
-      learningGoal,
+      challenges,
+      technologies: technologies.map(tech => ({ name: tech, level: techLevels[tech] || "" }))
     };
     onComplete(allData);
   };
+
+  const allTechOptions = [
+      "HTML", "CSS", "JavaScript", "React", "Vue.js", "Angular", "Node.js", "Express", "Python", "Django",
+      "Flask", "Java", "Spring", "SQL", "MongoDB", "GraphQL", "Git", "Docker", "Kubernetes", "AWS"
+    ];
 
   return (
     <div style={{ maxWidth: 600, margin: "2rem auto", fontFamily: "Arial" }}>
@@ -55,8 +67,7 @@ const Survey = ({ onComplete, onBackToRegistration }) => {
                 </label>
               ))}
             </div>
-            <StepButtons disabled={direction.length === 0} onNext={nextStep} onBack={onBackToRegistration}/>
-
+            <StepButtons disabled={direction.length === 0} onNext={nextStep} onBack={onBackToRegistration} />
           </>
         )}
 
@@ -65,17 +76,18 @@ const Survey = ({ onComplete, onBackToRegistration }) => {
             <h2>Krok 2: Priorytety w portfolio</h2>
             <p>Na co chcesz kłaść nacisk w swoim portfolio?</p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-              {["Projekty praktyczne", "Technologie i narzędzia", "Umiejętności miękkie", "Certyfikaty", "Studia przypadku"].map((opt) => (
-                <label key={opt} style={getOptionStyle(focus.includes(opt))}>
-                  <input
-                    type="checkbox"
-                    value={opt}
-                    checked={focus.includes(opt)}
-                    onChange={() => toggleSelection(opt, focus, setFocus)}
-                    style={{ display: "none" }}
-                  />
-                  {opt}
-                </label>
+              {["Projekty praktyczne", "Technologie i narzędzia", "Czytelność kodu", "Dobre praktyki", "Testy i jakość"]
+                .map((opt) => (
+                  <label key={opt} style={getOptionStyle(focus.includes(opt))}>
+                    <input
+                      type="checkbox"
+                      value={opt}
+                      checked={focus.includes(opt)}
+                      onChange={() => toggleSelection(opt, focus, setFocus)}
+                      style={{ display: "none" }}
+                    />
+                    {opt}
+                  </label>
               ))}
             </div>
             <StepButtons onBack={prevStep} disabled={focus.length === 0} onNext={nextStep} />
@@ -84,16 +96,15 @@ const Survey = ({ onComplete, onBackToRegistration }) => {
 
         {step === 3 && (
           <>
-            <h2>Krok 3: Informacje dodatkowe</h2>
-            <Form.Group controlId="experienceSelect" style={{ marginBottom: "1rem" }}>
+            <h2>Krok 3: Poziom i dostępność</h2>
+            <Form.Group controlId="experienceSelect" style={{ marginBottom: "1rem", textAlign: "center" }}>
               <p>Poziom doświadczenia:</p>
               <Form.Control
                 as="select"
                 value={experience}
                 onChange={(e) => setExperience(e.target.value)}
                 required
-                style={{ width: '100%', height: '50px' }}
-              >
+                style={{ width: '100%', height: '50px', margin: '0 auto' }}>
                 <option value="">Wybierz...</option>
                 <option value="Początkujący">Początkujący</option>
                 <option value="Średniozaawansowany">Średniozaawansowany</option>
@@ -101,15 +112,14 @@ const Survey = ({ onComplete, onBackToRegistration }) => {
               </Form.Control>
             </Form.Group>
 
-            <Form.Group controlId="timeAvailableSelect" style={{ marginBottom: "1rem" }}>
-              <p>Ile czasu tygodniowo możesz poświęcić na pracę nad projektami?</p>
+            <Form.Group controlId="timeAvailableSelect" style={{ marginBottom: "1rem", textAlign: "center" }}>
+              <p>Ile czasu tygodniowo możesz poświęcić na naukę i projekty?</p>
               <Form.Control
                 as="select"
                 value={timeAvailable}
                 onChange={(e) => setTimeAvailable(e.target.value)}
                 required
-                style={{ width: '100%', height: '50px' }}
-              >
+                style={{ width: '100%', height: '50px', margin: '0 auto' }}>
                 <option value="">Wybierz...</option>
                 <option value="<2">Mniej niż 2h</option>
                 <option value="2-5">2–5h</option>
@@ -118,30 +128,78 @@ const Survey = ({ onComplete, onBackToRegistration }) => {
               </Form.Control>
             </Form.Group>
 
-            <Form.Group controlId="learningGoalSelect">
-              <p>Dlaczego się uczysz?</p>
-              <Form.Control
-                as="select"
-                value={learningGoal}
-                onChange={(e) => setLearningGoal(e.target.value)}
-                required
-                style={{ width: '100%', height: '50px' }}
-              >
-                <option value="">Wybierz...</option>
-                <option value="Zmiana pracy">Zmiana pracy</option>
-                <option value="Freelancing">Freelancing</option>
-                <option value="Dla przyjemności">Dla przyjemności</option>
-                <option value="Rozwój w obecnej pracy">Rozwój w obecnej pracy</option>
-              </Form.Control>
-            </Form.Group>
+            <StepButtons onBack={prevStep} disabled={!experience || !timeAvailable} onNext={nextStep} />
+          </>
+        )}
 
-            <StepButtons onBack={prevStep} disabled={!experience || !timeAvailable || !learningGoal} isSubmit />
+        {step === 4 && (
+          <>
+            <h2>Krok 4: Technologie i poziom zaawansowania</h2>
+            <p style={{ textAlign: 'center' }}>Zaznacz znane Ci technologie i określ poziom znajomości</p>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "1rem"
+            }}>
+              {allTechOptions.map((tech) => (
+                <div key={tech} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                  <label style={{ ...getOptionStyle(technologies.includes(tech)), width: "100%" }}>
+                    <input
+                      type="checkbox"
+                      checked={technologies.includes(tech)}
+                      onChange={() => toggleSelection(tech, technologies, setTechnologies)}
+                      style={{ display: "none" }}
+                    />
+                    {tech}
+                  </label>
+                  {technologies.includes(tech) && (
+                    <Form.Control
+                      as="select"
+                      value={techLevels[tech] || ""}
+                      onChange={(e) => handleTechLevelChange(tech, e.target.value)}
+                      style={{ width: '90%', marginTop: '0.5rem', height: '45px', textAlign: 'center' }}
+                      required>
+                      <option value="">Wybierz poziom</option>
+                      <option value="1">1 – bardzo podstawowy</option>
+                      <option value="2">2 – podstawowy</option>
+                      <option value="3">3 – średni</option>
+                      <option value="4">4 – dobry</option>
+                      <option value="5">5 – bardzo dobry</option>
+                    </Form.Control>
+                  )}
+                </div>
+              ))}
+            </div>
+            <StepButtons onBack={prevStep} disabled={technologies.length === 0} onNext={nextStep} />
+          </>
+        )}
+
+        {step === 5 && (
+          <>
+            <h2>Krok 5: Największe wyzwania w nauce</h2>
+            <p style={{ textAlign: 'center' }}>Co jest dla Ciebie największym wyzwaniem w nauce programowania?</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              {["Trudność z organizacją nauki", "Zrozumienie dokumentacji", "Przeskok z tutoriali do własnych projektów", "Nie wiem, czego się uczyć dalej", "Brak motywacji / feedbacku"].map((opt) => (
+                <label key={opt} style={getOptionStyle(challenges.includes(opt))}>
+                  <input
+                    type="checkbox"
+                    value={opt}
+                    checked={challenges.includes(opt)}
+                    onChange={() => toggleSelection(opt, challenges, setChallenges)}
+                    style={{ display: "none" }}
+                  />
+                  {opt}
+                </label>
+              ))}
+            </div>
+            <StepButtons onBack={prevStep} isSubmit disabled={challenges.length === 0} />
           </>
         )}
       </Form>
     </div>
   );
 };
+
 
 const getOptionStyle = (selected) => ({
   border: selected ? "2px solid #333" : "2px solid #ccc",

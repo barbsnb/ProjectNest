@@ -46,7 +46,8 @@ class UserRegisterSerializer(serializers.ModelSerializer):
                 focus=survey_data.get("focus"),
                 experience=survey_data.get("experience"),
                 time_available=survey_data.get("timeAvailable"),
-                learning_goal=survey_data.get("learningGoal"),
+                technologies=survey_data.get("technologies"),
+                challenges=survey_data.get("challenges"),
             )
 
         return user_obj

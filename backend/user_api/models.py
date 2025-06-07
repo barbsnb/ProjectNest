@@ -48,10 +48,8 @@ class Survey(models.Model):
     focus = models.JSONField(blank=True, null=True)
     experience = models.CharField(max_length=100, blank=True, null=True)
     time_available = models.CharField(max_length=100, blank=True, null=True)
-    learning_goal = models.CharField(max_length=100, blank=True, null=True)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    challenges = models.JSONField(blank=True, null=True)
+    technologies = models.JSONField(blank=True, null=True)
 
     def __str__(self):
         return f"Survey for {self.user.username}"
