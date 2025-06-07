@@ -8,25 +8,48 @@ from django.contrib.auth import get_user_model, authenticate
 UserModel = get_user_model()
 
 
+from rest_framework import serializers
+from django.contrib.auth import get_user_model, authenticate
+from user_api.models import Survey  # zakładam, że masz Survey w user_api/models.py
+
+UserModel = get_user_model()
+
+
 class UserRegisterSerializer(serializers.ModelSerializer):
+    survey = serializers.JSONField(write_only=True)
+
     class Meta:
         model = UserModel
         fields = [
             "email",
             "username",
             "password",
+            "survey"
         ]
         extra_kwargs = {
             "password": {"write_only": True}
         }
 
     def create(self, validated_data):
+        survey_data = validated_data.pop("survey", None)
+
         user_obj = UserModel.objects.create_user(
             email=validated_data["email"],
             password=validated_data["password"],
             username=validated_data["username"],
         )
-        user_obj.save()
+
+        if survey_data:
+            Survey.objects.create(
+                user=user_obj,
+                direction=survey_data.get("direction"),
+                focus=survey_data.get("focus"),
+                experience=survey_data.get("experience"),
+                time_available=survey_data.get("timeAvailable"),
+                technologies=survey_data.get("technologies"),
+                challenges=survey_data.get("challenges"),
+            )
+
         return user_obj
 
 
