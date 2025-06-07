@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db.models import JSONField
-
+from django.conf import settings
 
 class AppUserManager(BaseUserManager):
     def create_user(self, email, username, password=None):
@@ -32,7 +32,6 @@ class AppUser(AbstractBaseUser, PermissionsMixin):
     user_id = models.AutoField(primary_key=True)
     email = models.EmailField(max_length=50, unique=True)
     username = models.CharField(max_length=50, unique=True)
-    survey = JSONField(null=True, blank=True) 
     
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
@@ -42,5 +41,18 @@ class AppUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return f"{self.username} ({self.email})"
 
+class Survey(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='survey')
 
+    direction = models.JSONField(blank=True, null=True)
+    focus = models.JSONField(blank=True, null=True)
+    experience = models.CharField(max_length=100, blank=True, null=True)
+    time_available = models.CharField(max_length=100, blank=True, null=True)
+    learning_goal = models.CharField(max_length=100, blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Survey for {self.user.username}"
 

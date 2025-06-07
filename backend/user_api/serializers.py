@@ -8,7 +8,16 @@ from django.contrib.auth import get_user_model, authenticate
 UserModel = get_user_model()
 
 
+from rest_framework import serializers
+from django.contrib.auth import get_user_model, authenticate
+from user_api.models import Survey  # zakładam, że masz Survey w user_api/models.py
+
+UserModel = get_user_model()
+
+
 class UserRegisterSerializer(serializers.ModelSerializer):
+    survey = serializers.JSONField(write_only=True)
+
     class Meta:
         model = UserModel
         fields = [
@@ -31,8 +40,14 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         )
 
         if survey_data:
-            user_obj.survey = survey_data
-            user_obj.save()
+            Survey.objects.create(
+                user=user_obj,
+                direction=survey_data.get("direction"),
+                focus=survey_data.get("focus"),
+                experience=survey_data.get("experience"),
+                time_available=survey_data.get("timeAvailable"),
+                learning_goal=survey_data.get("learningGoal"),
+            )
 
         return user_obj
 
