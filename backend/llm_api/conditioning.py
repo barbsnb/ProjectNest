@@ -37,7 +37,7 @@ Prześlę Ci treść projektu, a na końcu chcę, żebyś odpowiedział w dokła
 "documentation": "Czy dostępna jest dokumentacja techniczna (np. README, opisy architektury)?",
 "installation_instructions": "Czy instrukcje instalacji i konfiguracji są jasno opisane i łatwe do wykonania?",
 "coding_style": "Czy kod stosuje się do standardów stylu (np. PEP8)? Czy formatowanie jest spójne?",
-"tools_usage": "Czy skutecznie wykorzystywane są narzędzia takie jak CI/CD, lintery, formatery?"} 
+"tools_usage": "Czy skutecznie wykorzystywane są narzędzia takie jak CI/CD, lintery, formatery?"}]
 To jest zawartość projektu:
 """
 
