@@ -1,5 +1,5 @@
 from django.db import models
-from projects_api.models import Project  # Update to your actual app name
+from backend.projects_api.models import Project # Update to your actual app name
 
 class ChatSession(models.Model):
     """
