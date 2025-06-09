@@ -4,6 +4,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import permissions, status
+
+from user_api.models import Survey
 from .serializers import ImprovementSuggestionSerializer, UserProjectSerializer, ProjectAnalysisSerializer
 from .models import Project, ProjectAnalysis, ImprovementSuggestion
 from .services.UserProjectUpdater import UserProjectUpdater
@@ -129,8 +131,23 @@ class ImprovementSuggestionDetailView(generics.RetrieveAPIView):
 class DevelopmentPathView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [SessionAuthentication]
+    #add serializer
 
-    #def get(self, request, survey):
+    def get(self, request):
+
+        projects = Project.objects.get(user=request.user)
+        survey = Survey.objects.get(user=request.user)
+
+        all_keywords = []
+        for project in projects:
+            all_keywords.extend(project.get_keywords_list())
+
+        unique_keywords = list(set(all_keywords))
+
+
+
+
+
 
 
 

@@ -85,3 +85,5 @@ class ImprovementSuggestion(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.get_priority_display()})"
+
+

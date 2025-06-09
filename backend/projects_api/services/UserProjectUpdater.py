@@ -23,7 +23,7 @@ class UserProjectUpdater:
             logger.error(f"Project with id {project_id} not found.")
             return {"error": "Project not found."}
 
-        # Serialize all fields into a readable string
+        # all fields into a readable string
         project_dict = model_to_dict(project)
         raw_prompt = "\n".join(f"{key}: {value}" for key, value in project_dict.items())
 
@@ -33,7 +33,7 @@ class UserProjectUpdater:
 
 
         # extraction first
-        keyword_prompt = keywords_project_extraction + raw_prompt
+        keyword_prompt = keyword_project_extraction + raw_prompt
         keywords_response = llm_interface.conditioning_msg(conditioning=keyword_prompt, raw_prompt="")
         keywords_list = keywords_response.strip()
 

@@ -57,7 +57,13 @@ suggest_development_path = {"suggested_development_path": ("Na podstawie słów 
                                                            "(jeśli rzeczywiście jest to potrzebne), "
                                                            "aby rozpocząć proponowaną ścieżkę/ścieżki kariery. \n\n"
                                                            "Słowa kluczowe: {keywords} \n\n"
-                                                           "Analizy projektów: {analyses}"
+                                                           "Ankiety użytkownika: "
+                                                           "kierunek: {direction},"
+                                                           "skupienie na: {focus},"
+                                                           "doświadczenie: {experience},"
+                                                           "dostępność: {time_availability},"
+                                                           "wyzwania: {challanges},"
+                                                           "technologie: {technologies}"
 
                                                            )}
 

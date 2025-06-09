@@ -1,14 +1,19 @@
 import logging
 from django.forms.models import model_to_dict
+from rest_framework.views import APIView
+
 from projects_api.models import Project, ImprovementSuggestion
 from projects_api.serializers import ImprovementSuggestionSerializer
 from llm_api.services import StringLLMChatInterface
-from llm_api.conditioning import ask_project_suggestions
+from llm_api.conditioning import ask_project_suggestions, suggest_development_path
 from typing import Any, Dict, List
 import json
 
+from user_api.models import Survey
+
 logger = logging.getLogger(__name__)
 llm_interface = StringLLMChatInterface()
+
 
 class UserProjectSuggestionsGenerator:
     @staticmethod
@@ -35,7 +40,7 @@ class UserProjectSuggestionsGenerator:
             conditioning=ask_project_suggestions,
             raw_prompt=raw_prompt
         )
-        
+
         print(result)
 
         if isinstance(result, str):
@@ -53,7 +58,7 @@ class UserProjectSuggestionsGenerator:
         if not isinstance(parsed_result, list):
             logger.error("LLM response is not a list of suggestions.")
             return {"error": "Unexpected response format from LLM."}
-        
+
         suggestions = []
         for suggestion_data in result:
             suggestion_data['project'] = project_id
@@ -68,7 +73,7 @@ class UserProjectSuggestionsGenerator:
         return {"suggestions": suggestions}
 
     @staticmethod
-    def generate_suggestions_for_user_from_keywords(user) -> Dict[str, Any]:
+    def generate_suggestions_for_user_from_keywords(user):
         """
         Generate project ideas based on keywords from projects
         :param user: logged user object
@@ -78,21 +83,21 @@ class UserProjectSuggestionsGenerator:
         all_keywords = []
         for project in projects:
             all_keywords.extend(project.get_keywords_list())
-        # Deduplicate and clean
+
         unique_keywords = list(set(k.strip() for k in all_keywords if k.strip()))
 
         if not unique_keywords:
             return {"error": "User has no keywords in projects."}
 
-        # Compose a prompt with keywords
-        raw_prompt = f"Suggest projects or improvements based on these keywords: {', '.join(unique_keywords)}"
+        raw_prompt = (
+            f"Zaproponuj użytkownikowi pomysły na kolejne projekty na podstawie tych słów kluczowych z jego projektów:"
+            f" {', '.join(unique_keywords)}")
 
         result = llm_interface.conditioning_msg(
             conditioning=ask_project_suggestions,
             raw_prompt=raw_prompt
         )
 
-        # Parse LLM response
         if isinstance(result, str):
             try:
                 parsed_result = json.loads(result)
@@ -109,5 +114,38 @@ class UserProjectSuggestionsGenerator:
             logger.error("LLM response is not a list of suggestions.")
             return {"error": "Unexpected response format from LLM."}
 
-        # Return suggestions directly (not saving here)
         return {"suggestions": parsed_result}
+
+
+class DevelopmentPathGenerator():
+
+    @staticmethod
+    def suggest_development_path(self, survey) -> [Dict[str, str]]:
+
+        #extract the information from the survey
+        survey = Survey.objects.filter(user=survey.user)
+        survey_keywords = {}
+
+        if hasattr(survey, 'direction'):
+            survey_keywords['direction'] = survey.direction or ''
+
+        if hasattr(survey, 'focus'):
+            survey_keywords['focus'] = survey.focus or ''
+
+        if hasattr(survey, 'experience'):
+            survey_keywords['experience'] = survey.experience or ''
+
+        if hasattr(survey, 'time_availability'):
+            survey_keywords['time_availability'] = survey.time_availability or ''
+
+        if hasattr(survey, 'challanges'):
+            survey_keywords['challanges'] = survey.challanges or ''
+
+        if hasattr(survey, 'technologies') and survey.technologies:
+            techs = [tech.strip() for tech in survey.technologies.split(',')]
+            survey_keywords['technologies'] = ', '.join(techs)
+        else:
+            survey_keywords['technologies'] = ''
+
+        result = llm_interface.conditioning_msg(conditioning=suggest_development_path.format(**survey_keywords),
+                                                raw_prompt="")[0]
