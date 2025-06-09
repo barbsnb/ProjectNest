@@ -69,8 +69,8 @@ class ProjectSuggestionsGenerate(APIView):
             return Response({"error": "Error generating suggestions"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class KeywordsProjectSuggestionsGenerate(APIView):
-    permission_classes = (permissions.AllowAny,)
-    authentication_classes = ()
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [SessionAuthentication]
 
     def get(self, request):
         try:
@@ -124,3 +124,13 @@ class ImprovementSuggestionDetailView(generics.RetrieveAPIView):
     queryset = ImprovementSuggestion.objects.all()
     serializer_class = ImprovementSuggestionSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+
+class DevelopmentPathView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [SessionAuthentication]
+
+    #def get(self, request, survey):
+
+
+

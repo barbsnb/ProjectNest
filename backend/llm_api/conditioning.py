@@ -42,12 +42,24 @@ To jest zawartość projektu:
 """
 
 keyword_project_extraction = """
-Przeanalizuj zawartość projektu i wygeneruj listę słów kluczowych oddzielonych przecinkami.  
+Przeanalizuj zawartość projektu i wygeneruj listę słów kluczowych oddzielonych przecinkami - trafi to jako informacja zwrotna do aplikacji.  
 Słowa te powinny umożliwić późniejsze wygenerowanie pomysłów na kolejne projekty dla użytkownika,  
-głównie w kontekście doszlifowania umiejętności.
+głównie w kontekście doszlifowania umiejętności oraz zaproponowanie użytkownikowi ścieżki rozwoju kariery.
 
-Lista ta będzie wykorzystana w kodzie, więc odpowiedz wyłącznie listą słów kluczowych, bez dodatkowego tekstu.
+Lista ta będzie wykorzystana w kodzie, więc koniecznie zwróć odpowiedź we wspomnianej wyżej formie.
 """
+
+suggest_development_path = {"suggested_development_path": ("Na podstawie słów kluczowych z projektów oraz ich analiz, podanych poniżej, "
+                                                           "zaproponuj użytkownikowi ściężkę rozwoju. Uwzględnij kontekst umiejętności użytkownika"
+                                                           "tak, by zaproponować konkretną drogę dalszego rozwoju umiejętności oraz przynajniej 2 propozycje kariery. "
+                                                           "Uwzględnij informację o "
+                                                           "umiejętnościach, które są już na dobrym poziomie oraz tych, które należałoby nieco doszlifować "
+                                                           "(jeśli rzeczywiście jest to potrzebne), "
+                                                           "aby rozpocząć proponowaną ścieżkę/ścieżki kariery. \n\n"
+                                                           "Słowa kluczowe: {keywords} \n\n"
+                                                           "Analizy projektów: {analyses}"
+
+                                                           )}
 
 chat = """
 Jesteś ekspertem technicznym, który pomaga rozwiązywać problemy programistyczne, podając dokładne instrukcje i przykłady kodu.

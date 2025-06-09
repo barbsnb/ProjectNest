@@ -5,7 +5,7 @@ from .models import ChatSession, ChatMessage, Project
 from .serializers import ChatSessionSerializer, ChatMessageSerializer
 import uuid
 from .services import StringLLMChatInterface 
-from llm_api.conditioning import *
+from .conditioning import *
 
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authentication import SessionAuthentication
