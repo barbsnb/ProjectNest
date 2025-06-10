@@ -49,9 +49,9 @@ głównie w kontekście doszlifowania umiejętności oraz zaproponowanie użytko
 Lista ta będzie wykorzystana w kodzie, więc koniecznie zwróć odpowiedź we wspomnianej wyżej formie.
 """
 
-suggest_development_path = {"suggested_development_path": ("Na podstawie słów kluczowych z projektów oraz ich analiz, podanych poniżej, "
+suggest_development_path = {"suggested_development_path": ("Na podstawie słów kluczowych z projektów oraz wypełnionej przez uzytkownika ankiety, podanymi poniżej, "
                                                            "zaproponuj użytkownikowi ściężkę rozwoju. Uwzględnij kontekst umiejętności użytkownika"
-                                                           "tak, by zaproponować konkretną drogę dalszego rozwoju umiejętności oraz przynajniej 2 propozycje kariery. "
+                                                           "tak, by zaproponować konkretną drogę dalszego rozwoju umiejętności oraz przynajmniej 2 propozycje kariery. "
                                                            "Uwzględnij informację o "
                                                            "umiejętnościach, które są już na dobrym poziomie oraz tych, które należałoby nieco doszlifować "
                                                            "(jeśli rzeczywiście jest to potrzebne), "

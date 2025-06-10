@@ -120,32 +120,54 @@ class UserProjectSuggestionsGenerator:
 class DevelopmentPathGenerator():
 
     @staticmethod
-    def suggest_development_path(self, survey) -> [Dict[str, str]]:
+    def suggest_development_path(self, survey) -> Dict[str, Any]:
 
         #extract the information from the survey
         survey = Survey.objects.filter(user=survey.user)
         survey_keywords = {}
 
         if hasattr(survey, 'direction'):
-            survey_keywords['direction'] = survey.direction or ''
+            survey_keywords['direction'] = survey.direction or 'brak danych'
 
         if hasattr(survey, 'focus'):
-            survey_keywords['focus'] = survey.focus or ''
+            survey_keywords['focus'] = survey.focus or 'brak danych'
 
         if hasattr(survey, 'experience'):
-            survey_keywords['experience'] = survey.experience or ''
+            survey_keywords['experience'] = survey.experience or 'brak danych'
 
         if hasattr(survey, 'time_availability'):
-            survey_keywords['time_availability'] = survey.time_availability or ''
+            survey_keywords['time_availability'] = survey.time_availability or 'brak danych'
 
         if hasattr(survey, 'challanges'):
-            survey_keywords['challanges'] = survey.challanges or ''
+            survey_keywords['challanges'] = survey.challanges or 'brak danych'
 
         if hasattr(survey, 'technologies') and survey.technologies:
             techs = [tech.strip() for tech in survey.technologies.split(',')]
             survey_keywords['technologies'] = ', '.join(techs)
         else:
-            survey_keywords['technologies'] = ''
+            survey_keywords['technologies'] = 'brak danych'
+
+
+
 
         result = llm_interface.conditioning_msg(conditioning=suggest_development_path.format(**survey_keywords),
                                                 raw_prompt="")[0]
+
+        if isinstance(result, str):
+            try:
+                parsed = json.loads(result)
+            except json.JSONDecodeError:
+                logger.error("Failed to decode LLM JSON response.")
+                return {"error": "Invalid JSON response from LLM."}
+        elif isinstance(result, (list, dict)):
+            parsed = result
+        else:
+            logger.error("Unexpected type of LLM response.")
+            return {"error": "Unexpected response type from LLM."}
+
+        if not isinstance(parsed, list):
+            logger.error("LLM response is not a list of suggestions.")
+            return {"error": "Unexpected response format from LLM."}
+
+        return {"development_path": parsed}
+

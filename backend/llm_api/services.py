@@ -117,7 +117,7 @@ class StringLLMChatInterface(LLMChatInterface):
         :return: The answer from the LLM formated to Dict[str, Any].
         """
 
-        # TO DO
+        # TODO
         pass
 
     def string_to_dict(self, s: str) -> List[Dict[str, Any]]:
