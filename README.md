@@ -3,9 +3,13 @@ A web application project enabling students to interact with an intelligent AI a
 
 # Features
 🔹 AI Chat — students can have conversations with an AI-based assistant.
+
 🔹 Analysis and suggestions for project improvement.
+
 🔹 Login and authorization system.
+
 🔹 User project management — portfolio generation.
+
 🔹 User-friendly interface (UI built with React and Bootstrap).
 
 ## Installation
