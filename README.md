@@ -1,40 +1,34 @@
-# Asystent AI dla Studentów – System Wsparcia Akademickiego
+# AI Assistant for Students – Academic Support System
+A web application project enabling students to interact with an intelligent AI assistant that helps with study organization, answering questions, and project management. The system aims to support job searching and study planning. Created as part of the ZPDS course at Warsaw University of Technology.
 
-Projekt aplikacji webowej umożliwiającej studentom interakcję z inteligentnym asystentem AI, który pomaga m.in. w organizacji studiów i nauki, odpowiadaniu na pytania oraz zarządzaniu projektami. Ma na celu pomóc w znajdywaniu pracy oraz w planowaniu nauki. Stworzony w ramach kursu ZPDS na Politechnice Warszawskiej.
+# Features
+🔹 AI Chat — students can have conversations with an AI-based assistant.
+🔹 Analysis and suggestions for project improvement.
+🔹 Login and authorization system.
+🔹 User project management — portfolio generation.
+🔹 User-friendly interface (UI built with React and Bootstrap).
 
-## Funkcjonalności
-
-🔹 Czat z AI — studenci mogą prowadzić rozmowę z asystentem opartym na sztucznej inteligencji.
-
-🔹 Analiza i sugestie poprawy projektów.
-
-🔹 System logowania i autoryzacji.
-
-🔹 Zarządzanie projektami użytkownika - generowanie portfolio.
-
-🔹 Interfejs przyjazny dla użytkownika (UI oparty na React i Bootstrap).
-
-## Instalacja
+## Installation
 
 ```bash
 npm install
 ```
 
-## Użycie
+## Usage
 
-Front end
+Frontend
 
 ```
 \frontend> npm start
 ```
 
-Back end
+Backend
 
 ```
 \backend> python manage.py runserver
 ```
 
-Uruchomić aplikację pod adresem:
+Run the app at:
 
 ```
 http://127.0.0.1:3000/
