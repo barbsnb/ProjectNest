@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from rest_framework.test import APIClient
 
-from projects_api.models import AnalysisRun, Finding, Project, RepositorySnapshot
+from projects_api.models import AgentResult, AnalysisRun, Finding, Project, RepositorySnapshot
 
 
 class FakeResponse:
@@ -45,6 +45,35 @@ def fake_github_get(url, **kwargs):
     if url == "https://api.github.com/repos/octo/demo/zipball/main":
         return FakeResponse(content=build_repo_zip())
     return FakeResponse(status_code=404)
+
+
+class FakeOneBadAgentLLM:
+    def conditioning_msg_string(self, conditioning, raw_prompt, session_id=None):
+        if "Security Auditor" in conditioning:
+            return "not-json"
+        return '{"summary":"ok","findings":[]}'
+
+
+class FakeDuplicateFindingLLM:
+    def conditioning_msg_string(self, conditioning, raw_prompt, session_id=None):
+        return """
+        {
+          "summary": "duplicate finding",
+          "findings": [
+            {
+              "category": "architecture",
+              "severity": "medium",
+              "title": "Service layer is too tightly coupled",
+              "description": "The same architectural issue was reported by multiple agents.",
+              "file_path": "src/app.py",
+              "line_start": 10,
+              "evidence": "src/app.py:10",
+              "recommendation": "Separate orchestration from request handling.",
+              "confidence": 0.82
+            }
+          ]
+        }
+        """
 
 
 class RepositoryIngestionApiTests(TestCase):
@@ -141,8 +170,9 @@ class RepositoryIngestionApiTests(TestCase):
         self.assertEqual(ingest_response.status_code, 404)
         mocked_get.assert_not_called()
 
+    @patch("projects_api.services.analysis_pipeline.run_agent_review", return_value=[])
     @patch("projects_api.services.analysis_pipeline.load_repository_text_files")
-    def test_analysis_run_creates_critical_finding_for_secret(self, mocked_files):
+    def test_analysis_run_creates_critical_finding_for_secret(self, mocked_files, mocked_agents):
         demo_secret = "AKIA" + "IOSFODNN7EXAMPLE"
         project = Project.objects.create(
             name="Secret audit",
@@ -179,6 +209,7 @@ class RepositoryIngestionApiTests(TestCase):
         self.assertEqual(finding.severity, Finding.SEVERITY_CRITICAL)
         self.assertEqual(finding.file_path, "settings.py")
         self.assertEqual(finding.line_start, 1)
+        self.assertEqual(finding.source, Finding.SOURCE_TOOL)
         self.assertNotIn(demo_secret, finding.evidence)
 
     def test_analysis_run_failure_does_not_crash_request(self):
@@ -224,3 +255,67 @@ class RepositoryIngestionApiTests(TestCase):
         response = self.client.get(f"/api/analysis-runs/{run.id}/findings/")
 
         self.assertEqual(response.status_code, 404)
+
+    @patch("projects_api.services.agent_orchestrator._build_llm_interface", return_value=FakeOneBadAgentLLM())
+    @patch("projects_api.services.analysis_pipeline.load_repository_text_files")
+    def test_invalid_json_from_one_agent_does_not_fail_entire_run(self, mocked_files, mocked_llm):
+        project = self._project_with_snapshot()
+        mocked_files.return_value = [
+            {
+                "path": "src/app.py",
+                "size_bytes": 32,
+                "extension": ".py",
+                "line_count": 2,
+                "content": "def handler(request):\n    return None\n",
+            }
+        ]
+
+        response = self.client.post(f"/api/projects/{project.id}/analysis-runs/")
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["status"], AnalysisRun.STATUS_COMPLETED)
+
+        agent_results = AgentResult.objects.filter(run_id=response.data["id"], prompt_version="praetor-agent-v1")
+        self.assertEqual(agent_results.count(), 4)
+        self.assertEqual(agent_results.get(agent_name="Security Auditor").status, AnalysisRun.STATUS_FAILED)
+        self.assertEqual(agent_results.exclude(agent_name="Security Auditor").filter(status=AnalysisRun.STATUS_COMPLETED).count(), 3)
+
+    @patch("projects_api.services.agent_orchestrator._build_llm_interface", return_value=FakeDuplicateFindingLLM())
+    @patch("projects_api.services.analysis_pipeline.load_repository_text_files")
+    def test_duplicate_agent_findings_are_deduplicated(self, mocked_files, mocked_llm):
+        project = self._project_with_snapshot()
+        mocked_files.return_value = [
+            {
+                "path": "src/app.py",
+                "size_bytes": 64,
+                "extension": ".py",
+                "line_count": 12,
+                "content": "\n".join(["def handler(request):", "    return None"] * 6),
+            }
+        ]
+
+        response = self.client.post(f"/api/projects/{project.id}/analysis-runs/")
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["status"], AnalysisRun.STATUS_COMPLETED)
+        self.assertEqual(AgentResult.objects.filter(run_id=response.data["id"], prompt_version="praetor-agent-v1").count(), 4)
+        self.assertEqual(Finding.objects.filter(run_id=response.data["id"], source=Finding.SOURCE_AI).count(), 1)
+
+    def _project_with_snapshot(self):
+        project = Project.objects.create(
+            name="Agent audit",
+            description="Small demo project",
+            repo_url="https://github.com/octo/demo",
+            default_branch="main",
+            user=self.user,
+        )
+        RepositorySnapshot.objects.create(
+            project=project,
+            commit_sha="abc123def456",
+            branch="main",
+            file_count=1,
+            total_size_bytes=64,
+            included_files=[{"path": "src/app.py", "size_bytes": 64}],
+            ignored_files=[],
+        )
+        return project

@@ -7,6 +7,7 @@ import subprocess
 import re
 
 from projects_api.models import AgentResult, AnalysisRun, Finding
+from projects_api.services.agent_orchestrator import deduplicate_findings, run_agent_review
 from projects_api.services.repo_ingestion import (
     RepoIngestionError,
     ingest_project_repository,
@@ -76,6 +77,10 @@ def execute_analysis_run(project):
         findings.extend(_record_python_dependency_placeholder(run, files))
         _record_repo_metrics(run, snapshot, files)
 
+        findings = [_ensure_tool_finding(finding) for finding in findings]
+        findings.extend(run_agent_review(run, project, snapshot, files, findings))
+        findings = deduplicate_findings(findings)
+
         Finding.objects.bulk_create([Finding(run=run, **finding) for finding in findings])
 
         run.score_total = _calculate_score(findings)
@@ -136,6 +141,8 @@ def _scan_secret_patterns(run, files):
         status=AnalysisRun.STATUS_COMPLETED,
         summary=f"Scanned {len(files)} files and {scanned_lines} lines for high-risk secret patterns.",
         raw_output={"findings_count": len(findings), "scanned_files": len(files), "scanned_lines": scanned_lines},
+        normalized_output={"findings_count": len(findings)},
+        prompt_version="deterministic-v1",
         started_at=started_at,
         finished_at=timezone.now(),
     )
@@ -173,6 +180,8 @@ def _detect_dependency_manifests(run, files):
         status=AnalysisRun.STATUS_COMPLETED,
         summary=f"Detected {len(manifests)} dependency manifest files.",
         raw_output={"manifests": manifests},
+        normalized_output={"findings_count": len(findings), "manifests": manifests},
+        prompt_version="deterministic-v1",
         started_at=started_at,
         finished_at=timezone.now(),
     )
@@ -191,6 +200,8 @@ def _run_npm_audit(run, files):
             status=AnalysisRun.STATUS_COMPLETED,
             summary="No package-lock.json detected.",
             raw_output={"skipped": True, "reason": "missing_package_lock"},
+            normalized_output={"findings_count": 0},
+            prompt_version="deterministic-v1",
             started_at=started_at,
             finished_at=timezone.now(),
         )
@@ -203,6 +214,8 @@ def _run_npm_audit(run, files):
             status=AnalysisRun.STATUS_FAILED,
             summary="package-lock.json detected, but matching package.json is missing.",
             raw_output={"skipped": True, "reason": "missing_package_json", "package_lock": package_lock["path"]},
+            normalized_output={"findings_count": 0},
+            prompt_version="deterministic-v1",
             started_at=started_at,
             finished_at=timezone.now(),
             error_message="npm audit requires package.json next to package-lock.json.",
@@ -218,6 +231,8 @@ def _run_npm_audit(run, files):
             status=AnalysisRun.STATUS_FAILED,
             summary="npm audit could not complete.",
             raw_output={"package_lock": package_lock["path"]},
+            normalized_output={"findings_count": 0},
+            prompt_version="deterministic-v1",
             started_at=started_at,
             finished_at=timezone.now(),
             error_message=str(exc),
@@ -255,6 +270,8 @@ def _run_npm_audit(run, files):
             "vulnerabilities": metadata.get("vulnerabilities", {}),
             "reported_packages": list(vulnerabilities.keys())[:50],
         },
+        normalized_output={"findings_count": len(findings)},
+        prompt_version="deterministic-v1",
         started_at=started_at,
         finished_at=timezone.now(),
     )
@@ -289,6 +306,8 @@ def _record_python_dependency_placeholder(run, files):
         status=AnalysisRun.STATUS_COMPLETED,
         summary=f"Recorded placeholder for {len(python_manifests)} Python manifests.",
         raw_output={"manifests": [file_data["path"] for file_data in python_manifests]},
+        normalized_output={"findings_count": len(findings)},
+        prompt_version="deterministic-v1",
         started_at=started_at,
         finished_at=timezone.now(),
     )
@@ -328,6 +347,11 @@ def _record_repo_metrics(run, snapshot, files):
             "largest_files": largest_files,
             "ignored_files_count": len(snapshot.ignored_files),
         },
+        normalized_output={
+            "languages": dict(languages),
+            "largest_files_count": len(largest_files),
+        },
+        prompt_version="deterministic-v1",
         started_at=started_at,
         finished_at=timezone.now(),
     )
@@ -410,6 +434,25 @@ def _calculate_score(findings):
     for finding in findings:
         score -= SEVERITY_PENALTIES.get(finding["severity"], 0)
     return max(score, 0)
+
+
+def _ensure_tool_finding(finding):
+    finding.setdefault("source", Finding.SOURCE_TOOL)
+    finding.setdefault("agent_name", _tool_agent_name(finding.get("category"), finding.get("title", "")))
+    return finding
+
+
+def _tool_agent_name(category, title):
+    title = (title or "").lower()
+    if category == "security":
+        return "secret_pattern_scan"
+    if "dependency manifest" in title:
+        return "dependency_manifest_detection"
+    if "python dependency" in title:
+        return "python_dependency_audit"
+    if category == "dependencies":
+        return "npm_audit"
+    return "deterministic_tool"
 
 
 def _fail_run(run, message):

@@ -66,6 +66,8 @@ class RepositorySnapshotSerializer(serializers.ModelSerializer):
 
 
 class AgentResultSerializer(serializers.ModelSerializer):
+    findings_count = serializers.SerializerMethodField()
+
     class Meta:
         model = AgentResult
         fields = (
@@ -73,18 +75,27 @@ class AgentResultSerializer(serializers.ModelSerializer):
             "run",
             "agent_name",
             "status",
+            "model",
+            "prompt_version",
             "summary",
             "raw_output",
+            "normalized_output",
             "started_at",
             "finished_at",
+            "created_at",
             "error_message",
+            "findings_count",
         )
         read_only_fields = fields
+
+    def get_findings_count(self, obj):
+        return obj.run.findings.filter(agent_name=obj.agent_name).count()
 
 
 class AnalysisRunSerializer(serializers.ModelSerializer):
     agent_results = AgentResultSerializer(many=True, read_only=True)
     findings_count = serializers.SerializerMethodField()
+    category_scores = serializers.SerializerMethodField()
 
     class Meta:
         model = AnalysisRun
@@ -99,11 +110,29 @@ class AnalysisRunSerializer(serializers.ModelSerializer):
             "score_total",
             "agent_results",
             "findings_count",
+            "category_scores",
         )
         read_only_fields = fields
 
     def get_findings_count(self, obj):
         return obj.findings.count()
+
+    def get_category_scores(self, obj):
+        penalties = {
+            Finding.SEVERITY_CRITICAL: 25,
+            Finding.SEVERITY_HIGH: 15,
+            Finding.SEVERITY_MEDIUM: 7,
+            Finding.SEVERITY_LOW: 3,
+            Finding.SEVERITY_INFO: 0,
+        }
+        categories = {}
+        for finding in obj.findings.all():
+            categories.setdefault(finding.category, 100)
+            categories[finding.category] = max(
+                0,
+                categories[finding.category] - penalties.get(finding.severity, 0),
+            )
+        return categories
 
 
 class FindingSerializer(serializers.ModelSerializer):
@@ -112,6 +141,8 @@ class FindingSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "run",
+            "source",
+            "agent_name",
             "category",
             "severity",
             "title",

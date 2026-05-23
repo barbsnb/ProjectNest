@@ -97,7 +97,17 @@ class Finding(models.Model):
         (STATUS_IGNORED, "Ignored"),
     ]
 
+    SOURCE_TOOL = "tool"
+    SOURCE_AI = "ai"
+
+    SOURCE_CHOICES = [
+        (SOURCE_TOOL, "Tool"),
+        (SOURCE_AI, "AI"),
+    ]
+
     run = models.ForeignKey(AnalysisRun, on_delete=models.CASCADE, related_name="findings")
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default=SOURCE_TOOL)
+    agent_name = models.CharField(max_length=120, blank=True)
     category = models.CharField(max_length=80)
     severity = models.CharField(max_length=20, choices=SEVERITY_CHOICES)
     title = models.CharField(max_length=255)
@@ -121,10 +131,14 @@ class AgentResult(models.Model):
     run = models.ForeignKey(AnalysisRun, on_delete=models.CASCADE, related_name="agent_results")
     agent_name = models.CharField(max_length=120)
     status = models.CharField(max_length=20, choices=AnalysisRun.STATUS_CHOICES, default=AnalysisRun.STATUS_COMPLETED)
+    model = models.CharField(max_length=120, blank=True)
+    prompt_version = models.CharField(max_length=80, blank=True)
     summary = models.TextField(blank=True)
     raw_output = models.JSONField(default=dict, blank=True)
+    normalized_output = models.JSONField(default=dict, blank=True)
     started_at = models.DateTimeField(default=timezone.now)
     finished_at = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
     error_message = models.TextField(blank=True)
 
     class Meta:

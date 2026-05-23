@@ -21,6 +21,11 @@ const statusVariant = {
 
 const runSteps = ["queued", "ingesting", "analyzing", "completed"];
 
+const sourceLabels = {
+  tool: "Tool",
+  ai: "AI",
+};
+
 const AuditRunPanel = ({ projectId, project }) => {
   const [run, setRun] = useState(null);
   const [findings, setFindings] = useState([]);
@@ -41,6 +46,9 @@ const AuditRunPanel = ({ projectId, project }) => {
   const categories = useMemo(() => {
     return Array.from(new Set(findings.map((finding) => finding.category))).sort();
   }, [findings]);
+
+  const agentResults = run?.agent_results || [];
+  const categoryScores = run?.category_scores || {};
 
   const runAudit = async () => {
     setError("");
@@ -145,6 +153,42 @@ const AuditRunPanel = ({ projectId, project }) => {
         </div>
       )}
 
+      {run && Object.keys(categoryScores).length > 0 && (
+        <div className="category-score-grid">
+          {Object.entries(categoryScores).map(([category, score]) => (
+            <div key={category}>
+              <span>{category}</span>
+              <strong>{score}/100</strong>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {agentResults.length > 0 && (
+        <div className="agent-results-section">
+          <div className="agent-results-header">
+            <h3>Agent Results</h3>
+            <span>{agentResults.length} checks</span>
+          </div>
+          <div className="agent-results-grid">
+            {agentResults.map((agent) => (
+              <div key={agent.id} className="agent-result-card">
+                <div className="agent-result-title">
+                  <strong>{agent.agent_name}</strong>
+                  <Badge bg={statusVariant[agent.status] || "secondary"}>{agent.status}</Badge>
+                </div>
+                <p>{agent.summary || agent.error_message || "No summary."}</p>
+                <div className="agent-result-meta">
+                  <span>Findings: {agent.findings_count}</span>
+                  <span>{agent.prompt_version || "no prompt version"}</span>
+                  {agent.model && <span>{agent.model}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="audit-filters">
         <Form.Group controlId="severityFilter">
           <Form.Label>Severity</Form.Label>
@@ -180,6 +224,7 @@ const AuditRunPanel = ({ projectId, project }) => {
           <Table responsive hover className="audit-findings-table">
             <thead>
               <tr>
+                <th>Source</th>
                 <th>Severity</th>
                 <th>Category</th>
                 <th>Title</th>
@@ -190,6 +235,12 @@ const AuditRunPanel = ({ projectId, project }) => {
             <tbody>
               {filteredFindings.map((finding) => (
                 <tr key={finding.id}>
+                  <td>
+                    <Badge bg={finding.source === "ai" ? "primary" : "dark"}>
+                      {sourceLabels[finding.source] || finding.source}
+                    </Badge>
+                    {finding.agent_name && <span className="finding-agent-name">{finding.agent_name}</span>}
+                  </td>
                   <td>
                     <Badge bg={severityVariant[finding.severity] || "secondary"}>{finding.severity}</Badge>
                   </td>
