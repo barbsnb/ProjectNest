@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from rest_framework.test import APIClient
 
-from projects_api.models import Project, RepositorySnapshot
+from projects_api.models import AnalysisRun, Finding, Project, RepositorySnapshot
 
 
 class FakeResponse:
@@ -140,3 +140,87 @@ class RepositoryIngestionApiTests(TestCase):
         self.assertEqual(snapshot_response.status_code, 404)
         self.assertEqual(ingest_response.status_code, 404)
         mocked_get.assert_not_called()
+
+    @patch("projects_api.services.analysis_pipeline.load_repository_text_files")
+    def test_analysis_run_creates_critical_finding_for_secret(self, mocked_files):
+        demo_secret = "AKIA" + "IOSFODNN7EXAMPLE"
+        project = Project.objects.create(
+            name="Secret audit",
+            description="",
+            repo_url="https://github.com/octo/demo",
+            default_branch="main",
+            user=self.user,
+        )
+        RepositorySnapshot.objects.create(
+            project=project,
+            commit_sha="abc123def456",
+            branch="main",
+            file_count=1,
+            total_size_bytes=48,
+            included_files=[{"path": "settings.py", "size_bytes": 48}],
+            ignored_files=[],
+        )
+        mocked_files.return_value = [
+            {
+                "path": "settings.py",
+                "size_bytes": 48,
+                "extension": ".py",
+                "line_count": 1,
+                "content": f"SECRET_KEY = '{demo_secret}'\n",
+            }
+        ]
+
+        response = self.client.post(f"/api/projects/{project.id}/analysis-runs/")
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["status"], AnalysisRun.STATUS_COMPLETED)
+
+        finding = Finding.objects.get(run_id=response.data["id"], category="security")
+        self.assertEqual(finding.severity, Finding.SEVERITY_CRITICAL)
+        self.assertEqual(finding.file_path, "settings.py")
+        self.assertEqual(finding.line_start, 1)
+        self.assertNotIn(demo_secret, finding.evidence)
+
+    def test_analysis_run_failure_does_not_crash_request(self):
+        project = Project.objects.create(
+            name="Broken audit",
+            description="",
+            repo_url="",
+            user=self.user,
+        )
+
+        response = self.client.post(f"/api/projects/{project.id}/analysis-runs/")
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["status"], AnalysisRun.STATUS_FAILED)
+        self.assertTrue(response.data["error_message"])
+
+    def test_user_cannot_read_findings_for_other_users_run(self):
+        project = Project.objects.create(
+            name="Owner run",
+            description="",
+            repo_url="https://github.com/octo/demo",
+            user=self.user,
+        )
+        snapshot = RepositorySnapshot.objects.create(project=project, branch="main")
+        run = AnalysisRun.objects.create(
+            project=project,
+            snapshot=snapshot,
+            status=AnalysisRun.STATUS_COMPLETED,
+        )
+        Finding.objects.create(
+            run=run,
+            category="security",
+            severity=Finding.SEVERITY_CRITICAL,
+            title="Secret",
+            description="Secret finding",
+            file_path="settings.py",
+            evidence="masked",
+            recommendation="Rotate the credential.",
+            confidence=0.95,
+        )
+
+        self.client.force_authenticate(user=self.other_user)
+        response = self.client.get(f"/api/analysis-runs/{run.id}/findings/")
+
+        self.assertEqual(response.status_code, 404)

@@ -190,9 +190,14 @@ const NewProject = () => {
             )}
             <div className="new-audit-buttons">
               {projectId && status === "indexed" && (
-                <Button variant="outline-secondary" type="button" onClick={() => navigate("/home")}>
-                  Wroc do projektow
-                </Button>
+                <>
+                  <Button variant="outline-secondary" type="button" onClick={() => navigate("/home")}>
+                    Wroc do projektow
+                  </Button>
+                  <Button variant="outline-primary" type="button" onClick={() => navigate(`/analysis/${projectId}`)}>
+                    Przejdz do audytu
+                  </Button>
+                </>
               )}
               <Button id="form_btn" variant="primary" type="submit" disabled={isLoading}>
                 {status === "indexed" ? "Utworz kolejny audyt" : "Index repository"}

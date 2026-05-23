@@ -20,6 +20,7 @@ PRAETOR is designed for students, early-stage teams, small founders, and less ex
 - Django REST API with session-based authentication and per-project ownership checks.
 - React frontend with login, registration, GitHub-based audit creation, analysis, suggestions, and chat views.
 - GitHub repository ingestion for public repositories with file count, size limits, ignored vendor directories, and snapshot metadata.
+- Deterministic analysis runs with normalized findings for secrets, dependency manifests, npm audit when lockfiles are present, Python dependency audit placeholders, and repository metrics.
 - OpenAI-compatible LLM integration with optional GPT4All-compatible local endpoint.
 - Project analysis categories: code quality, architecture, security, tests, performance, documentation, and tooling.
 - Environment-based configuration for secrets and LLM provider.
@@ -157,4 +158,4 @@ The repository should contain source code, lockfiles, migrations, documentation,
 
 ## Project Status
 
-Sprint 1 adds the first repository-level workflow: authenticated users can create an audit from a public GitHub URL, ingest a bounded snapshot, and prepare the project for later deterministic and LLM-assisted audit agents. The next sprint should turn snapshot metadata and repository content into a structured, prioritized technical report.
+Sprint 2 adds the first deterministic audit pipeline: authenticated users can run an analysis against their ingested repository and review normalized findings with severity, category, file path, evidence, recommendation, confidence, and status. The next sprint should expand specialized agents and connect deterministic findings with LLM-assisted explanation and remediation planning.

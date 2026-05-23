@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 
 import client from "../../axiosClient";
 import Chat from "../chat/Chat";
+import AuditRunPanel from "./AuditRunPanel";
 import "./ProjectAnalysis.css";
 import ProjectSuggestions from "./ProjectSuggestions";
 
@@ -43,8 +44,8 @@ const ProjectAnalysis = () => {
   const [analysis, setAnalysis] = useState(null);
   const [expandedFields, setExpandedFields] = useState({});
   const [project, setProject] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [analysisLoading, setAnalysisLoading] = useState(true);
+  const [analysisError, setAnalysisError] = useState("");
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -56,79 +57,89 @@ const ProjectAnalysis = () => {
       }
     };
 
-    const fetchAnalysis = async () => {
+    const fetchLegacyAnalysis = async () => {
       try {
-        setLoading(true);
-        setError("");
+        setAnalysisLoading(true);
+        setAnalysisError("");
         const response = await client.get(`/api/analysis/${projectId}/`);
         setAnalysis(response.data);
       } catch (error) {
         setAnalysis(null);
-        setError("Raport nie zostal jeszcze wygenerowany dla tego projektu.");
+        setAnalysisError("Raport LLM nie zostal jeszcze wygenerowany dla tego projektu.");
         console.error("Analysis loading failed:", error);
       } finally {
-        setLoading(false);
+        setAnalysisLoading(false);
       }
     };
 
     fetchProject();
-    fetchAnalysis();
+    fetchLegacyAnalysis();
   }, [projectId]);
 
-  if (loading) {
-    return (
-      <Container className="analysis-container text-center py-4">
-        <Spinner animation="border" role="status" />
-      </Container>
-    );
-  }
+  const renderLegacyAnalysis = () => {
+    if (analysisLoading) {
+      return (
+        <Container className="analysis-container text-center py-4">
+          <Spinner animation="border" role="status" />
+        </Container>
+      );
+    }
 
-  if (!analysis) {
+    if (!analysis) {
+      return (
+        <Container className="analysis-container mt-3">
+          <Alert variant="info">{analysisError || "Brak danych analizy LLM."}</Alert>
+        </Container>
+      );
+    }
+
     return (
-      <Container className="analysis-container mt-3">
-        <Alert variant="info">{error || "Brak danych analizy."}</Alert>
+      <Container className="analysis-container">
+        <h2 className="analysis-header">
+          Analiza projektu: {project ? project.name : "(ladowanie...)"}
+        </h2>
+        <div className="section-cards">
+          {Object.entries(SECTION_MAP).map(([sectionTitle, fields]) => (
+            <div key={sectionTitle} className="section-card">
+              <h3>{sectionTitle}</h3>
+              {fields.map((field) => {
+                const content = analysis[field] || "Brak danych.";
+                const isExpanded = expandedFields[field];
+                const toggleExpanded = () => {
+                  setExpandedFields((prev) => ({
+                    ...prev,
+                    [field]: !prev[field],
+                  }));
+                };
+
+                return (
+                  <div
+                    key={field}
+                    className={`analysis-field ${isExpanded ? "expanded" : ""}`}
+                    onClick={toggleExpanded}
+                    title="Kliknij, aby rozwinac lub zwinac"
+                    style={{ cursor: "pointer" }}
+                  >
+                    <strong>{FIELD_LABELS[field]}:</strong>
+                    <p>{content}</p>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
       </Container>
     );
-  }
+  };
 
   return (
-    <Tabs defaultActiveKey="analysis" id="analysis-tabs">
-      <Tab eventKey="analysis" title="Analiza projektu">
-        <Container className="analysis-container">
-          <h2 className="analysis-header">
-            Analiza projektu: {project ? project.name : "(ladowanie...)"}
-          </h2>
-          <div className="section-cards">
-            {Object.entries(SECTION_MAP).map(([sectionTitle, fields]) => (
-              <div key={sectionTitle} className="section-card">
-                <h3>{sectionTitle}</h3>
-                {fields.map((field) => {
-                  const content = analysis[field] || "Brak danych.";
-                  const isExpanded = expandedFields[field];
-                  const toggleExpanded = () => {
-                    setExpandedFields((prev) => ({
-                      ...prev,
-                      [field]: !prev[field],
-                    }));
-                  };
+    <Tabs defaultActiveKey="audit" id="analysis-tabs">
+      <Tab eventKey="audit" title="Audit run">
+        <AuditRunPanel projectId={projectId} project={project} />
+      </Tab>
 
-                  return (
-                    <div
-                      key={field}
-                      className={`analysis-field ${isExpanded ? "expanded" : ""}`}
-                      onClick={toggleExpanded}
-                      title="Kliknij, aby rozwinac lub zwinac"
-                      style={{ cursor: "pointer" }}
-                    >
-                      <strong>{FIELD_LABELS[field]}:</strong>
-                      <p>{content}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
-        </Container>
+      <Tab eventKey="analysis" title="Raport LLM">
+        {renderLegacyAnalysis()}
       </Tab>
 
       <Tab eventKey="suggestions" title="Sugestie ulepszen">

@@ -1,6 +1,14 @@
 # do przekształcania danych modeli django na forme przesylana przez siec
 from rest_framework import serializers
-from .models import Project, ProjectAnalysis, ImprovementSuggestion, RepositorySnapshot
+from .models import (
+    AgentResult,
+    AnalysisRun,
+    Finding,
+    ImprovementSuggestion,
+    Project,
+    ProjectAnalysis,
+    RepositorySnapshot,
+)
 from .services.repo_ingestion import RepoIngestionError, validate_github_repo_url
 
 class UserProjectSerializer(serializers.ModelSerializer):
@@ -52,6 +60,68 @@ class RepositorySnapshotSerializer(serializers.ModelSerializer):
             "total_size_bytes",
             "included_files",
             "ignored_files",
+            "created_at",
+        )
+        read_only_fields = fields
+
+
+class AgentResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AgentResult
+        fields = (
+            "id",
+            "run",
+            "agent_name",
+            "status",
+            "summary",
+            "raw_output",
+            "started_at",
+            "finished_at",
+            "error_message",
+        )
+        read_only_fields = fields
+
+
+class AnalysisRunSerializer(serializers.ModelSerializer):
+    agent_results = AgentResultSerializer(many=True, read_only=True)
+    findings_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = AnalysisRun
+        fields = (
+            "id",
+            "project",
+            "snapshot",
+            "status",
+            "started_at",
+            "finished_at",
+            "error_message",
+            "score_total",
+            "agent_results",
+            "findings_count",
+        )
+        read_only_fields = fields
+
+    def get_findings_count(self, obj):
+        return obj.findings.count()
+
+
+class FindingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Finding
+        fields = (
+            "id",
+            "run",
+            "category",
+            "severity",
+            "title",
+            "description",
+            "file_path",
+            "line_start",
+            "evidence",
+            "recommendation",
+            "confidence",
+            "status",
             "created_at",
         )
         read_only_fields = fields

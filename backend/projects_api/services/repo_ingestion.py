@@ -139,6 +139,17 @@ def ingest_project_repository(project):
     )
 
 
+def load_repository_text_files(project):
+    repo_ref = validate_github_repo_url(project.repo_url)
+    branch = project.default_branch
+    if not branch:
+        repo_data = _fetch_json(f"https://api.github.com/repos/{repo_ref.owner}/{repo_ref.repo}")
+        branch = repo_data.get("default_branch") or "main"
+
+    archive_bytes = _download_archive(repo_ref, branch)
+    return _index_zip_archive(archive_bytes, include_content=True)["included_files"]
+
+
 def _fetch_json(url):
     response = requests.get(url, headers=_headers(), timeout=15)
     if response.status_code == 404:
@@ -184,7 +195,7 @@ def _iter_response_content(response) -> Iterable[bytes]:
         yield response.content
 
 
-def _index_zip_archive(archive_bytes: bytes):
+def _index_zip_archive(archive_bytes: bytes, include_content=False):
     included_files = []
     ignored_files = []
     total_text_size = 0
@@ -210,14 +221,15 @@ def _index_zip_archive(archive_bytes: bytes):
                     continue
 
                 total_text_size += member.file_size
-                included_files.append(
-                    {
-                        "path": relative_path,
-                        "size_bytes": member.file_size,
-                        "extension": PurePosixPath(relative_path).suffix.lower(),
-                        "line_count": _count_lines(content),
-                    }
-                )
+                file_data = {
+                    "path": relative_path,
+                    "size_bytes": member.file_size,
+                    "extension": PurePosixPath(relative_path).suffix.lower(),
+                    "line_count": _count_lines(content),
+                }
+                if include_content:
+                    file_data["content"] = content.decode("utf-8")
+                included_files.append(file_data)
     except zipfile.BadZipFile as exc:
         raise RepoIngestionError("GitHub zwrocil niepoprawne archiwum ZIP.", status_code=502) from exc
 

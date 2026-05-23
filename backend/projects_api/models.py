@@ -34,6 +34,106 @@ class RepositorySnapshot(models.Model):
         return f"Snapshot {self.project.name} @ {self.commit_sha[:7] or self.branch}"
 
 
+class AnalysisRun(models.Model):
+    STATUS_QUEUED = "queued"
+    STATUS_INGESTING = "ingesting"
+    STATUS_ANALYZING = "analyzing"
+    STATUS_COMPLETED = "completed"
+    STATUS_FAILED = "failed"
+
+    STATUS_CHOICES = [
+        (STATUS_QUEUED, "Queued"),
+        (STATUS_INGESTING, "Ingesting"),
+        (STATUS_ANALYZING, "Analyzing"),
+        (STATUS_COMPLETED, "Completed"),
+        (STATUS_FAILED, "Failed"),
+    ]
+
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="analysis_runs")
+    snapshot = models.ForeignKey(
+        RepositorySnapshot,
+        on_delete=models.SET_NULL,
+        related_name="analysis_runs",
+        blank=True,
+        null=True,
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_QUEUED)
+    started_at = models.DateTimeField(default=timezone.now)
+    finished_at = models.DateTimeField(blank=True, null=True)
+    error_message = models.TextField(blank=True)
+    score_total = models.PositiveSmallIntegerField(default=100)
+
+    class Meta:
+        ordering = ["-started_at"]
+
+    def __str__(self):
+        return f"AnalysisRun {self.id} for {self.project.name} ({self.status})"
+
+
+class Finding(models.Model):
+    SEVERITY_CRITICAL = "critical"
+    SEVERITY_HIGH = "high"
+    SEVERITY_MEDIUM = "medium"
+    SEVERITY_LOW = "low"
+    SEVERITY_INFO = "info"
+
+    SEVERITY_CHOICES = [
+        (SEVERITY_CRITICAL, "Critical"),
+        (SEVERITY_HIGH, "High"),
+        (SEVERITY_MEDIUM, "Medium"),
+        (SEVERITY_LOW, "Low"),
+        (SEVERITY_INFO, "Info"),
+    ]
+
+    STATUS_OPEN = "open"
+    STATUS_ACCEPTED = "accepted"
+    STATUS_FIXED = "fixed"
+    STATUS_IGNORED = "ignored"
+
+    STATUS_CHOICES = [
+        (STATUS_OPEN, "Open"),
+        (STATUS_ACCEPTED, "Accepted"),
+        (STATUS_FIXED, "Fixed"),
+        (STATUS_IGNORED, "Ignored"),
+    ]
+
+    run = models.ForeignKey(AnalysisRun, on_delete=models.CASCADE, related_name="findings")
+    category = models.CharField(max_length=80)
+    severity = models.CharField(max_length=20, choices=SEVERITY_CHOICES)
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    file_path = models.CharField(max_length=1024, blank=True)
+    line_start = models.PositiveIntegerField(blank=True, null=True)
+    evidence = models.TextField(blank=True)
+    recommendation = models.TextField()
+    confidence = models.FloatField(default=0.8)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_OPEN)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["severity", "category", "file_path", "line_start", "id"]
+
+    def __str__(self):
+        return f"{self.severity}: {self.title}"
+
+
+class AgentResult(models.Model):
+    run = models.ForeignKey(AnalysisRun, on_delete=models.CASCADE, related_name="agent_results")
+    agent_name = models.CharField(max_length=120)
+    status = models.CharField(max_length=20, choices=AnalysisRun.STATUS_CHOICES, default=AnalysisRun.STATUS_COMPLETED)
+    summary = models.TextField(blank=True)
+    raw_output = models.JSONField(default=dict, blank=True)
+    started_at = models.DateTimeField(default=timezone.now)
+    finished_at = models.DateTimeField(blank=True, null=True)
+    error_message = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ["agent_name", "id"]
+
+    def __str__(self):
+        return f"{self.agent_name} ({self.status})"
+
+
 class ProjectAnalysis(models.Model):
     project = models.OneToOneField(Project, on_delete=models.CASCADE, related_name="analysis")
 

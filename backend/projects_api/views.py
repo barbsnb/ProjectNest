@@ -3,12 +3,15 @@ from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import permissions, status
 from .serializers import (
+    AnalysisRunSerializer,
+    FindingSerializer,
     ImprovementSuggestionSerializer,
     ProjectAnalysisSerializer,
     RepositorySnapshotSerializer,
     UserProjectSerializer,
 )
-from .models import Project, ProjectAnalysis, ImprovementSuggestion
+from .models import AnalysisRun, Finding, Project, ProjectAnalysis, ImprovementSuggestion
+from .services.analysis_pipeline import execute_analysis_run
 from .services.repo_ingestion import RepoIngestionError, ingest_project_repository
 from .services.UserProjectUpdater import UserProjectUpdater
 from .services.UserProjectSuggestionsGenerator import UserProjectSuggestionsGenerator
@@ -20,6 +23,10 @@ logger = logging.getLogger(__name__)
 
 def get_owned_project(request, project_id):
     return get_object_or_404(Project, id=project_id, user=request.user)
+
+
+def get_owned_analysis_run(request, run_id):
+    return get_object_or_404(AnalysisRun, id=run_id, project__user=request.user)
 
 
 class UserProject(APIView):
@@ -75,6 +82,46 @@ class ProjectSnapshotDetailView(APIView):
             return Response({"error": "Snapshot repozytorium nie istnieje."}, status=status.HTTP_404_NOT_FOUND)
         serializer = RepositorySnapshotSerializer(snapshot)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ProjectAnalysisRunCreateView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request, project_id):
+        project = get_owned_project(request, project_id)
+        run = execute_analysis_run(project)
+        serializer = AnalysisRunSerializer(run)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class ProjectAnalysisRunDetailView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, project_id, run_id):
+        get_owned_project(request, project_id)
+        run = get_object_or_404(AnalysisRun, id=run_id, project_id=project_id, project__user=request.user)
+        serializer = AnalysisRunSerializer(run)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class AnalysisRunFindingListView(generics.ListAPIView):
+    serializer_class = FindingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        run_id = self.kwargs.get("run_id")
+        get_owned_analysis_run(self.request, run_id)
+        queryset = Finding.objects.filter(run_id=run_id, run__project__user=self.request.user)
+
+        severity = self.request.query_params.get("severity")
+        if severity:
+            queryset = queryset.filter(severity=severity)
+
+        category = self.request.query_params.get("category")
+        if category:
+            queryset = queryset.filter(category=category)
+
+        return queryset
 
 
 class ProjectAnalysisGenerate(APIView):
