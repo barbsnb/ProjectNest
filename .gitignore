@@ -1,6 +1,11 @@
 # Created by https://www.toptal.com/developers/gitignore/api/django,react
 # Edit at https://www.toptal.com/developers/gitignore?templates=django,react
 .env
+node_modules/
+frontend/build/
+docs/
+__pycache__/
+*.py[cod]
 
 ### Django ###
 backend/*.log
@@ -172,14 +177,6 @@ backend/.pytype/
 
 # Cython debug symbols
 backend/cython_debug/
-
-#migrations
-backend/user_api/migrations/
-backend/projects_api/migrations
-backend/llm_api/migrations/
-
-# llm pass
-backend/llm_api/settings.py
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can

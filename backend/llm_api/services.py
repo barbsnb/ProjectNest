@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 import json
 import ast
 from typing import Any, Dict, List, Optional
-
+import os
 
 class LLMChatInterface(ABC):
     def __init__(self):
@@ -149,3 +149,16 @@ class StringLLMChatInterface(LLMChatInterface):
             pass
 
         raise ValueError(f"Unable to convert string to list of dictionaries. Input was:\n{s}")
+
+from openai import OpenAI
+
+def test_openai_connection():
+    try:
+        client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        response = client.chat.completions.create(
+            model=os.getenv("OPENAI_MODEL", "gpt-4.1-nano"),
+            messages=[{"role": "user", "content": "Hello!"}],
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        return str(e)
