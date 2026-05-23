@@ -6,15 +6,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from llm_api.conditioning import chat
+from llm_api.report_assistant import send_report_chat_message
 from projects_api.models import Project
 
-from .models import ChatMessage, ChatSession
+from .models import ChatSession
 from .serializers import ChatMessageSerializer, ChatSessionSerializer
-from .services import StringLLMChatInterface
-
-
-llm = StringLLMChatInterface()
 
 
 def get_owned_chat_session(request, session_id):
@@ -30,13 +26,15 @@ class ChatSessionView(APIView):
             return Response({"error": "Brakuje ID projektu."}, status=status.HTTP_400_BAD_REQUEST)
 
         project = get_object_or_404(Project, id=project_id, user=request.user)
-        session, created = ChatSession.objects.get_or_create(
-            project=project,
-            defaults={
-                "session_id": str(uuid.uuid4()),
-                "title": request.data.get("title", "Nowa rozmowa"),
-            },
-        )
+        session = ChatSession.objects.filter(project=project).order_by("-created_at").first()
+        created = False
+        if not session:
+            session = ChatSession.objects.create(
+                project=project,
+                session_id=str(uuid.uuid4()),
+                title=request.data.get("title", "Nowa rozmowa"),
+            )
+            created = True
 
         serializer = ChatSessionSerializer(session)
         return Response(serializer.data, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
@@ -47,9 +45,8 @@ class ChatSessionByProjectView(APIView):
 
     def get(self, request, project_id):
         project = get_object_or_404(Project, id=project_id, user=request.user)
-        try:
-            session = ChatSession.objects.get(project=project)
-        except ChatSession.DoesNotExist:
+        session = ChatSession.objects.filter(project=project).order_by("-created_at").first()
+        if not session:
             return Response({"error": "Brak sesji dla projektu."}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = ChatSessionSerializer(session)
@@ -66,32 +63,23 @@ class ChatMessageView(APIView):
         return Response(serializer.data)
 
     def post(self, request, session_id):
-        content = request.data.get("content")
+        content = (request.data.get("content") or "").strip()
         if not content:
             return Response({"error": "Brak tresci wiadomosci."}, status=status.HTTP_400_BAD_REQUEST)
 
         session = get_owned_chat_session(request, session_id)
-        user_msg = ChatMessage.objects.create(session=session, role="user", content=content)
-
-        try:
-            assistant_response = llm.conditioning_msg_string(
-                conditioning=chat,
-                raw_prompt=content,
-                session_id=session_id,
-            )
-        except Exception as exc:
-            assistant_response = f"Blad LLM: {exc}"
-
-        assistant_msg = ChatMessage.objects.create(
+        user_msg, assistant_msg, context = send_report_chat_message(
             session=session,
-            role="assistant",
-            content=assistant_response,
+            content=content,
+            finding_id=request.data.get("finding_id"),
+            analysis_run_id=request.data.get("analysis_run_id"),
         )
 
         return Response(
             {
                 "user_message": ChatMessageSerializer(user_msg).data,
                 "assistant_message": ChatMessageSerializer(assistant_msg).data,
+                "context": context,
             },
             status=status.HTTP_201_CREATED,
         )

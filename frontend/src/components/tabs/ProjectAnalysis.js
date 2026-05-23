@@ -47,8 +47,11 @@ const ProjectAnalysis = () => {
   const [analysisLoading, setAnalysisLoading] = useState(true);
   const [analysisError, setAnalysisError] = useState("");
   const [activeTab, setActiveTab] = useState("audit");
+  const [assistantContext, setAssistantContext] = useState(null);
 
   useEffect(() => {
+    setAssistantContext(null);
+
     const fetchProject = async () => {
       try {
         const response = await client.get(`/api/projects/${projectId}/`);
@@ -136,7 +139,14 @@ const ProjectAnalysis = () => {
   return (
     <Tabs activeKey={activeTab} onSelect={(key) => setActiveTab(key || "audit")} id="analysis-tabs" className="report-tabs">
       <Tab eventKey="audit" title="Audit run">
-        <AuditRunPanel projectId={projectId} project={project} onAskAssistant={() => setActiveTab("chat")} />
+        <AuditRunPanel
+          projectId={projectId}
+          project={project}
+          onAskAssistant={(finding) => {
+            setAssistantContext(finding);
+            setActiveTab("chat");
+          }}
+        />
       </Tab>
 
       <Tab eventKey="analysis" title="Raport LLM">
@@ -148,7 +158,7 @@ const ProjectAnalysis = () => {
       </Tab>
 
       <Tab eventKey="chat" title="Czat z asystentem">
-        <Chat projectId={projectId} />
+        <Chat projectId={projectId} findingContext={assistantContext} />
       </Tab>
     </Tabs>
   );

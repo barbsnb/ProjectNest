@@ -387,7 +387,7 @@ const AuditRunPanel = ({ projectId, project, onAskAssistant }) => {
               </dl>
               <Button type="button" onClick={() => onAskAssistant?.(selectedFinding)} className="ask-assistant-button">
                 <MessageSquare size={16} />
-                Ask assistant
+                Ask assistant about this finding
               </Button>
             </>
           ) : (

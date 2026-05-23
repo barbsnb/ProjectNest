@@ -1,5 +1,5 @@
 from django.db import models
-from projects_api.models import Project  # Update to your actual app name
+from projects_api.models import AnalysisRun, Finding, Project
 
 class ChatSession(models.Model):
     """
@@ -37,6 +37,20 @@ class ChatMessage(models.Model):
     ]
 
     session = models.ForeignKey(ChatSession, related_name="messages", on_delete=models.CASCADE)
+    analysis_run = models.ForeignKey(
+        AnalysisRun,
+        related_name="chat_messages",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+    )
+    finding = models.ForeignKey(
+        Finding,
+        related_name="chat_messages",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+    )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
