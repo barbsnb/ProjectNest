@@ -1,29 +1,22 @@
-// components/common/Layout.js
 import React, { useContext } from "react";
 import CustomNavbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import { AuthContext } from "../../contexts/AuthContext";
+import "./Layout.css";
 
 const Layout = ({ children }) => {
   const { currentUser } = useContext(AuthContext);
 
   return (
-    <>
+    <div className="app-shell">
       <CustomNavbar />
-      <div style={{ display: "flex" }}>
+      <div className="app-frame">
         {currentUser && <Sidebar />}
-        <main
-          style={{
-            marginTop: "60px",
-            padding: "20px",
-            flex: 1,
-            marginLeft: currentUser ? "200px" : 0,
-          }}
-        >
+        <main className={currentUser ? "app-content with-sidebar" : "app-content"}>
           {children}
         </main>
       </div>
-    </>
+    </div>
   );
 };
 

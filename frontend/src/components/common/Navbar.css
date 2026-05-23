@@ -1,53 +1,92 @@
-/* Ustawienia logo  */
-  #image_logo .image_logo-middle img {
-    display: block;
-    margin: 0 auto; /* Wyśrodkowanie */
-    width: 80%;
-    height: auto;
+.topbar {
+  position: fixed;
+  z-index: 1100;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 22px;
+  border-bottom: 1px solid #d9e0e8;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+.topbar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: #17202e;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.topbar-brand img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.topbar-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.topbar-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 220px;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid #d4dce6;
+  border-radius: 7px;
+  color: #667085;
+  background: #f8fafc;
+  font-size: 0.9rem;
+}
+
+.topbar-icon-button,
+.navbar_btn {
+  min-height: 36px;
+  border: 1px solid #d4dce6;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #344054;
+}
+
+.topbar-icon-button {
+  width: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navbar_btn {
+  padding: 0 12px;
+  font-size: 0.92rem;
+}
+
+.topbar-icon-button:hover,
+.navbar_btn:hover {
+  background: #f1f5f9;
+}
+
+@media (max-width: 760px) {
+  .topbar {
+    height: 60px;
+    padding: 0 14px;
   }
 
-  
-  .navbar {
-    width: 100%;
-    min-height: 40px;
-    margin: 0;
-    text-align: left;
-    padding: 0;
-    border-radius: 0;
-    border: 0 solid transparent;
-    background-color: rgb(50, 64, 56); 
+  .topbar-brand span,
+  .topbar-search,
+  .topbar-icon-button {
+    display: none;
   }
-
-  .navbar-brand {
-    color: #ffffff;
-    margin-left: 20px;
-    font-size: 24px; 
-  }
-
-/* Przycisk na pasku nawigacji */
-  .navbar_btn {
-    margin-top: 10px;
-    margin-right: 10px;
-    margin-bottom: 15px;
-    font-size: 20px;
-    background-color: #ffffff00;
-    color: #ffffff;
-    border: none;
-    border-radius: 5px;
-    padding: 5px;
-    float: right;
-    font-family: adagio_slab;
-    transition: background-color 0.3s ease;
-  }
-  
-  .navbar_btn:hover {
-    background-color: #ffffff38 !important;
-  }
-
-  .form-container {
-    max-width: 100%;
-    margin: 0 auto; /* Wyśrodkowuje kontener formularza na stronie */
-    display: flex; /* Ustawia kontener formularza jako kontener flexbox */
-    justify-content: center; /* Wyśrodkowuje zawartość wzdłuż osi X */
-    align-items: center; /* Wyśrodkowuje zawartość wzdłuż osi Y */
 }

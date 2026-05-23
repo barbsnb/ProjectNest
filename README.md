@@ -22,6 +22,7 @@ PRAETOR is designed for students, early-stage teams, small founders, and less ex
 - GitHub repository ingestion for public repositories with file count, size limits, ignored vendor directories, and snapshot metadata.
 - Deterministic analysis runs with normalized findings for secrets, dependency manifests, npm audit when lockfiles are present, Python dependency audit placeholders, and repository metrics.
 - Multi-agent LLM review with Security, Architecture, Code Quality, and Testing/Reliability reviewers. Agent outputs are parsed as JSON, stored as `AgentResult`, converted to findings, deduplicated, and shown separately from deterministic tool findings.
+- Professional report UX with dashboard summaries, top risks, category scores, paginated findings, finding detail, and assistant handoff.
 - OpenAI-compatible LLM integration with optional GPT4All-compatible local endpoint.
 - Project analysis categories: code quality, architecture, security, tests, performance, documentation, and tooling.
 - Environment-based configuration for secrets and LLM provider.
@@ -159,4 +160,4 @@ The repository should contain source code, lockfiles, migrations, documentation,
 
 ## Project Status
 
-Sprint 3 adds specialized agent review on top of deterministic scans. The next sprint should improve report synthesis, remediation grouping, and assistant grounding over the latest run findings.
+Sprint 4 turns the prototype into a report-focused audit workspace: users can scan project dashboards, open a professional report overview, inspect top risks, filter paginated findings, and hand a selected issue to the assistant. The next sprint should improve report synthesis, remediation grouping, and assistant grounding over the latest run findings.

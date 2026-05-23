@@ -256,6 +256,61 @@ class RepositoryIngestionApiTests(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
+    def test_report_summary_respects_project_ownership(self):
+        project = self._project_with_snapshot()
+        run = AnalysisRun.objects.create(
+            project=project,
+            snapshot=project.repository_snapshots.first(),
+            status=AnalysisRun.STATUS_COMPLETED,
+            score_total=68,
+        )
+        Finding.objects.create(
+            run=run,
+            category="security",
+            severity=Finding.SEVERITY_CRITICAL,
+            title="Hardcoded secret",
+            description="A secret-like value was detected.",
+            file_path="settings.py",
+            evidence="masked",
+            recommendation="Rotate and remove the credential.",
+            confidence=0.95,
+        )
+
+        owner_response = self.client.get(f"/api/projects/{project.id}/report-summary/")
+        self.assertEqual(owner_response.status_code, 200)
+        self.assertEqual(owner_response.data["critical_count"], 1)
+        self.assertEqual(owner_response.data["top_findings"][0]["status"], Finding.STATUS_NEW)
+
+        self.client.force_authenticate(user=self.other_user)
+        other_response = self.client.get(f"/api/projects/{project.id}/report-summary/")
+        self.assertEqual(other_response.status_code, 404)
+
+    def test_findings_endpoint_is_paginated(self):
+        project = self._project_with_snapshot()
+        run = AnalysisRun.objects.create(
+            project=project,
+            snapshot=project.repository_snapshots.first(),
+            status=AnalysisRun.STATUS_COMPLETED,
+        )
+        for index in range(3):
+            Finding.objects.create(
+                run=run,
+                category="code_quality",
+                severity=Finding.SEVERITY_LOW,
+                title=f"Finding {index}",
+                description="Demo finding",
+                file_path=f"src/file_{index}.py",
+                evidence="demo",
+                recommendation="Review this finding.",
+                confidence=0.8,
+            )
+
+        response = self.client.get(f"/api/analysis-runs/{run.id}/findings/?page_size=2")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 3)
+        self.assertEqual(len(response.data["results"]), 2)
+
     @patch("projects_api.services.agent_orchestrator._build_llm_interface", return_value=FakeOneBadAgentLLM())
     @patch("projects_api.services.analysis_pipeline.load_repository_text_files")
     def test_invalid_json_from_one_agent_does_not_fail_entire_run(self, mocked_files, mocked_llm):

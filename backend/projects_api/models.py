@@ -85,13 +85,13 @@ class Finding(models.Model):
         (SEVERITY_INFO, "Info"),
     ]
 
-    STATUS_OPEN = "open"
+    STATUS_NEW = "new"
     STATUS_ACCEPTED = "accepted"
     STATUS_FIXED = "fixed"
     STATUS_IGNORED = "ignored"
 
     STATUS_CHOICES = [
-        (STATUS_OPEN, "Open"),
+        (STATUS_NEW, "New"),
         (STATUS_ACCEPTED, "Accepted"),
         (STATUS_FIXED, "Fixed"),
         (STATUS_IGNORED, "Ignored"),
@@ -117,7 +117,7 @@ class Finding(models.Model):
     evidence = models.TextField(blank=True)
     recommendation = models.TextField()
     confidence = models.FloatField(default=0.8)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_OPEN)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_NEW)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

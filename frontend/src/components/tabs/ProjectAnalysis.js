@@ -46,6 +46,7 @@ const ProjectAnalysis = () => {
   const [project, setProject] = useState(null);
   const [analysisLoading, setAnalysisLoading] = useState(true);
   const [analysisError, setAnalysisError] = useState("");
+  const [activeTab, setActiveTab] = useState("audit");
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -133,9 +134,9 @@ const ProjectAnalysis = () => {
   };
 
   return (
-    <Tabs defaultActiveKey="audit" id="analysis-tabs">
+    <Tabs activeKey={activeTab} onSelect={(key) => setActiveTab(key || "audit")} id="analysis-tabs" className="report-tabs">
       <Tab eventKey="audit" title="Audit run">
-        <AuditRunPanel projectId={projectId} project={project} />
+        <AuditRunPanel projectId={projectId} project={project} onAskAssistant={() => setActiveTab("chat")} />
       </Tab>
 
       <Tab eventKey="analysis" title="Raport LLM">

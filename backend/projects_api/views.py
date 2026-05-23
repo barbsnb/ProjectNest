@@ -2,6 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import permissions, status
+from rest_framework.pagination import PageNumberPagination
+from django.db.models import Q
 from .serializers import (
     AnalysisRunSerializer,
     FindingSerializer,
@@ -19,6 +21,20 @@ from django.shortcuts import get_object_or_404
 import logging
 
 logger = logging.getLogger(__name__)
+
+SEVERITY_ORDER = [
+    Finding.SEVERITY_CRITICAL,
+    Finding.SEVERITY_HIGH,
+    Finding.SEVERITY_MEDIUM,
+    Finding.SEVERITY_LOW,
+    Finding.SEVERITY_INFO,
+]
+
+
+class FindingPagination(PageNumberPagination):
+    page_size = 25
+    page_size_query_param = "page_size"
+    max_page_size = 100
 
 
 def get_owned_project(request, project_id):
@@ -104,9 +120,66 @@ class ProjectAnalysisRunDetailView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class ProjectReportSummaryView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, project_id):
+        project = get_owned_project(request, project_id)
+        run = project.analysis_runs.select_related("snapshot").prefetch_related("findings", "agent_results").first()
+        if not run:
+            return Response(
+                {
+                    "project": UserProjectSerializer(project).data,
+                    "latest_run": None,
+                    "score_total": None,
+                    "status": "not_started",
+                    "critical_count": 0,
+                    "high_count": 0,
+                    "category_counts": {},
+                    "category_scores": {},
+                    "top_findings": [],
+                    "agent_results": [],
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        findings = list(run.findings.all())
+        category_counts = {}
+        category_scores = {}
+        for finding in findings:
+            category_counts[finding.category] = category_counts.get(finding.category, 0) + 1
+            category_scores.setdefault(finding.category, 100)
+            category_scores[finding.category] = max(
+                0,
+                category_scores[finding.category] - _severity_penalty(finding.severity),
+            )
+
+        top_findings = sorted(
+            findings,
+            key=lambda item: (SEVERITY_ORDER.index(item.severity), -item.confidence, item.category, item.title),
+        )[:3]
+
+        return Response(
+            {
+                "project": UserProjectSerializer(project).data,
+                "latest_run": AnalysisRunSerializer(run).data,
+                "score_total": run.score_total,
+                "status": run.status,
+                "critical_count": sum(1 for finding in findings if finding.severity == Finding.SEVERITY_CRITICAL),
+                "high_count": sum(1 for finding in findings if finding.severity == Finding.SEVERITY_HIGH),
+                "category_counts": category_counts,
+                "category_scores": category_scores,
+                "top_findings": FindingSerializer(top_findings, many=True).data,
+                "agent_results": AnalysisRunSerializer(run).data.get("agent_results", []),
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
 class AnalysisRunFindingListView(generics.ListAPIView):
     serializer_class = FindingSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = FindingPagination
 
     def get_queryset(self):
         run_id = self.kwargs.get("run_id")
@@ -120,6 +193,14 @@ class AnalysisRunFindingListView(generics.ListAPIView):
         category = self.request.query_params.get("category")
         if category:
             queryset = queryset.filter(category=category)
+
+        source = self.request.query_params.get("source")
+        if source:
+            queryset = queryset.filter(source=source)
+
+        search = self.request.query_params.get("search")
+        if search:
+            queryset = queryset.filter(Q(title__icontains=search) | Q(file_path__icontains=search))
 
         return queryset
 
@@ -185,3 +266,13 @@ class ImprovementSuggestionDetailView(generics.RetrieveAPIView):
 
     def get_queryset(self):
         return ImprovementSuggestion.objects.filter(project__user=self.request.user)
+
+
+def _severity_penalty(severity):
+    return {
+        Finding.SEVERITY_CRITICAL: 25,
+        Finding.SEVERITY_HIGH: 15,
+        Finding.SEVERITY_MEDIUM: 7,
+        Finding.SEVERITY_LOW: 3,
+        Finding.SEVERITY_INFO: 0,
+    }.get(severity, 0)

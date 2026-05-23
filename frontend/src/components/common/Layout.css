@@ -1,0 +1,31 @@
+.app-shell {
+  min-height: 100vh;
+  background: #f4f6f8;
+  color: #17202e;
+}
+
+.app-frame {
+  display: flex;
+  min-height: 100vh;
+}
+
+.app-content {
+  flex: 1;
+  min-width: 0;
+  padding: 84px 28px 32px;
+}
+
+.app-content.with-sidebar {
+  margin-left: 264px;
+}
+
+@media (max-width: 900px) {
+  .app-content {
+    padding: 76px 16px 28px;
+  }
+
+  .app-content.with-sidebar {
+    margin-left: 0;
+    padding-bottom: 92px;
+  }
+}
