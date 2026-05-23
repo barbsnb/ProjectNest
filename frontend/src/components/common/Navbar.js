@@ -15,19 +15,6 @@ const CustomNavbar = () => {
 
   const toggleSidebar = () => setCollapsed(!collapsed);
 
-    const goToInfoPage = () => {
-        navigate('/');
-    };
-    
-    const goToNewProjectPage = () => {
-        navigate('/project');
-    };
-
-    const goToLogin = () => {
-        navigate('/login');
-    };
-
-
   return (
     <>
       {currentUser && <Sidebar collapsed={collapsed} toggleSidebar={toggleSidebar} />}

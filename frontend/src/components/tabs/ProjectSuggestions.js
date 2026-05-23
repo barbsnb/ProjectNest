@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Container, Badge, Card, Spinner, Alert } from "react-bootstrap";
+import { Alert, Badge, Card, Container, Spinner } from "react-bootstrap";
+
+import client from "../../axiosClient";
 import "./ProjectSuggestions.css";
-import axios from "axios";
 
 const statusLabels = {
   new: "Nowa",
@@ -9,56 +10,37 @@ const statusLabels = {
   done: "Zrealizowana",
 };
 
+const priorityOrder = { high: 0, medium: 1, low: 2 };
+
 const ProjectSuggestions = ({ projectId }) => {
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [project, setProject] = useState(null);
 
-
-  const fetchProject = async () => {
-    try {
-      const response = await axios.get(`http://127.0.0.1:8000/api/projects/${projectId}/`, { withCredentials: true });
-      setProject(response.data);
-    } catch (error) {
-      console.error("Błąd ładowania projektu:", error);
-    }
-  };
-
   useEffect(() => {
-    if (!projectId) return;
+    const fetchData = async () => {
+      if (!projectId) return;
+      setLoading(true);
+      setError(null);
 
-    setLoading(true);
-    setError(null);
+      try {
+        const [projectResponse, suggestionsResponse] = await Promise.all([
+          client.get(`/api/projects/${projectId}/`),
+          client.get(`/api/improvement-suggestions/${projectId}/`),
+        ]);
 
-    fetch(`http://127.0.0.1:8000/api/improvement-suggestions/${projectId}/`, {
-    credentials: 'include',
-    headers: {
-        'Accept': 'application/json',
-    },
-    })
-
-    .then(res => {
-        console.log('Status:', res.status, 'Content-Type:', res.headers.get('Content-Type'));
-        if (!res.ok) {
-        throw new Error(`Błąd podczas pobierania sugestii: ${res.status}`);
-        }
-        const contentType = res.headers.get('Content-Type');
-        if (contentType && contentType.indexOf('application/json') !== -1) {
-        return res.json();
-        }
-        throw new Error('Otrzymano nie-JSONową odpowiedź z serwera');
-    })
-    .then(data => {
-        fetchProject();
-        setSuggestions(data);
+        setProject(projectResponse.data);
+        setSuggestions(suggestionsResponse.data);
+      } catch (error) {
+        setError("Nie udalo sie pobrac sugestii dla tego projektu.");
+        console.error("Suggestions loading failed:", error);
+      } finally {
         setLoading(false);
-    })
-    .catch(err => {
-        setError(err.message);
-        setLoading(false);
-    });
+      }
+    };
 
+    fetchData();
   }, [projectId]);
 
   if (loading) {
@@ -80,32 +62,27 @@ const ProjectSuggestions = ({ projectId }) => {
   if (!suggestions || suggestions.length === 0) {
     return (
       <Container className="suggestion-container mt-3">
-        <h3 className="suggestion-header">Sugestie ulepszeń: {project ? project.name : "(ładowanie...)"}</h3>
+        <h3 className="suggestion-header">Sugestie ulepszen: {project ? project.name : "(ladowanie...)"}</h3>
         <p className="suggestion-content">Brak danych.</p>
       </Container>
     );
   }
 
-  // Sortuj sugestie wg priorytetu: high > medium > low
-  const priorityOrder = { high: 0, medium: 1, low: 2 };
   const sortedSuggestions = [...suggestions].sort(
     (a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]
   );
 
   return (
     <Container className="suggestion-container mt-3">
-      <h3 className="suggestion-header">Sugestie ulepszeń: {project ? project.name : "(ładowanie...)"}</h3>
+      <h3 className="suggestion-header">Sugestie ulepszen: {project ? project.name : "(ladowanie...)"}</h3>
       {sortedSuggestions.map((suggestion) => (
-        <Card
-        key={suggestion.id}
-        className="mb-3 section-card"
-        >
+        <Card key={suggestion.id} className="mb-3 section-card">
           <Card.Body>
             <Card.Title>
               {suggestion.title}{" "}
-                <Badge className={`priority-badge ${suggestion.priority}`}>
-                 {suggestion.priority.charAt(0).toUpperCase() + suggestion.priority.slice(1)}
-                </Badge>
+              <Badge className={`priority-badge ${suggestion.priority}`}>
+                {suggestion.priority.charAt(0).toUpperCase() + suggestion.priority.slice(1)}
+              </Badge>
             </Card.Title>
             <Card.Subtitle className="mb-2 text-muted">
               Status: <Badge bg="info">{statusLabels[suggestion.status]}</Badge>

@@ -1,23 +1,18 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
 import { UserProjectsContext } from "../../contexts/UserProjectsContext";
-import { Row, Col, Container, Button, Card } from "react-bootstrap";
+import { Row, Col, Container, Button } from "react-bootstrap";
 import "./Home.css";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const { currentUser, isLoading } = useContext(AuthContext);
   const { userProjects } = useContext(UserProjectsContext);
-  const [chatStarted, setChatStarted] = useState(false);
   const navigate = useNavigate();
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
-
-  const startChat = () => {
-    navigate("/project");
-  };
 
   const goToAnalysis = (projectId) => {
     navigate(`/analysis/${projectId}`);

@@ -1,11 +1,15 @@
-from django.contrib.auth import get_user_model, login, logout
-from rest_framework.authentication import SessionAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import permissions, status
-from .serializers import ImprovementSuggestionSerializer, UserProjectSerializer, ProjectAnalysisSerializer
+from .serializers import (
+    ImprovementSuggestionSerializer,
+    ProjectAnalysisSerializer,
+    RepositorySnapshotSerializer,
+    UserProjectSerializer,
+)
 from .models import Project, ProjectAnalysis, ImprovementSuggestion
+from .services.repo_ingestion import RepoIngestionError, ingest_project_repository
 from .services.UserProjectUpdater import UserProjectUpdater
 from .services.UserProjectSuggestionsGenerator import UserProjectSuggestionsGenerator
 from django.shortcuts import get_object_or_404
@@ -13,39 +17,72 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
+def get_owned_project(request, project_id):
+    return get_object_or_404(Project, id=project_id, user=request.user)
+
+
 class UserProject(APIView):
-    permission_classes = (permissions.AllowAny,)
-    authentication_classes = ()
+    permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request):
-        serializer = UserProjectSerializer(data=request.data)
+        serializer = UserProjectSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             project = serializer.instance
             logger.info(f"Project {project.id} created")
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            logger.error(f"Project creation failed with errors: {serializer.errors}")
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        logger.error(f"Project creation failed with errors: {serializer.errors}")
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
+
 class UserProjectDetail(APIView):
-    permission_classes = (permissions.AllowAny,)
-    authentication_classes = ()
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request, project_id):
+        project = get_owned_project(request, project_id)
+        serializer = UserProjectSerializer(project)
+        return Response(serializer.data)
+
+
+class ProjectIngestView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request, project_id):
+        project = get_owned_project(request, project_id)
         try:
-            project = Project.objects.get(id=project_id)
-            serializer = UserProjectSerializer(project)
-            return Response(serializer.data)
-        except Project.DoesNotExist:
-            return Response({"error": "Project does not exist"}, status=status.HTTP_404_NOT_FOUND)
+            snapshot = ingest_project_repository(project)
+        except RepoIngestionError as exc:
+            return Response({"error": exc.message}, status=exc.status_code)
+        except Exception as exc:
+            logger.exception(f"Unexpected repository ingestion error for project {project_id}: {exc}")
+            return Response(
+                {"error": "Nie udalo sie zindeksowac repozytorium."},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
+
+        serializer = RepositorySnapshotSerializer(snapshot)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class ProjectSnapshotDetailView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, project_id):
+        project = get_owned_project(request, project_id)
+        snapshot = project.repository_snapshots.first()
+        if not snapshot:
+            return Response({"error": "Snapshot repozytorium nie istnieje."}, status=status.HTTP_404_NOT_FOUND)
+        serializer = RepositorySnapshotSerializer(snapshot)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class ProjectAnalysisGenerate(APIView):
-    permission_classes = (permissions.AllowAny,)
-    authentication_classes = ()
+    permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request, project_id):
         try:
+            get_owned_project(request, project_id)
             analysis_data = UserProjectUpdater.update_project_analysis(project_id=project_id)
             return Response(analysis_data, status=status.HTTP_200_OK)
         except Project.DoesNotExist:
@@ -55,11 +92,11 @@ class ProjectAnalysisGenerate(APIView):
             return Response({"error": "Error generating analysis"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class ProjectSuggestionsGenerate(APIView):
-    permission_classes = (permissions.AllowAny,)
-    authentication_classes = ()
+    permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request, project_id):
         try:
+            get_owned_project(request, project_id)
             suggestions_data = UserProjectSuggestionsGenerator.generate_project_suggestions(project_id=project_id)
             return Response(suggestions_data, status=status.HTTP_200_OK)
         except Project.DoesNotExist:
@@ -71,32 +108,19 @@ class ProjectSuggestionsGenerate(APIView):
 
 class ProjectListView(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (SessionAuthentication,)
     serializer_class = UserProjectSerializer
 
-    def get(self, request):
-        try:
-            if request.user.is_authenticated:
-                queryset = Project.objects.filter(user=request.user.user_id)
-                print(queryset)
-                serializer = self.serializer_class(queryset, many=True)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response(
-                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+    def get_queryset(self):
+        return Project.objects.filter(user=self.request.user).order_by("-updated_at")
 
 
 class ProjectAnalysisDetailView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request, project_id):
-        try:
-            analysis = get_object_or_404(ProjectAnalysis, project__id=project_id)
-            serializer = ProjectAnalysisSerializer(analysis)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        analysis = get_object_or_404(ProjectAnalysis, project__id=project_id, project__user=request.user)
+        serializer = ProjectAnalysisSerializer(analysis)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ImprovementSuggestionListView(generics.ListAPIView):
@@ -105,11 +129,12 @@ class ImprovementSuggestionListView(generics.ListAPIView):
 
     def get_queryset(self):
         project_id = self.kwargs.get('project_id')
-        return ImprovementSuggestion.objects.filter(project_id=project_id)
+        return ImprovementSuggestion.objects.filter(project_id=project_id, project__user=self.request.user)
 
 
-# Widok pojedynczej sugestii
 class ImprovementSuggestionDetailView(generics.RetrieveAPIView):
-    queryset = ImprovementSuggestion.objects.all()
     serializer_class = ImprovementSuggestionSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return ImprovementSuggestion.objects.filter(project__user=self.request.user)

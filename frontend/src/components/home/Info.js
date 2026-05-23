@@ -1,6 +1,5 @@
 import React from 'react';
 import './Info.css';
-import LoginForm from '../auth/LoginForm';
 import RegistrationForm from '../auth/RegistrationForm';
 
 const Info = () => {

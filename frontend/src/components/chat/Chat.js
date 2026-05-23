@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import "./Chat.css";
 import ReactMarkdown from "react-markdown";
+
+import client from "../../axiosClient";
+import "./Chat.css";
 
 const Chat = ({ projectId }) => {
   const [sessionId, setSessionId] = useState(null);
@@ -9,32 +10,32 @@ const Chat = ({ projectId }) => {
   const [input, setInput] = useState("");
 
   useEffect(() => {
-    if (projectId) {
-      loadExistingSession();
-    }
+    const loadExistingSession = async () => {
+      if (!projectId) return;
+
+      try {
+        const response = await client.get(`/api/chat/project/${projectId}/session/`);
+        const session = response.data;
+        setSessionId(session.session_id);
+        fetchMessages(session.session_id);
+      } catch (error) {
+        console.error("Chat session not found:", error);
+      }
+    };
+
+    loadExistingSession();
   }, [projectId]);
 
-  const loadExistingSession = async () => {
+  const fetchMessages = async (nextSessionId) => {
     try {
-      const response = await axios.get(`http://localhost:8000/api/chat/project/${projectId}/session/`);
-      const session = response.data;
-      setSessionId(session.session_id);
-      fetchMessages(session.session_id);
-    } catch (error) {
-      console.error("Nie znaleziono sesji czatu:", error);
-    }
-  };
-
-  const fetchMessages = async (sessionId) => {
-    try {
-      const response = await axios.get(`http://localhost:8000/api/chat/sessions/${sessionId}/messages/`);
+      const response = await client.get(`/api/chat/sessions/${nextSessionId}/messages/`);
       const formatted = response.data.map((msg) => ({
         from: msg.role === "user" ? "user" : "assistant",
         text: msg.content,
       }));
       setMessages(formatted);
     } catch (error) {
-      console.error("Błąd pobierania wiadomości:", error);
+      console.error("Message loading failed:", error);
     }
   };
 
@@ -42,20 +43,15 @@ const Chat = ({ projectId }) => {
     if (!input.trim() || !sessionId) return;
 
     const userText = input.trim();
-
-    // Dodaj tymczasowo wiadomość użytkownika
     setMessages((prev) => [...prev, { from: "user", text: userText }]);
     setInput("");
 
     try {
-      const response = await axios.post(
-        `http://localhost:8000/api/chat/sessions/${sessionId}/messages/`,
-        { content: userText }
-      );
+      const response = await client.post(`/api/chat/sessions/${sessionId}/messages/`, {
+        content: userText,
+      });
 
-      // Odpowiedź zawiera wiadomość użytkownika i asystenta
       const { assistant_message } = response.data;
-
       setMessages((prev) => [
         ...prev,
         {
@@ -64,20 +60,20 @@ const Chat = ({ projectId }) => {
         },
       ]);
     } catch (error) {
-      console.error("Błąd podczas wysyłania wiadomości:", error);
+      console.error("Message sending failed:", error);
       setMessages((prev) => [
         ...prev,
         {
           from: "assistant",
-          text: "❌ Wystąpił błąd podczas komunikacji z serwerem.",
+          text: "Wystapil blad podczas komunikacji z serwerem.",
         },
       ]);
     }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
       handleSend();
     }
   };
@@ -95,13 +91,13 @@ const Chat = ({ projectId }) => {
         <textarea
           placeholder="Wpisz pytanie..."
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(event) => setInput(event.target.value)}
           onKeyDown={handleKeyDown}
           rows={2}
           className="chat-input"
         />
-        <button onClick={handleSend} className="chat-send-btn">
-          Wyślij
+        <button onClick={handleSend} className="chat-send-btn" disabled={!sessionId}>
+          Wyslij
         </button>
       </div>
     </div>

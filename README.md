@@ -17,8 +17,9 @@ PRAETOR is designed for students, early-stage teams, small founders, and less ex
 
 ## Current Features
 
-- Django REST API with session-based authentication.
-- React frontend with login, registration, project creation, analysis, suggestions, and chat views.
+- Django REST API with session-based authentication and per-project ownership checks.
+- React frontend with login, registration, GitHub-based audit creation, analysis, suggestions, and chat views.
+- GitHub repository ingestion for public repositories with file count, size limits, ignored vendor directories, and snapshot metadata.
 - OpenAI-compatible LLM integration with optional GPT4All-compatible local endpoint.
 - Project analysis categories: code quality, architecture, security, tests, performance, documentation, and tooling.
 - Environment-based configuration for secrets and LLM provider.
@@ -37,6 +38,7 @@ backend/
   config/          Django project settings and URL routing
   user_api/        Custom user model, auth endpoints, survey model
   projects_api/    Project, analysis, and improvement suggestion domain
+    services/      Repository ingestion and project analysis services
   llm_api/         LLM managers, chat sessions, prompts, chat endpoints
 frontend/
   src/             React app source
@@ -62,6 +64,12 @@ Create a local environment file from the template and set your values:
 
 ```bash
 copy .env.example .env
+```
+
+For the React app, create `frontend/.env` if the backend runs on a different URL:
+
+```text
+REACT_APP_API_URL=http://127.0.0.1:8000
 ```
 
 Run the backend:
@@ -106,6 +114,7 @@ DJANGO_CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
 LLM_PROVIDER=openai
 OPENAI_API_KEY=
 OPENAI_MODEL=gpt-4.1-nano
+REACT_APP_API_URL=http://127.0.0.1:8000
 ```
 
 For local GPT4All-compatible usage:
@@ -148,4 +157,4 @@ The repository should contain source code, lockfiles, migrations, documentation,
 
 ## Project Status
 
-Sprint 0 is focused on repository hygiene, documentation, and preparing the codebase for a public GitHub link. The next sprint should implement GitHub repository ingestion and a real repository audit pipeline.
+Sprint 1 adds the first repository-level workflow: authenticated users can create an audit from a public GitHub URL, ingest a bounded snapshot, and prepare the project for later deterministic and LLM-assisted audit agents. The next sprint should turn snapshot metadata and repository content into a structured, prioritized technical report.

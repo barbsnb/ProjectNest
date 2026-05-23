@@ -9,7 +9,7 @@ export const UserProjectsProvider = ({ children }) => {
 
   useEffect(() => {
     client
-      .get("/api/project_list")
+      .get("/api/project_list/")
       .then((res) => {
         setUserProjects(res.data);
         setGetUserProjects(false);

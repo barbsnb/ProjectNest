@@ -1,8 +1,7 @@
 // src/contexts/AuthContext.js
-import React, { createContext, useState, useEffect, useContext } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import client from "../axiosClient";
 import { useNavigate } from "react-router-dom";
-import { UserProjectsContext } from "./UserProjectsContext";
 
 export const AuthContext = createContext(null);
 
@@ -25,7 +24,7 @@ export const AuthProvider = ({ children }) => {
             setCurrentUser(null);
             setGetCurrentUser(false);
          });
-   }, [getCurrentUser]);
+   }, [getCurrentUser, navigate]);
 
    return (
       <AuthContext.Provider

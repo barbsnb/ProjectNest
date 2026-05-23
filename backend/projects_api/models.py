@@ -1,14 +1,37 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 
 
 class Project(models.Model):
     name = models.CharField(max_length=255, verbose_name="Nazwa projektu")
-    description = models.TextField(verbose_name="Opis projektu")
+    description = models.TextField(verbose_name="Opis projektu", blank=True, default="")
+    repo_url = models.URLField(verbose_name="URL repozytorium GitHub", blank=True)
+    default_branch = models.CharField(max_length=255, blank=True)
+    last_commit_sha = models.CharField(max_length=64, blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
+
+
+class RepositorySnapshot(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="repository_snapshots")
+    commit_sha = models.CharField(max_length=64, blank=True)
+    branch = models.CharField(max_length=255, blank=True)
+    file_count = models.PositiveIntegerField(default=0)
+    total_size_bytes = models.PositiveIntegerField(default=0)
+    included_files = models.JSONField(default=list, blank=True)
+    ignored_files = models.JSONField(default=list, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Snapshot {self.project.name} @ {self.commit_sha[:7] or self.branch}"
 
 
 class ProjectAnalysis(models.Model):

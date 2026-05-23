@@ -1,121 +1,129 @@
 import React, { useEffect, useState } from "react";
+import { Alert, Container, Spinner, Tab, Tabs } from "react-bootstrap";
 import { useParams } from "react-router-dom";
-import axios from "axios";
-import { Container, Button, Tabs, Tab } from "react-bootstrap";
-import "./ProjectAnalysis.css";
-import { useNavigate } from "react-router-dom";
-import ProjectSuggestions from "./ProjectSuggestions"
-import Chat from "../chat/Chat"
 
+import client from "../../axiosClient";
+import Chat from "../chat/Chat";
+import "./ProjectAnalysis.css";
+import ProjectSuggestions from "./ProjectSuggestions";
 
 const SECTION_MAP = {
-  "Jakość kodu": ["readability", "structure", "principles"],
+  "Jakosc kodu": ["readability", "structure", "principles"],
   "Architektura i projekt": ["modularity", "extensibility", "design_patterns"],
-  "Bezpieczeństwo": ["input_validation", "permission_management", "vulnerabilities"],
-  "Testowalność": ["test_coverage", "test_quality", "test_automation"],
-  "Wydajność": ["performance"],
-  "Dokumentacja": ["comments_quality", "documentation", "installation_instructions"],
+  Bezpieczenstwo: ["input_validation", "permission_management", "vulnerabilities"],
+  Testowalnosc: ["test_coverage", "test_quality", "test_automation"],
+  Wydajnosc: ["performance"],
+  Dokumentacja: ["comments_quality", "documentation", "installation_instructions"],
   "Dobre praktyki": ["coding_style", "tools_usage"],
 };
 
 const FIELD_LABELS = {
-  readability: "Czytelność",
+  readability: "Czytelnosc",
   structure: "Struktura",
   principles: "Zasady (DRY / KISS / YAGNI)",
-  modularity: "Modularność",
-  extensibility: "Rozszerzalność",
-  design_patterns: "Wzorce projektowe i spójność",
-  input_validation: "Walidacja danych wejściowych",
-  permission_management: "Zarządzanie uprawnieniami",
-  vulnerabilities: "Unikanie podatności",
+  modularity: "Modularnosc",
+  extensibility: "Rozszerzalnosc",
+  design_patterns: "Wzorce projektowe i spojnosc",
+  input_validation: "Walidacja danych wejsciowych",
+  permission_management: "Zarzadzanie uprawnieniami",
+  vulnerabilities: "Unikanie podatnosci",
   test_coverage: "Pokrycie testami",
-  test_quality: "Jakość testów",
-  test_automation: "Automatyzacja testów",
-  performance: "Wydajność",
+  test_quality: "Jakosc testow",
+  test_automation: "Automatyzacja testow",
+  performance: "Wydajnosc",
   comments_quality: "Komentarze w kodzie",
   documentation: "Dokumentacja techniczna",
   installation_instructions: "Instrukcja uruchomienia",
   coding_style: "Styl kodowania",
-  tools_usage: "CI/CD i narzędzia",
+  tools_usage: "CI/CD i narzedzia",
 };
 
 const ProjectAnalysis = () => {
   const { projectId } = useParams();
   const [analysis, setAnalysis] = useState(null);
   const [expandedFields, setExpandedFields] = useState({});
-  const navigate = useNavigate();
   const [project, setProject] = useState(null);
-
-
-  const fetchProject = async () => {
-    try {
-      const response = await axios.get(`http://127.0.0.1:8000/api/projects/${projectId}/`, { withCredentials: true });
-      setProject(response.data);
-    } catch (error) {
-      console.error("Błąd ładowania projektu:", error);
-    }
-  };
-
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchAnalysis = async () => {
+    const fetchProject = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/api/analysis/${projectId}/`, { withCredentials: true });
-        setAnalysis(response.data);
+        const response = await client.get(`/api/projects/${projectId}/`);
+        setProject(response.data);
       } catch (error) {
-        if (error.response) {
-          console.error("Status:", error.response.status);
-          console.error("Data:", error.response.data);
-        } else {
-          console.error("Błąd:", error.message);
-        }
+        console.error("Project loading failed:", error);
       }
     };
 
-    fetchAnalysis();
+    const fetchAnalysis = async () => {
+      try {
+        setLoading(true);
+        setError("");
+        const response = await client.get(`/api/analysis/${projectId}/`);
+        setAnalysis(response.data);
+      } catch (error) {
+        setAnalysis(null);
+        setError("Raport nie zostal jeszcze wygenerowany dla tego projektu.");
+        console.error("Analysis loading failed:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchProject();
+    fetchAnalysis();
   }, [projectId]);
 
+  if (loading) {
+    return (
+      <Container className="analysis-container text-center py-4">
+        <Spinner animation="border" role="status" />
+      </Container>
+    );
+  }
+
   if (!analysis) {
-    return <div>Ładowanie analizy...</div>;
+    return (
+      <Container className="analysis-container mt-3">
+        <Alert variant="info">{error || "Brak danych analizy."}</Alert>
+      </Container>
+    );
   }
 
   return (
-    // <div className="tabs-header-container">
     <Tabs defaultActiveKey="analysis" id="analysis-tabs">
       <Tab eventKey="analysis" title="Analiza projektu">
         <Container className="analysis-container">
-
           <h2 className="analysis-header">
-            Analiza projektu: {project ? project.name : "(ładowanie...)"}
+            Analiza projektu: {project ? project.name : "(ladowanie...)"}
           </h2>
           <div className="section-cards">
             {Object.entries(SECTION_MAP).map(([sectionTitle, fields]) => (
               <div key={sectionTitle} className="section-card">
                 <h3>{sectionTitle}</h3>
                 {fields.map((field) => {
-                const content = analysis[field] || "Brak danych.";
-                const isExpanded = expandedFields[field];
-
-                const toggleExpanded = () => {
+                  const content = analysis[field] || "Brak danych.";
+                  const isExpanded = expandedFields[field];
+                  const toggleExpanded = () => {
                     setExpandedFields((prev) => ({
-                    ...prev,
-                    [field]: !prev[field],
+                      ...prev,
+                      [field]: !prev[field],
                     }));
-                };
+                  };
 
-                return (
+                  return (
                     <div
-                    key={field}
-                    className={`analysis-field ${isExpanded ? "expanded" : ""}`}
-                    onClick={toggleExpanded}
-                    title="Kliknij, aby rozwinąć / zwinąć"
-                    style={{ cursor: "pointer" }}
+                      key={field}
+                      className={`analysis-field ${isExpanded ? "expanded" : ""}`}
+                      onClick={toggleExpanded}
+                      title="Kliknij, aby rozwinac lub zwinac"
+                      style={{ cursor: "pointer" }}
                     >
-                    <strong>{FIELD_LABELS[field]}:</strong>
-                    <p>{content}</p>
+                      <strong>{FIELD_LABELS[field]}:</strong>
+                      <p>{content}</p>
                     </div>
-                );
+                  );
                 })}
               </div>
             ))}
@@ -123,16 +131,14 @@ const ProjectAnalysis = () => {
         </Container>
       </Tab>
 
-      <Tab eventKey="suggestions" title="Sugestie ulepszeń">
+      <Tab eventKey="suggestions" title="Sugestie ulepszen">
         <ProjectSuggestions projectId={projectId} />
       </Tab>
 
       <Tab eventKey="chat" title="Czat z asystentem">
-        <Chat projectId={projectId}/>
+        <Chat projectId={projectId} />
       </Tab>
-
     </Tabs>
-
   );
 };
 

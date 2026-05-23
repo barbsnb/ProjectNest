@@ -9,4 +9,6 @@ urlpatterns = [
     path("analysis/<int:project_id>/", views.ProjectAnalysisDetailView.as_view(), name="project-analysis-detail"),
     path('improvement-suggestions/<int:project_id>/', views.ImprovementSuggestionListView.as_view(), name='improvement-suggestion-list'),
     path('projects/<int:project_id>/', views.UserProjectDetail.as_view(), name='project-detail'),
+    path('projects/<int:project_id>/ingest/', views.ProjectIngestView.as_view(), name='project-ingest'),
+    path('projects/<int:project_id>/snapshot/', views.ProjectSnapshotDetailView.as_view(), name='project-snapshot'),
 ]

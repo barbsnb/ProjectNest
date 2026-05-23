@@ -1,6 +1,5 @@
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button} from "react-bootstrap";
 import './Sidebar.css';
 import { Home, FilePlus, Lightbulb } from 'lucide-react';
 import { UserProjectsContext } from '../../contexts/UserProjectsContext';

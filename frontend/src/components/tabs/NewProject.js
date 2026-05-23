@@ -1,134 +1,205 @@
-import React, { useContext, useState } from 'react';
-import { Form, Button, Row, Col, Spinner } from 'react-bootstrap';
-import { AuthContext } from '../../contexts/AuthContext';
-import { ChatContext } from '../../contexts/ChatContext';
-import { UserProjectsContext } from '../../contexts/UserProjectsContext';
-import client from '../../axiosClient';
-import './NewProject.css';
-import { useNavigate } from 'react-router-dom';
+import React, { useContext, useState } from "react";
+import { Alert, Badge, Button, Col, Form, Row, Spinner } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
-const NewProject = () => {
-  const { currentUser } = useContext(AuthContext);
-  const { setChatStarted, setProjectData } = useContext(ChatContext);
-  const { setGetUserProjects } = useContext(UserProjectsContext);
+import client from "../../axiosClient";
+import { UserProjectsContext } from "../../contexts/UserProjectsContext";
+import "./NewProject.css";
 
-  const navigate = useNavigate();
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-
-  const validate = () => {
-    const errors = {};
-
-    if (!name.trim()) {
-      errors.name = 'Nazwa projektu jest wymagana';
-    }
-
-    if (!description.trim()) {
-      errors.description = 'Opis projektu jest wymagany';
-    }
-
-    setErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-const handleSubmit = (event) => {
-  event.preventDefault();
-  if (!validate()) return;
-
-  setIsLoading(true);
-
-  client
-    .post("/api/project/", {
-      name,
-      description,
-      user: currentUser.user.user_id,
-    }, { withCredentials: true })
-    .then((response) => {
-      const projectId = response.data.id;
-      setProjectData(response.data);
-      setGetUserProjects(true);
-
-      // 🔹 TWORZENIE SESJI CZATU
-      return client
-        .post("/api/chat/sessions/", {
-          project_id: projectId,
-          title: "Rozmowa z asystentem",
-        }, { withCredentials: true })
-        .then((sessionRes) => {
-          console.log("Utworzono sesję:", sessionRes.data.session_id);
-
-          // 🔹 GENERUJ ANALIZĘ
-          return client.post(`/api/project/${projectId}/generate_analysis/`);
-        })
-        .then((analysisRes) => {
-          console.log("Analiza:", analysisRes.data.data);
-
-          // 🔹 GENERUJ SUGESTIE
-          return client.post(`/api/project/${projectId}/generate_suggestions/`);
-        })
-        .then((suggestionsRes) => {
-          console.log("Sugestie:", suggestionsRes.data.data);
-          setChatStarted(true);
-          navigate(`/analysis/${projectId}`);
-        });
-    })
-    .catch((error) => {
-      console.error("Błąd:", error);
-    })
-    .finally(() => setIsLoading(false));
+const STATUS_LABELS = {
+  idle: "Ready",
+  validating: "Validating URL",
+  ingesting: "Indexing repository",
+  indexed: "Repository indexed",
+  failed: "Failed",
 };
 
+const isValidGithubUrl = (value) => {
+  try {
+    const parsed = new URL(value.trim());
+    const pathParts = parsed.pathname.replace(/\/$/, "").split("/").filter(Boolean);
+    return ["http:", "https:"].includes(parsed.protocol) && parsed.hostname === "github.com" && pathParts.length === 2;
+  } catch {
+    return false;
+  }
+};
+
+const formatBytes = (bytes) => {
+  if (!bytes) return "0 B";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+const getErrorMessage = (error) => {
+  const data = error.response?.data;
+  if (!data) return "Nie udalo sie utworzyc audytu. Sprobuj ponownie.";
+  if (typeof data === "string") return data;
+  if (data.error) return data.error;
+  if (data.repo_url) return data.repo_url.join ? data.repo_url.join(" ") : data.repo_url;
+  return "Nie udalo sie utworzyc audytu. Sprawdz dane i sprobuj ponownie.";
+};
+
+const NewProject = () => {
+  const { setGetUserProjects } = useContext(UserProjectsContext);
+  const navigate = useNavigate();
+
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [repoUrl, setRepoUrl] = useState("");
+  const [errors, setErrors] = useState({});
+  const [status, setStatus] = useState("idle");
+  const [submitError, setSubmitError] = useState("");
+  const [snapshot, setSnapshot] = useState(null);
+  const [projectId, setProjectId] = useState(null);
+
+  const isLoading = status === "validating" || status === "ingesting";
+
+  const validate = () => {
+    const nextErrors = {};
+    if (!name.trim()) {
+      nextErrors.name = "Nazwa audytu jest wymagana.";
+    }
+    if (!repoUrl.trim()) {
+      nextErrors.repoUrl = "Link GitHub jest wymagany.";
+    } else if (!isValidGithubUrl(repoUrl)) {
+      nextErrors.repoUrl = "Podaj publiczny URL w formacie https://github.com/owner/repo.";
+    }
+
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setSubmitError("");
+    setSnapshot(null);
+
+    if (!validate()) {
+      setStatus("idle");
+      return;
+    }
+
+    try {
+      setStatus("validating");
+      const projectResponse = await client.post("/api/project/", {
+        name: name.trim(),
+        description: description.trim(),
+        repo_url: repoUrl.trim(),
+      });
+
+      const createdProjectId = projectResponse.data.id;
+      setProjectId(createdProjectId);
+      setStatus("ingesting");
+
+      const ingestResponse = await client.post(`/api/projects/${createdProjectId}/ingest/`);
+      await client.post("/api/chat/sessions/", {
+        project_id: createdProjectId,
+        title: "Rozmowa z audytorem",
+      });
+
+      setSnapshot(ingestResponse.data);
+      setGetUserProjects(true);
+      setStatus("indexed");
+    } catch (error) {
+      setSubmitError(getErrorMessage(error));
+      setStatus("failed");
+    }
+  };
 
   return (
-    <div className="login-page-wrapper">
-      <div className="form-container">
-        {isLoading ? (
-          <div className="loading-container text-center py-4">
-            <p className="analysis-header">Analizuję przekazane dane...</p>
-            <Spinner animation="border" style={{ color: '#333' }} />
+    <div className="new-audit-page">
+      <div className="new-audit-shell">
+        <div className="new-audit-header">
+          <div>
+            <p className="new-audit-kicker">PRAETOR</p>
+            <h1>New Audit</h1>
           </div>
-        ) : (
-          <Form onSubmit={handleSubmit}>
-            <Row>
-              <Col>
-                <Form.Group controlId="formProjectName">
-                  <Form.Label>Nazwa projektu</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Wprowadź nazwę projektu"
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                    isInvalid={!!errors.name}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {errors.name}
-                  </Form.Control.Feedback>
-                </Form.Group>
+          <Badge bg={status === "failed" ? "danger" : status === "indexed" ? "success" : "secondary"}>
+            {STATUS_LABELS[status]}
+          </Badge>
+        </div>
 
-                <Form.Group controlId="formProjectDescription" className="mt-3">
-                  <Form.Label>Opis projektu</Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    rows={4}
-                    placeholder="Wprowadź opis projektu"
-                    value={description}
-                    onChange={e => setDescription(e.target.value)}
-                    isInvalid={!!errors.description}
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {errors.description}
-                  </Form.Control.Feedback>
-                </Form.Group>
+        <Form onSubmit={handleSubmit} className="new-audit-form">
+          {submitError && <Alert variant="danger">{submitError}</Alert>}
+          {snapshot && (
+            <Alert variant="success" className="new-audit-result">
+              <div className="result-title">Repozytorium zostalo zindeksowane.</div>
+              <div className="result-grid">
+                <span>Branch</span>
+                <strong>{snapshot.branch || "-"}</strong>
+                <span>Commit</span>
+                <strong>{snapshot.commit_sha ? snapshot.commit_sha.slice(0, 12) : "-"}</strong>
+                <span>Pliki tekstowe</span>
+                <strong>{snapshot.file_count}</strong>
+                <span>Rozmiar indeksu</span>
+                <strong>{formatBytes(snapshot.total_size_bytes)}</strong>
+              </div>
+            </Alert>
+          )}
 
-                <Button id="form_btn" variant="primary" type="submit" className="mt-4">
-                  Rozpocznij czat z asystentem
+          <Row>
+            <Col lg={6}>
+              <Form.Group controlId="formProjectName">
+                <Form.Label>Nazwa audytu</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="np. SaaS MVP backend"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  isInvalid={!!errors.name}
+                  disabled={isLoading}
+                />
+                <Form.Control.Feedback type="invalid">{errors.name}</Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+            <Col lg={6}>
+              <Form.Group controlId="formRepoUrl">
+                <Form.Label>GitHub repository URL</Form.Label>
+                <Form.Control
+                  type="url"
+                  placeholder="https://github.com/owner/repo"
+                  value={repoUrl}
+                  onChange={(event) => setRepoUrl(event.target.value)}
+                  isInvalid={!!errors.repoUrl}
+                  disabled={isLoading}
+                />
+                <Form.Control.Feedback type="invalid">{errors.repoUrl}</Form.Control.Feedback>
+              </Form.Group>
+            </Col>
+          </Row>
+
+          <Form.Group controlId="formProjectDescription" className="mt-3">
+            <Form.Label>Kontekst projektu</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={4}
+              placeholder="Krotko opisz cel produktu, technologie albo znane ryzyka."
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              disabled={isLoading}
+            />
+          </Form.Group>
+
+          <div className="new-audit-actions">
+            {isLoading && (
+              <div className="new-audit-progress">
+                <Spinner animation="border" size="sm" />
+                <span>{STATUS_LABELS[status]}...</span>
+              </div>
+            )}
+            <div className="new-audit-buttons">
+              {projectId && status === "indexed" && (
+                <Button variant="outline-secondary" type="button" onClick={() => navigate("/home")}>
+                  Wroc do projektow
                 </Button>
-              </Col>
-            </Row>
-          </Form>
-        )}
+              )}
+              <Button id="form_btn" variant="primary" type="submit" disabled={isLoading}>
+                {status === "indexed" ? "Utworz kolejny audyt" : "Index repository"}
+              </Button>
+            </div>
+          </div>
+        </Form>
       </div>
     </div>
   );

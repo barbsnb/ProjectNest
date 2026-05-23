@@ -86,5 +86,142 @@
   border-radius: 2px;
 }
 
+.new-audit-page {
+  min-height: calc(100vh - 64px);
+  padding: 40px 32px;
+  background: #f7f8fa;
+}
+
+.new-audit-shell {
+  width: min(960px, 100%);
+  margin: 0 auto;
+  padding: 28px;
+  border: 1px solid #dde1e7;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(26, 34, 51, 0.08);
+}
+
+.new-audit-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.new-audit-kicker {
+  margin: 0 0 4px;
+  color: #68707d;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.new-audit-header h1 {
+  margin: 0;
+  color: #1d2430;
+  font-size: 1.75rem;
+  line-height: 1.2;
+}
+
+.new-audit-form .form-label {
+  color: #263241;
+  font-family: inherit;
+  font-size: 0.94rem;
+  font-weight: 700;
+}
+
+.new-audit-form .form-control {
+  max-width: none;
+  min-height: 42px;
+  border-color: #cbd3df;
+  border-radius: 6px;
+  color: #1f2937;
+  font-family: inherit;
+  font-size: 0.98rem;
+}
+
+.new-audit-form textarea.form-control {
+  min-height: 118px;
+}
+
+.new-audit-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.new-audit-progress {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #455466;
+  font-size: 0.95rem;
+}
+
+.new-audit-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.new-audit-form #form_btn {
+  float: none;
+  margin: 0;
+  border-radius: 6px;
+  background: #253041;
+  font-family: inherit;
+  font-size: 0.98rem;
+}
+
+.new-audit-result {
+  border-radius: 8px;
+}
+
+.result-title {
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.result-grid {
+  display: grid;
+  grid-template-columns: minmax(110px, 160px) 1fr;
+  gap: 6px 14px;
+}
+
+.result-grid span {
+  color: #556171;
+}
+
+@media (max-width: 720px) {
+  .new-audit-page {
+    padding: 24px 16px;
+  }
+
+  .new-audit-shell {
+    padding: 20px;
+  }
+
+  .new-audit-header,
+  .new-audit-actions,
+  .new-audit-buttons {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .new-audit-buttons {
+    width: 100%;
+  }
+
+  .new-audit-buttons .btn {
+    width: 100%;
+  }
+}
+
 
   
