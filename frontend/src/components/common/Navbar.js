@@ -22,9 +22,9 @@ const CustomNavbar = () => {
         <div className="topbar-actions">
           <div className="topbar-search">
             <Search size={16} />
-            <span>Search audits</span>
+            <span>Szukaj audytów</span>
           </div>
-          <button className="topbar-icon-button" type="button" aria-label="Notifications">
+          <button className="topbar-icon-button" type="button" aria-label="Powiadomienia">
             <Bell size={17} />
           </button>
           <LogoutButton />
@@ -35,7 +35,7 @@ const CustomNavbar = () => {
             Logowanie
           </button>
           <button onClick={() => navigate("/")} className="navbar_btn" type="button">
-            Strona glowna
+            Strona główna
           </button>
         </div>
       )}

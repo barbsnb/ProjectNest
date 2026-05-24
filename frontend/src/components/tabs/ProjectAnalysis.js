@@ -9,34 +9,34 @@ import "./ProjectAnalysis.css";
 import ProjectSuggestions from "./ProjectSuggestions";
 
 const SECTION_MAP = {
-  "Jakosc kodu": ["readability", "structure", "principles"],
+  "Jakość kodu": ["readability", "structure", "principles"],
   "Architektura i projekt": ["modularity", "extensibility", "design_patterns"],
-  Bezpieczenstwo: ["input_validation", "permission_management", "vulnerabilities"],
-  Testowalnosc: ["test_coverage", "test_quality", "test_automation"],
-  Wydajnosc: ["performance"],
+  Bezpieczeństwo: ["input_validation", "permission_management", "vulnerabilities"],
+  Testowalność: ["test_coverage", "test_quality", "test_automation"],
+  Wydajność: ["performance"],
   Dokumentacja: ["comments_quality", "documentation", "installation_instructions"],
   "Dobre praktyki": ["coding_style", "tools_usage"],
 };
 
 const FIELD_LABELS = {
-  readability: "Czytelnosc",
+  readability: "Czytelność",
   structure: "Struktura",
   principles: "Zasady (DRY / KISS / YAGNI)",
-  modularity: "Modularnosc",
-  extensibility: "Rozszerzalnosc",
-  design_patterns: "Wzorce projektowe i spojnosc",
-  input_validation: "Walidacja danych wejsciowych",
-  permission_management: "Zarzadzanie uprawnieniami",
-  vulnerabilities: "Unikanie podatnosci",
+  modularity: "Modularność",
+  extensibility: "Rozszerzalność",
+  design_patterns: "Wzorce projektowe i spójność",
+  input_validation: "Walidacja danych wejściowych",
+  permission_management: "Zarządzanie uprawnieniami",
+  vulnerabilities: "Unikanie podatności",
   test_coverage: "Pokrycie testami",
-  test_quality: "Jakosc testow",
-  test_automation: "Automatyzacja testow",
-  performance: "Wydajnosc",
+  test_quality: "Jakość testów",
+  test_automation: "Automatyzacja testów",
+  performance: "Wydajność",
   comments_quality: "Komentarze w kodzie",
   documentation: "Dokumentacja techniczna",
   installation_instructions: "Instrukcja uruchomienia",
   coding_style: "Styl kodowania",
-  tools_usage: "CI/CD i narzedzia",
+  tools_usage: "CI/CD i narzędzia",
 };
 
 const ProjectAnalysis = () => {
@@ -57,7 +57,7 @@ const ProjectAnalysis = () => {
         const response = await client.get(`/api/projects/${projectId}/`);
         setProject(response.data);
       } catch (error) {
-        console.error("Project loading failed:", error);
+        console.error("Nie udało się pobrać projektu:", error);
       }
     };
 
@@ -69,8 +69,8 @@ const ProjectAnalysis = () => {
         setAnalysis(response.data);
       } catch (error) {
         setAnalysis(null);
-        setAnalysisError("Raport LLM nie zostal jeszcze wygenerowany dla tego projektu.");
-        console.error("Analysis loading failed:", error);
+        setAnalysisError("Raport LLM nie został jeszcze wygenerowany dla tego projektu.");
+        console.error("Nie udało się pobrać raportu LLM:", error);
       } finally {
         setAnalysisLoading(false);
       }
@@ -100,7 +100,7 @@ const ProjectAnalysis = () => {
     return (
       <Container className="analysis-container">
         <h2 className="analysis-header">
-          Analiza projektu: {project ? project.name : "(ladowanie...)"}
+          Analiza projektu: {project ? project.name : "(ładowanie...)"}
         </h2>
         <div className="section-cards">
           {Object.entries(SECTION_MAP).map(([sectionTitle, fields]) => (
@@ -138,7 +138,7 @@ const ProjectAnalysis = () => {
 
   return (
     <Tabs activeKey={activeTab} onSelect={(key) => setActiveTab(key || "audit")} id="analysis-tabs" className="report-tabs">
-      <Tab eventKey="audit" title="Audit run">
+      <Tab eventKey="audit" title="Audyt">
         <AuditRunPanel
           projectId={projectId}
           project={project}
@@ -149,15 +149,15 @@ const ProjectAnalysis = () => {
         />
       </Tab>
 
-      <Tab eventKey="analysis" title="Raport LLM">
+      <Tab eventKey="analysis" title="Raport klasyczny">
         {renderLegacyAnalysis()}
       </Tab>
 
-      <Tab eventKey="suggestions" title="Sugestie ulepszen">
+      <Tab eventKey="suggestions" title="Sugestie ulepszeń">
         <ProjectSuggestions projectId={projectId} />
       </Tab>
 
-      <Tab eventKey="chat" title="Czat z asystentem">
+      <Tab eventKey="chat" title="Asystent">
         <Chat projectId={projectId} findingContext={assistantContext} />
       </Tab>
     </Tabs>

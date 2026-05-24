@@ -3,6 +3,14 @@ import { Alert, Badge, Button, Form, Spinner, Table } from "react-bootstrap";
 import { MessageSquare, Play, Search } from "lucide-react";
 
 import client from "../../axiosClient";
+import {
+  agentLabels,
+  categoryLabels,
+  labelOrValue,
+  severityLabels,
+  sourceLabels,
+  statusLabels,
+} from "../../utils/auditLabels";
 
 const severityVariant = {
   critical: "danger",
@@ -19,11 +27,6 @@ const statusVariant = {
   completed: "success",
   failed: "danger",
   not_started: "secondary",
-};
-
-const sourceLabels = {
-  tool: "Tool",
-  ai: "AI",
 };
 
 const riskOrder = { critical: 0, high: 1, medium: 2, low: 3, info: 4 };
@@ -51,12 +54,12 @@ const AuditRunPanel = ({ projectId, project, onAskAssistant }) => {
       setSummary(response.data);
       setRun(response.data.latest_run);
       if (response.data.top_findings?.length) {
-        setSelectedFinding(response.data.top_findings[0]);
+        setSelectedFinding((current) => current || response.data.top_findings[0]);
       }
       return response.data;
     } catch (error) {
-      setError("Nie udalo sie pobrac podsumowania raportu.");
-      console.error("Report summary loading failed:", error);
+      setError("Nie udało się pobrać podsumowania raportu.");
+      console.error("Nie udało się pobrać podsumowania raportu:", error);
       return null;
     } finally {
       setIsLoadingSummary(false);
@@ -82,26 +85,20 @@ const AuditRunPanel = ({ projectId, project, onAskAssistant }) => {
         const data = response.data.results ? response.data : { results: response.data, count: response.data.length };
         setFindings(data.results);
         setPagination({ count: data.count || 0, next: data.next, previous: data.previous });
-        if (!selectedFinding && data.results.length) {
-          setSelectedFinding(data.results[0]);
-        }
+        setSelectedFinding((current) => current || data.results[0] || null);
       } catch (error) {
-        setError("Nie udalo sie pobrac wynikow audytu.");
-        console.error("Findings loading failed:", error);
+        setError("Nie udało się pobrać wyników audytu.");
+      console.error("Nie udało się pobrać wyników audytu:", error);
       } finally {
         setIsLoadingFindings(false);
       }
     },
-    [categoryFilter, search, selectedFinding, severityFilter, sourceFilter]
+    [categoryFilter, search, severityFilter, sourceFilter]
   );
 
   useEffect(() => {
-    loadSummary().then((data) => {
-      if (data?.latest_run?.id) {
-        loadFindings(data.latest_run.id, 1);
-      }
-    });
-  }, [loadFindings, loadSummary]);
+    loadSummary();
+  }, [loadSummary]);
 
   useEffect(() => {
     if (run?.id) {
@@ -130,15 +127,13 @@ const AuditRunPanel = ({ projectId, project, onAskAssistant }) => {
     try {
       const response = await client.post(`/api/projects/${projectId}/analysis-runs/`);
       setRun(response.data);
-      const nextSummary = await loadSummary();
-      const runId = nextSummary?.latest_run?.id || response.data.id;
-      await loadFindings(runId, 1);
+      await loadSummary();
       if (response.data.status === "failed") {
-        setError(response.data.error_message || "Audyt zakonczyl sie bledem.");
+        setError(response.data.error_message || "Audyt zakończył się błędem.");
       }
     } catch (error) {
-      setError("Nie udalo sie uruchomic audytu.");
-      console.error("Audit run failed:", error);
+      setError("Nie udało się uruchomić audytu.");
+      console.error("Nie udało się uruchomić audytu:", error);
     } finally {
       setIsRunning(false);
     }
@@ -157,13 +152,13 @@ const AuditRunPanel = ({ projectId, project, onAskAssistant }) => {
     <div className="report-page">
       <div className="report-header">
         <div>
-          <p className="audit-kicker">Repository report</p>
-          <h1>{project ? project.name : "Audit report"}</h1>
-          <p>{project?.repo_url || "Run an audit to generate a repository risk report."}</p>
+          <p className="audit-kicker">Raport repozytorium</p>
+          <h1>{project ? project.name : "Raport audytu"}</h1>
+          <p>{project?.repo_url || "Uruchom audyt, aby wygenerować raport ryzyka repozytorium."}</p>
         </div>
         <Button type="button" onClick={runAudit} disabled={isRunning} className="run-audit-button">
           {isRunning ? <Spinner animation="border" size="sm" /> : <Play size={16} />}
-          {isRunning ? "Analyzing" : "Run audit"}
+          {isRunning ? "Analizuję" : "Uruchom audyt"}
         </Button>
       </div>
 
@@ -171,29 +166,31 @@ const AuditRunPanel = ({ projectId, project, onAskAssistant }) => {
 
       <div className="report-overview-grid">
         <div className="score-card">
-          <span>Total score</span>
+          <span>Ocena całkowita</span>
           {isLoadingSummary ? <div className="skeleton-line wide" /> : <strong>{summary?.score_total ?? "-"}</strong>}
-          <p>{summary?.status || "not_started"}</p>
+          <p>{labelOrValue(statusLabels, summary?.status || "not_started")}</p>
         </div>
         <div>
-          <span>Critical / High</span>
+          <span>Krytyczne / wysokie</span>
           {isLoadingSummary ? <div className="skeleton-line" /> : <strong>{criticalHighCount}</strong>}
-          <p>{summary?.critical_count || 0} critical, {summary?.high_count || 0} high</p>
+          <p>{summary?.critical_count || 0} krytyczne, {summary?.high_count || 0} wysokie</p>
         </div>
         <div>
-          <span>Findings</span>
+          <span>Wykryte problemy</span>
           {isLoadingSummary ? <div className="skeleton-line" /> : <strong>{run?.findings_count ?? 0}</strong>}
-          <p>{pagination.count || run?.findings_count || 0} visible in current report</p>
+          <p>{pagination.count || run?.findings_count || 0} widocznych w bieżącym raporcie</p>
         </div>
         <div>
-          <span>Last analysis</span>
+          <span>Ostatnia analiza</span>
           {isLoadingSummary ? (
             <div className="skeleton-line" />
           ) : (
             <strong>{run?.finished_at ? new Date(run.finished_at).toLocaleDateString() : "-"}</strong>
           )}
           <p>
-            <Badge bg={statusVariant[summary?.status] || "secondary"}>{summary?.status || "not_started"}</Badge>
+            <Badge bg={statusVariant[summary?.status] || "secondary"}>
+              {labelOrValue(statusLabels, summary?.status || "not_started")}
+            </Badge>
           </p>
         </div>
       </div>
@@ -201,8 +198,8 @@ const AuditRunPanel = ({ projectId, project, onAskAssistant }) => {
       <section className="top-risk-section">
         <div className="section-heading-row">
           <div>
-            <h2>Top 3 risks</h2>
-            <p>Most important findings to review first.</p>
+            <h2>Top 3 ryzyka</h2>
+            <p>Najważniejsze problemy do sprawdzenia w pierwszej kolejności.</p>
           </div>
         </div>
         <div className="top-risk-grid">
@@ -216,14 +213,16 @@ const AuditRunPanel = ({ projectId, project, onAskAssistant }) => {
                 type="button"
                 onClick={() => setSelectedFinding(finding)}
               >
-                <Badge bg={severityVariant[finding.severity] || "secondary"}>{finding.severity}</Badge>
+                <Badge bg={severityVariant[finding.severity] || "secondary"}>
+                  {labelOrValue(severityLabels, finding.severity)}
+                </Badge>
                 <strong>{finding.title}</strong>
-                <span>{finding.file_path || "repository"}</span>
+                <span>{finding.file_path || "repozytorium"}</span>
               </button>
             ))
           ) : (
             <Alert variant="light" className="report-empty">
-              No top risks yet. Run an audit to generate prioritized findings.
+              Brak top ryzyk. Uruchom audyt, aby wygenerować priorytetyzowane wyniki.
             </Alert>
           )}
         </div>
@@ -233,7 +232,7 @@ const AuditRunPanel = ({ projectId, project, onAskAssistant }) => {
         <div className="category-score-grid">
           {Object.entries(categoryScores).map(([category, score]) => (
             <div key={category}>
-              <span>{category}</span>
+              <span>{labelOrValue(categoryLabels, category)}</span>
               <strong>{score}/100</strong>
             </div>
           ))}
@@ -243,20 +242,22 @@ const AuditRunPanel = ({ projectId, project, onAskAssistant }) => {
       {agentResults.length > 0 && (
         <section className="agent-results-section">
           <div className="agent-results-header">
-            <h2>Agent Results</h2>
-            <span>{agentResults.length} reviewers/tools</span>
+            <h2>Wyniki agentów</h2>
+            <span>{agentResults.length} agentów/narzędzi</span>
           </div>
           <div className="agent-results-grid">
             {agentResults.map((agent) => (
               <div key={agent.id} className="agent-result-card">
                 <div className="agent-result-title">
-                  <strong>{agent.agent_name}</strong>
-                  <Badge bg={statusVariant[agent.status] || "secondary"}>{agent.status}</Badge>
+                  <strong>{labelOrValue(agentLabels, agent.agent_name)}</strong>
+                  <Badge bg={statusVariant[agent.status] || "secondary"}>
+                    {labelOrValue(statusLabels, agent.status)}
+                  </Badge>
                 </div>
-                <p>{agent.summary || agent.error_message || "No summary."}</p>
+                <p>{agent.summary || agent.error_message || "Brak podsumowania."}</p>
                 <div className="agent-result-meta">
-                  <span>Findings: {agent.findings_count}</span>
-                  <span>{agent.prompt_version || "deterministic"}</span>
+                  <span>Problemy: {agent.findings_count}</span>
+                  <span>{agent.prompt_version || "deterministyczny"}</span>
                   {agent.model && <span>{agent.model}</span>}
                 </div>
               </div>
@@ -273,29 +274,29 @@ const AuditRunPanel = ({ projectId, project, onAskAssistant }) => {
               <input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search title or file path"
+                placeholder="Szukaj po tytule lub ścieżce pliku"
               />
             </div>
             <Form.Select value={severityFilter} onChange={(event) => setSeverityFilter(event.target.value)}>
-              <option value="all">All severity</option>
-              <option value="critical">Critical</option>
-              <option value="high">High</option>
-              <option value="medium">Medium</option>
-              <option value="low">Low</option>
-              <option value="info">Info</option>
+              <option value="all">Wszystkie poziomy</option>
+              <option value="critical">Krytyczne</option>
+              <option value="high">Wysokie</option>
+              <option value="medium">Średnie</option>
+              <option value="low">Niskie</option>
+              <option value="info">Informacyjne</option>
             </Form.Select>
             <Form.Select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}>
-              <option value="all">All categories</option>
+              <option value="all">Wszystkie kategorie</option>
               {categories.map((category) => (
                 <option key={category} value={category}>
-                  {category}
+                  {labelOrValue(categoryLabels, category)}
                 </option>
               ))}
             </Form.Select>
             <Form.Select value={sourceFilter} onChange={(event) => setSourceFilter(event.target.value)}>
-              <option value="all">All sources</option>
-              <option value="tool">Tools</option>
-              <option value="ai">AI agents</option>
+              <option value="all">Wszystkie źródła</option>
+              <option value="tool">Narzędzia</option>
+              <option value="ai">Agenci AI</option>
             </Form.Select>
           </div>
 
@@ -303,11 +304,11 @@ const AuditRunPanel = ({ projectId, project, onAskAssistant }) => {
             <Table responsive hover className="audit-findings-table">
               <thead>
                 <tr>
-                  <th>Severity</th>
-                  <th>Category</th>
-                  <th>Title</th>
-                  <th>File path</th>
-                  <th>Source</th>
+                  <th>Poziom</th>
+                  <th>Kategoria</th>
+                  <th>Tytuł</th>
+                  <th>Ścieżka pliku</th>
+                  <th>Źródło</th>
                   <th>Status</th>
                 </tr>
               </thead>
@@ -325,8 +326,12 @@ const AuditRunPanel = ({ projectId, project, onAskAssistant }) => {
                       className={selectedFinding?.id === finding.id ? "selected" : ""}
                       onClick={() => setSelectedFinding(finding)}
                     >
-                      <td><Badge bg={severityVariant[finding.severity] || "secondary"}>{finding.severity}</Badge></td>
-                      <td><span className="category-chip">{finding.category}</span></td>
+                      <td>
+                        <Badge bg={severityVariant[finding.severity] || "secondary"}>
+                          {labelOrValue(severityLabels, finding.severity)}
+                        </Badge>
+                      </td>
+                      <td><span className="category-chip">{labelOrValue(categoryLabels, finding.category)}</span></td>
                       <td><strong>{finding.title}</strong></td>
                       <td className="file-path-cell">{finding.file_path || "-"}{finding.line_start ? `:${finding.line_start}` : ""}</td>
                       <td>
@@ -334,14 +339,14 @@ const AuditRunPanel = ({ projectId, project, onAskAssistant }) => {
                           {sourceLabels[finding.source] || finding.source}
                         </Badge>
                       </td>
-                      <td>{finding.status}</td>
+                      <td>{labelOrValue(statusLabels, finding.status)}</td>
                     </tr>
                   ))
                 ) : (
                   <tr>
                     <td colSpan="6">
                       <Alert variant="light" className="report-empty">
-                        No findings match the current filters.
+                        Brak wyników pasujących do bieżących filtrów.
                       </Alert>
                     </td>
                   </tr>
@@ -351,13 +356,13 @@ const AuditRunPanel = ({ projectId, project, onAskAssistant }) => {
           </div>
 
           <div className="pagination-row">
-            <span>{pagination.count} findings</span>
+            <span>{pagination.count} wyników</span>
             <div>
               <Button variant="outline-secondary" size="sm" disabled={!pagination.previous} onClick={() => goToPage(page - 1)}>
-                Previous
+                Poprzednia
               </Button>
               <Button variant="outline-secondary" size="sm" disabled={!pagination.next} onClick={() => goToPage(page + 1)}>
-                Next
+                Następna
               </Button>
             </div>
           </div>
@@ -367,32 +372,34 @@ const AuditRunPanel = ({ projectId, project, onAskAssistant }) => {
           {selectedFinding ? (
             <>
               <div className="finding-detail-header">
-                <Badge bg={severityVariant[selectedFinding.severity] || "secondary"}>{selectedFinding.severity}</Badge>
-                <span>{selectedFinding.status}</span>
+                <Badge bg={severityVariant[selectedFinding.severity] || "secondary"}>
+                  {labelOrValue(severityLabels, selectedFinding.severity)}
+                </Badge>
+                <span>{labelOrValue(statusLabels, selectedFinding.status)}</span>
               </div>
               <h2>{selectedFinding.title}</h2>
               <dl>
-                <dt>Category</dt>
-                <dd>{selectedFinding.category}</dd>
-                <dt>File</dt>
+                <dt>Kategoria</dt>
+                <dd>{labelOrValue(categoryLabels, selectedFinding.category)}</dd>
+                <dt>Plik</dt>
                 <dd>{selectedFinding.file_path || "-"}{selectedFinding.line_start ? `:${selectedFinding.line_start}` : ""}</dd>
-                <dt>Evidence</dt>
-                <dd>{selectedFinding.evidence || "No evidence provided."}</dd>
-                <dt>Description</dt>
+                <dt>Dowód</dt>
+                <dd>{selectedFinding.evidence || "Brak dowodu w raporcie."}</dd>
+                <dt>Opis</dt>
                 <dd>{selectedFinding.description}</dd>
-                <dt>Recommendation</dt>
+                <dt>Rekomendacja</dt>
                 <dd>{selectedFinding.recommendation}</dd>
-                <dt>Confidence</dt>
+                <dt>Pewność</dt>
                 <dd>{Math.round((selectedFinding.confidence || 0) * 100)}%</dd>
               </dl>
               <Button type="button" onClick={() => onAskAssistant?.(selectedFinding)} className="ask-assistant-button">
                 <MessageSquare size={16} />
-                Ask assistant about this finding
+                Zapytaj asystenta o ten problem
               </Button>
             </>
           ) : (
             <Alert variant="light" className="report-empty">
-              Select a finding to inspect evidence and remediation.
+              Wybierz wynik, aby zobaczyć dowód i rekomendację naprawy.
             </Alert>
           )}
         </aside>

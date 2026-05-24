@@ -7,11 +7,11 @@ import { UserProjectsContext } from "../../contexts/UserProjectsContext";
 import "./NewProject.css";
 
 const STATUS_LABELS = {
-  idle: "Ready",
-  validating: "Validating URL",
-  ingesting: "Indexing repository",
-  indexed: "Repository indexed",
-  failed: "Failed",
+  idle: "Gotowy",
+  validating: "Walidacja URL",
+  ingesting: "Indeksowanie repozytorium",
+  indexed: "Repozytorium zindeksowane",
+  failed: "Błąd",
 };
 
 const isValidGithubUrl = (value) => {
@@ -33,11 +33,11 @@ const formatBytes = (bytes) => {
 
 const getErrorMessage = (error) => {
   const data = error.response?.data;
-  if (!data) return "Nie udalo sie utworzyc audytu. Sprobuj ponownie.";
+  if (!data) return "Nie udało się utworzyć audytu. Spróbuj ponownie.";
   if (typeof data === "string") return data;
   if (data.error) return data.error;
   if (data.repo_url) return data.repo_url.join ? data.repo_url.join(" ") : data.repo_url;
-  return "Nie udalo sie utworzyc audytu. Sprawdz dane i sprobuj ponownie.";
+  return "Nie udało się utworzyć audytu. Sprawdź dane i spróbuj ponownie.";
 };
 
 const NewProject = () => {
@@ -113,7 +113,7 @@ const NewProject = () => {
         <div className="new-audit-header">
           <div>
             <p className="new-audit-kicker">PRAETOR</p>
-            <h1>New Audit</h1>
+            <h1>Nowy audyt</h1>
           </div>
           <Badge bg={status === "failed" ? "danger" : status === "indexed" ? "success" : "secondary"}>
             {STATUS_LABELS[status]}
@@ -124,9 +124,9 @@ const NewProject = () => {
           {submitError && <Alert variant="danger">{submitError}</Alert>}
           {snapshot && (
             <Alert variant="success" className="new-audit-result">
-              <div className="result-title">Repozytorium zostalo zindeksowane.</div>
+              <div className="result-title">Repozytorium zostało zindeksowane.</div>
               <div className="result-grid">
-                <span>Branch</span>
+                <span>Gałąź</span>
                 <strong>{snapshot.branch || "-"}</strong>
                 <span>Commit</span>
                 <strong>{snapshot.commit_sha ? snapshot.commit_sha.slice(0, 12) : "-"}</strong>
@@ -155,7 +155,7 @@ const NewProject = () => {
             </Col>
             <Col lg={6}>
               <Form.Group controlId="formRepoUrl">
-                <Form.Label>GitHub repository URL</Form.Label>
+                <Form.Label>URL repozytorium GitHub</Form.Label>
                 <Form.Control
                   type="url"
                   placeholder="https://github.com/owner/repo"
@@ -174,7 +174,7 @@ const NewProject = () => {
             <Form.Control
               as="textarea"
               rows={4}
-              placeholder="Krotko opisz cel produktu, technologie albo znane ryzyka."
+              placeholder="Krótko opisz cel produktu, technologie albo znane ryzyka."
               value={description}
               onChange={(event) => setDescription(event.target.value)}
               disabled={isLoading}
@@ -192,15 +192,15 @@ const NewProject = () => {
               {projectId && status === "indexed" && (
                 <>
                   <Button variant="outline-secondary" type="button" onClick={() => navigate("/home")}>
-                    Wroc do projektow
+                    Wróć do projektów
                   </Button>
                   <Button variant="outline-primary" type="button" onClick={() => navigate(`/analysis/${projectId}`)}>
-                    Przejdz do audytu
+                    Przejdź do audytu
                   </Button>
                 </>
               )}
               <Button id="form_btn" variant="primary" type="submit" disabled={isLoading}>
-                {status === "indexed" ? "Utworz kolejny audyt" : "Index repository"}
+                {status === "indexed" ? "Utwórz kolejny audyt" : "Indeksuj repozytorium"}
               </Button>
             </div>
           </div>

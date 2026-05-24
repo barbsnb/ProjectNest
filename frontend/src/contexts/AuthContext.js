@@ -22,6 +22,7 @@ export const AuthProvider = ({ children }) => {
       })
       .catch(() => {
         if (!isMounted) return;
+        window.localStorage.removeItem("praetorAuthToken");
         setCurrentUser(null);
       })
       .finally(() => {

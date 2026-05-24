@@ -8,7 +8,7 @@ UserModel = get_user_model()
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
-    survey = serializers.JSONField(write_only=True)
+    survey = serializers.JSONField(write_only=True, required=False)
 
     class Meta:
         model = UserModel
@@ -55,7 +55,7 @@ class UserLoginSerializer(serializers.Serializer):
             password=clean_data["password"],
         )
         if not user:
-            raise serializers.ValidationError("Nieprawidlowy email lub haslo.")
+            raise serializers.ValidationError("Nieprawidłowy e-mail lub hasło.")
         return user
 
 

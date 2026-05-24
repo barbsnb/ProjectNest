@@ -42,11 +42,11 @@ class AnalysisRun(models.Model):
     STATUS_FAILED = "failed"
 
     STATUS_CHOICES = [
-        (STATUS_QUEUED, "Queued"),
-        (STATUS_INGESTING, "Ingesting"),
-        (STATUS_ANALYZING, "Analyzing"),
-        (STATUS_COMPLETED, "Completed"),
-        (STATUS_FAILED, "Failed"),
+        (STATUS_QUEUED, "W kolejce"),
+        (STATUS_INGESTING, "Indeksowanie"),
+        (STATUS_ANALYZING, "Analiza"),
+        (STATUS_COMPLETED, "Zakończony"),
+        (STATUS_FAILED, "Błąd"),
     ]
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="analysis_runs")
@@ -78,11 +78,11 @@ class Finding(models.Model):
     SEVERITY_INFO = "info"
 
     SEVERITY_CHOICES = [
-        (SEVERITY_CRITICAL, "Critical"),
-        (SEVERITY_HIGH, "High"),
-        (SEVERITY_MEDIUM, "Medium"),
-        (SEVERITY_LOW, "Low"),
-        (SEVERITY_INFO, "Info"),
+        (SEVERITY_CRITICAL, "Krytyczne"),
+        (SEVERITY_HIGH, "Wysokie"),
+        (SEVERITY_MEDIUM, "Średnie"),
+        (SEVERITY_LOW, "Niskie"),
+        (SEVERITY_INFO, "Informacyjne"),
     ]
 
     STATUS_NEW = "new"
@@ -91,17 +91,17 @@ class Finding(models.Model):
     STATUS_IGNORED = "ignored"
 
     STATUS_CHOICES = [
-        (STATUS_NEW, "New"),
-        (STATUS_ACCEPTED, "Accepted"),
-        (STATUS_FIXED, "Fixed"),
-        (STATUS_IGNORED, "Ignored"),
+        (STATUS_NEW, "Nowe"),
+        (STATUS_ACCEPTED, "Zaakceptowane"),
+        (STATUS_FIXED, "Naprawione"),
+        (STATUS_IGNORED, "Zignorowane"),
     ]
 
     SOURCE_TOOL = "tool"
     SOURCE_AI = "ai"
 
     SOURCE_CHOICES = [
-        (SOURCE_TOOL, "Tool"),
+        (SOURCE_TOOL, "Narzędzie"),
         (SOURCE_AI, "AI"),
     ]
 

@@ -16,7 +16,7 @@ class CapturingLLM:
         self.captured["conditioning"] = conditioning
         self.captured["raw_prompt"] = raw_prompt
         self.captured["session_id"] = session_id
-        return "Start by removing the unsafe shortcut and add a regression test."
+        return "Zacznij od usunięcia niebezpiecznego skrótu i dodaj test regresyjny."
 
 
 class FailingLLM:
@@ -56,14 +56,14 @@ class ReportAssistantApiTests(TestCase):
         with patch("llm_api.report_assistant._build_llm_interface", return_value=CapturingLLM(captured)):
             response = self.client.post(
                 f"/api/chat/sessions/{session.session_id}/messages/",
-                {"content": "Explain this finding.", "finding_id": finding.id},
+                {"content": "Wyjaśnij ten wynik audytu.", "finding_id": finding.id},
                 format="json",
             )
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data["context"]["finding_id"], finding.id)
         self.assertIn("PRAETOR", captured["conditioning"])
-        self.assertIn("Unsafe admin shortcut", captured["raw_prompt"])
+        self.assertIn("Niebezpieczny skrót administratora", captured["raw_prompt"])
         self.assertIn("src/app.py", captured["raw_prompt"])
         self.assertIn("return user.is_admin", captured["raw_prompt"])
         self.assertIsNone(captured["session_id"])
@@ -74,7 +74,7 @@ class ReportAssistantApiTests(TestCase):
     def test_user_cannot_ask_about_other_users_finding(self):
         _, _, finding = self._project_run_and_finding()
         other_project = Project.objects.create(
-            name="Other project",
+            name="Inny projekt",
             description="",
             repo_url="https://github.com/octo/other",
             user=self.other_user,
@@ -84,7 +84,7 @@ class ReportAssistantApiTests(TestCase):
         self.client.force_authenticate(user=self.other_user)
         response = self.client.post(
             f"/api/chat/sessions/{other_session.session_id}/messages/",
-            {"content": "Can I see this?", "finding_id": finding.id},
+            {"content": "Czy mogę to zobaczyć?", "finding_id": finding.id},
             format="json",
         )
 
@@ -98,20 +98,20 @@ class ReportAssistantApiTests(TestCase):
 
         response = self.client.post(
             f"/api/chat/sessions/{session.session_id}/messages/",
-            {"content": "What should I do?", "finding_id": finding.id},
+            {"content": "Co mam zrobić?", "finding_id": finding.id},
             format="json",
         )
 
         self.assertEqual(response.status_code, 201)
         assistant_content = response.data["assistant_message"]["content"]
-        self.assertIn("Nie moge teraz polaczyc sie z modelem LLM", assistant_content)
+        self.assertIn("Nie mogę teraz połączyć się z modelem LLM", assistant_content)
         self.assertNotIn("provider unavailable", assistant_content)
         self.assertEqual(ChatMessage.objects.filter(session=session).count(), 2)
 
     def _project_run_and_finding(self):
         project = Project.objects.create(
-            name="Assistant audit",
-            description="Small web app",
+            name="Audyt asystenta",
+            description="Mała aplikacja webowa",
             repo_url="https://github.com/octo/demo",
             user=self.user,
         )
@@ -135,12 +135,12 @@ class ReportAssistantApiTests(TestCase):
             source=Finding.SOURCE_TOOL,
             category="security",
             severity=Finding.SEVERITY_HIGH,
-            title="Unsafe admin shortcut",
-            description="A privileged branch relies on a direct user flag.",
+            title="Niebezpieczny skrót administratora",
+            description="Uprzywilejowana gałąź logiki polega bezpośrednio na fladze użytkownika.",
             file_path="src/app.py",
             line_start=2,
             evidence="src/app.py:2",
-            recommendation="Move authorization to a dedicated permission check and cover it with tests.",
+            recommendation="Przenieś autoryzację do dedykowanego sprawdzenia uprawnień i obejmij ją testami.",
             confidence=0.91,
         )
         return project, run, finding

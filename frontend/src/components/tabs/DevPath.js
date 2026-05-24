@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, Tabs, Tab } from "react-bootstrap";
+import { Container, Tab, Tabs } from "react-bootstrap";
 import "./DevPath.css";
 
 const DevPath = ({
@@ -10,23 +10,30 @@ const DevPath = ({
 }) => {
   return (
     <Container className="development-path-container mt-3">
-      <h3 className="development-path-header">Twoja ścieżka rozwoju</h3>
+      <h3 className="development-path-header">Plan rozwoju</h3>
       <Tabs defaultActiveKey="recommendations" id="devpath-tabs">
-        <Tab eventKey="recommendations" title="Personalizowane rekomendacje">
+        <Tab eventKey="recommendations" title="Rekomendacje">
           <div className="development-path-section">
-            <h4>Personalizowane rekomendacje</h4>
+            <h4>Rekomendacje</h4>
             <p>{personalizedRecommendations || "Brak danych."}</p>
           </div>
         </Tab>
 
-        <Tab eventKey="materials" title="Proponowane materiały">
+        <Tab eventKey="competences" title="Mapa kompetencji">
+          <div className="development-path-section">
+            <h4>Mapa kompetencji</h4>
+            <p>{competenceMap || "Brak danych."}</p>
+          </div>
+        </Tab>
+
+        <Tab eventKey="materials" title="Materiały">
           <div className="development-path-section">
             <h4>Proponowane materiały</h4>
             <p>{suggestedMaterials || "Brak danych."}</p>
           </div>
         </Tab>
 
-        <Tab eventKey="progress" title="Śledź postęp">
+        <Tab eventKey="progress" title="Postęp">
           <div className="development-path-section">
             <h4>Śledzenie postępu</h4>
             <p>{progressTracker || "Brak danych."}</p>

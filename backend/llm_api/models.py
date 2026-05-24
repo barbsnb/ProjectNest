@@ -3,7 +3,7 @@ from projects_api.models import AnalysisRun, Finding, Project
 
 class ChatSession(models.Model):
     """
-    Represents a chat session instance related to a project.
+    Reprezentuje sesję czatu powiązaną z projektem.
 
     Attributes:
         session_id (str): Unique identifier for the chat session.
@@ -22,7 +22,7 @@ class ChatSession(models.Model):
 
 class ChatMessage(models.Model):
     """
-    Represents an individual message in a chat session.
+    Reprezentuje pojedynczą wiadomość w sesji czatu.
 
     Attributes:
         session (ChatSession): The chat session this message belongs to.
@@ -32,8 +32,8 @@ class ChatMessage(models.Model):
     """
     ROLE_CHOICES = [
         ("system", "System"),
-        ("user", "User"),
-        ("assistant", "Assistant"),
+        ("user", "Użytkownik"),
+        ("assistant", "Asystent"),
     ]
 
     session = models.ForeignKey(ChatSession, related_name="messages", on_delete=models.CASCADE)

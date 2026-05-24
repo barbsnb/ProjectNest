@@ -8,7 +8,7 @@ const ProtectedRoute = ({ children }) => {
   const location = useLocation();
 
   if (authLoading) {
-    return <div className="route-loading">Loading workspace...</div>;
+    return <div className="route-loading">Ładowanie przestrzeni roboczej...</div>;
   }
 
   if (!currentUser) {

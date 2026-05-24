@@ -98,7 +98,7 @@ def validate_github_repo_url(repo_url: str) -> GitHubRepoRef:
     if parsed.scheme not in ("https", "http"):
         raise RepoIngestionError("Podaj pelny URL repozytorium GitHub.")
     if parsed.netloc.lower() != "github.com":
-        raise RepoIngestionError("Obslugiwane sa tylko publiczne repozytoria z github.com.")
+        raise RepoIngestionError("Obsługiwane są tylko publiczne repozytoria z github.com.")
 
     path_parts = [part for part in parsed.path.strip("/").split("/") if part]
     if len(path_parts) != 2:
@@ -170,11 +170,11 @@ def _download_archive(repo_ref: GitHubRepoRef, branch: str) -> bytes:
     archive_url = f"https://api.github.com/repos/{repo_ref.owner}/{repo_ref.repo}/zipball/{branch}"
     response = requests.get(archive_url, headers=_headers(), timeout=60, stream=True)
     if response.status_code == 404:
-        raise RepoIngestionError("Nie mozna pobrac archiwum repozytorium.", status_code=404)
+        raise RepoIngestionError("Nie można pobrać archiwum repozytorium.", status_code=404)
     try:
         response.raise_for_status()
     except requests.RequestException as exc:
-        raise RepoIngestionError(f"Nie udalo sie pobrac repozytorium: {exc}", status_code=502) from exc
+        raise RepoIngestionError(f"Nie udało się pobrać repozytorium: {exc}", status_code=502) from exc
 
     archive = BytesIO()
     total_size = 0

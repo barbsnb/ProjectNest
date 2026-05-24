@@ -31,11 +31,12 @@ class AgentDefinition:
 
 AGENTS = (
     AgentDefinition(
-        name="Security Auditor",
+        name="Audytor bezpieczeństwa",
         category="security",
         focus=(
-            "Find concrete security risks: secrets, auth/ownership mistakes, unsafe input handling, "
-            "dependency risk, insecure defaults, and data exposure."
+            "Znajdź konkretne ryzyka bezpieczeństwa: sekrety, błędy autoryzacji i ownership, "
+            "niebezpieczną obsługę danych wejściowych, ryzyka zależności, niebezpieczne ustawienia domyślne "
+            "oraz możliwość wycieku danych."
         ),
         file_patterns=(
             ".env",
@@ -52,29 +53,29 @@ AGENTS = (
         ),
     ),
     AgentDefinition(
-        name="Architecture Reviewer",
+        name="Recenzent architektury",
         category="architecture",
         focus=(
-            "Review boundaries, coupling, module responsibility, data flow, error handling, and whether "
-            "the repository structure can support a maintainable SaaS audit product."
+            "Oceń granice modułów, sprzężenie, odpowiedzialności, przepływ danych, obsługę błędów oraz to, "
+            "czy struktura repozytorium wspiera utrzymanie produktu audytowego SaaS."
         ),
         file_patterns=("settings.py", "urls.py", "models.py", "views.py", "services", "api", "App.js", "package.json"),
     ),
     AgentDefinition(
-        name="Code Quality Reviewer",
+        name="Recenzent jakości kodu",
         category="code_quality",
         focus=(
-            "Review readability, duplication, naming, maintainability, dead code, overly complex functions, "
-            "and consistency with the local project style."
+            "Oceń czytelność, duplikację, nazewnictwo, utrzymywalność, martwy kod, nadmiernie złożone funkcje "
+            "oraz spójność z lokalnym stylem projektu."
         ),
         file_patterns=(".py", ".js", ".jsx", ".ts", ".tsx", ".css"),
     ),
     AgentDefinition(
-        name="Testing and Reliability Reviewer",
+        name="Recenzent testów i niezawodności",
         category="testing_reliability",
         focus=(
-            "Review test coverage signals, failure modes, observability, deterministic validation, performance "
-            "risks, and operational reliability."
+            "Oceń sygnały pokrycia testami, tryby awarii, obserwowalność, deterministyczną walidację, ryzyka "
+            "wydajnościowe oraz niezawodność operacyjną."
         ),
         file_patterns=("test", "tests", "spec", "package.json", "requirements.txt", ".py", ".js", ".jsx"),
     ),
@@ -95,7 +96,7 @@ def run_agent_review(run, project, snapshot, files, tool_findings):
                 status=AnalysisRun.STATUS_FAILED,
                 model=model_name,
                 prompt_version=PROMPT_VERSION,
-                summary=f"{agent.name} could not start because the LLM provider is unavailable.",
+                summary=f"{agent.name} nie mógł wystartować, ponieważ dostawca LLM jest niedostępny.",
                 raw_output={},
                 normalized_output={},
                 started_at=timezone.now(),
@@ -154,7 +155,7 @@ def _run_single_agent(run, project, snapshot, files, tool_findings, agent, llm, 
             status=AnalysisRun.STATUS_COMPLETED,
             model=model_name,
             prompt_version=PROMPT_VERSION,
-            summary=normalized_output.get("summary", f"{agent.name} completed."),
+            summary=normalized_output.get("summary", f"{agent.name} zakończył analizę."),
             raw_output=raw_output,
             normalized_output=normalized_output,
             started_at=started_at,
@@ -168,7 +169,7 @@ def _run_single_agent(run, project, snapshot, files, tool_findings, agent, llm, 
             status=AnalysisRun.STATUS_FAILED,
             model=model_name,
             prompt_version=PROMPT_VERSION,
-            summary=f"{agent.name} failed gracefully.",
+            summary=f"{agent.name} zakończył pracę kontrolowanym błędem.",
             raw_output=raw_output,
             normalized_output=normalized_output,
             started_at=started_at,
@@ -186,34 +187,35 @@ def _build_llm_interface():
 
 def _agent_prompt(agent):
     return f"""
-You are PRAETOR's {agent.name}.
-Product vision: PRAETOR audits a real GitHub repository and returns concrete prioritized engineering findings.
-Agent focus: {agent.focus}
+Jesteś agentem PRAETOR: {agent.name}.
+Wizja produktu: PRAETOR audytuje prawdziwe repozytorium GitHub i zwraca konkretne, priorytetyzowane ustalenia techniczne.
+Zakres agenta: {agent.focus}
 
-Return only valid JSON with this schema:
+Odpowiadaj po polsku. Zwróć wyłącznie poprawny JSON zgodny z tym schematem:
 {{
-  "summary": "short summary of this agent review",
+  "summary": "krótkie podsumowanie recenzji tego agenta po polsku",
   "findings": [
     {{
       "category": "{agent.category}",
       "severity": "critical|high|medium|low|info",
-      "title": "specific issue title",
-      "description": "what is wrong and why it matters",
-      "file_path": "relative/path.ext or empty string",
+      "title": "konkretny tytuł problemu po polsku",
+      "description": "co jest nie tak i dlaczego to ma znaczenie",
+      "file_path": "relative/path.ext albo pusty string",
       "line_start": 123,
-      "evidence": "short concrete evidence from the provided context",
-      "recommendation": "specific remediation step",
+      "evidence": "krótki konkretny dowód z dostarczonego kontekstu",
+      "recommendation": "konkretny krok naprawczy",
       "confidence": 0.0
     }}
   ]
 }}
 
-Rules:
-- Return at most 8 findings.
-- Use only the provided repository context and tool findings.
-- Do not invent files or line numbers. Use null for unknown line_start.
-- Prefer fewer, concrete findings over generic advice.
-- Do not include markdown, prose outside JSON, or comments.
+Zasady:
+- Zwróć maksymalnie 8 wyników.
+- Korzystaj wyłącznie z dostarczonego kontekstu repozytorium i wyników narzędzi.
+- Nie wymyślaj plików, numerów linii, podatności ani wyników narzędzi.
+- Użyj null dla nieznanej wartości line_start.
+- Preferuj mniej, ale konkretnych wyników zamiast ogólnych porad.
+- Nie dodawaj markdowna, prozy poza JSON ani komentarzy.
 """.strip()
 
 
@@ -291,12 +293,12 @@ def _parse_agent_json(raw_response):
     try:
         payload = json.loads(_strip_json_markdown(raw_response))
     except json.JSONDecodeError as exc:
-        raise ValueError(f"Invalid JSON: {exc}") from exc
+        raise ValueError(f"Niepoprawny JSON: {exc}") from exc
 
     if not isinstance(payload, dict):
-        raise ValueError("Agent output must be a JSON object.")
+        raise ValueError("Odpowiedź agenta musi być obiektem JSON.")
     if "findings" not in payload or not isinstance(payload["findings"], list):
-        raise ValueError("Agent output must contain a findings list.")
+        raise ValueError("Odpowiedź agenta musi zawierać listę findings.")
 
     payload.setdefault("summary", "")
     return payload
@@ -307,7 +309,7 @@ def _repair_agent_json(llm, prompt, raw_response, error_message):
         {
             "error": error_message,
             "invalid_response": raw_response[:6000],
-            "instruction": "Return only corrected valid JSON matching the requested PRAETOR schema.",
+            "instruction": "Zwróć wyłącznie poprawiony JSON zgodny ze schematem PRAETOR. Treść wartości tekstowych ma być po polsku.",
         },
         ensure_ascii=False,
     )
@@ -331,12 +333,12 @@ def _normalize_agent_findings(agent, payload):
                 "agent_name": agent.name,
                 "category": str(item.get("category") or agent.category)[:80],
                 "severity": severity,
-                "title": str(item.get("title") or f"{agent.name} finding")[:255],
+                "title": str(item.get("title") or f"Wynik agenta: {agent.name}")[:255],
                 "description": str(item.get("description") or ""),
                 "file_path": str(item.get("file_path") or "")[:1024],
                 "line_start": _coerce_line(item.get("line_start")),
                 "evidence": str(item.get("evidence") or ""),
-                "recommendation": str(item.get("recommendation") or "Review and remediate this issue."),
+                "recommendation": str(item.get("recommendation") or "Zweryfikuj i napraw ten problem."),
                 "confidence": confidence,
             }
         )

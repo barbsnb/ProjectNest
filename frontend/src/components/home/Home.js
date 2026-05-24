@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import client from "../../axiosClient";
 import { AuthContext } from "../../contexts/AuthContext";
 import { UserProjectsContext } from "../../contexts/UserProjectsContext";
+import { labelOrValue, statusLabels } from "../../utils/auditLabels";
 import "./Home.css";
 
 const formatDate = (value) => {
@@ -14,7 +15,7 @@ const formatDate = (value) => {
 };
 
 const Home = () => {
-  const { currentUser, isLoading } = useContext(AuthContext);
+  const { currentUser, authLoading } = useContext(AuthContext);
   const { userProjects } = useContext(UserProjectsContext);
   const navigate = useNavigate();
   const [summaries, setSummaries] = useState({});
@@ -56,11 +57,11 @@ const Home = () => {
     };
   }, [summaries, userProjects.length]);
 
-  if (isLoading) {
+  if (authLoading) {
     return (
       <div className="dashboard-loading">
         <Spinner animation="border" size="sm" />
-        <span>Loading workspace...</span>
+        <span>Ładowanie przestrzeni roboczej...</span>
       </div>
     );
   }
@@ -69,33 +70,33 @@ const Home = () => {
     <section className="dashboard-page">
       <div className="dashboard-header">
         <div>
-          <p className="page-kicker">Audit workspace</p>
-          <h1>Project audits</h1>
+          <p className="page-kicker">Przestrzeń audytów</p>
+          <h1>Audyty projektów</h1>
           <p className="page-subtitle">
-            {currentUser?.user?.username ? `${currentUser.user.username}, ` : ""}review repository risk at a glance.
+            {currentUser?.username ? `${currentUser.username}, ` : ""}sprawdź ryzyka repozytorium w jednym widoku.
           </p>
         </div>
         <Button onClick={() => navigate("/project")} className="primary-action">
           <FilePlus size={17} />
-          New Audit
+          Nowy audyt
         </Button>
       </div>
 
       <div className="dashboard-metrics">
         <div>
-          <span>Total audits</span>
+          <span>Wszystkie audyty</span>
           <strong>{dashboardStats.audits}</strong>
         </div>
         <div>
-          <span>Completed runs</span>
+          <span>Zakończone analizy</span>
           <strong>{dashboardStats.completed}</strong>
         </div>
         <div>
-          <span>Critical findings</span>
+          <span>Krytyczne problemy</span>
           <strong>{dashboardStats.critical}</strong>
         </div>
         <div>
-          <span>High findings</span>
+          <span>Wysokie problemy</span>
           <strong>{dashboardStats.high}</strong>
         </div>
       </div>
@@ -103,13 +104,13 @@ const Home = () => {
       {loadingSummaries && (
         <div className="dashboard-loading">
           <Spinner animation="border" size="sm" />
-          <span>Refreshing audit summaries...</span>
+          <span>Odświeżanie podsumowań audytów...</span>
         </div>
       )}
 
       {userProjects.length === 0 ? (
         <Alert variant="light" className="dashboard-empty">
-          No audits yet. Create the first audit from a GitHub repository URL.
+          Nie masz jeszcze audytów. Utwórz pierwszy audyt z linku do repozytorium GitHub.
         </Alert>
       ) : (
         <div className="audit-card-grid">
@@ -125,15 +126,15 @@ const Home = () => {
                     <BarChart3 size={20} />
                   </div>
                   <Badge bg={summary?.status === "completed" ? "success" : "secondary"}>
-                    {summary?.status || "not_started"}
+                    {labelOrValue(statusLabels, summary?.status || "not_started")}
                   </Badge>
                 </div>
                 <h2>{project.name}</h2>
-                <p>{project.repo_url || project.description || "Repository audit"}</p>
+                <p>{project.repo_url || project.description || "Audyt repozytorium"}</p>
                 <div className="audit-card-facts">
                   <div>
                     <ShieldAlert size={15} />
-                    <span>{summary ? `${summary.critical_count || 0} critical / ${summary.high_count || 0} high` : "-"}</span>
+                    <span>{summary ? `${summary.critical_count || 0} krytyczne / ${summary.high_count || 0} wysokie` : "-"}</span>
                   </div>
                   <div>
                     <Clock size={15} />
@@ -142,12 +143,12 @@ const Home = () => {
                 </div>
                 {topFinding && (
                   <div className="audit-card-risk">
-                    <span>Top risk</span>
+                    <span>Najważniejsze ryzyko</span>
                     <strong>{topFinding.title}</strong>
                   </div>
                 )}
                 <Button variant="outline-primary" onClick={() => navigate(`/analysis/${project.id}`)}>
-                  Open report
+                  Otwórz raport
                   <ArrowRight size={16} />
                 </Button>
               </article>

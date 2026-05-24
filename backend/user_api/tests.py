@@ -20,25 +20,24 @@ class AuthApiTests(TestCase):
                 "email": "new@example.com",
                 "username": "new-user",
                 "password": "pass12345",
-                "survey": {
-                    "direction": ["Backend"],
-                    "focus": ["Security"],
-                    "experience": "Beginner",
-                    "timeAvailable": "2-5",
-                    "technologies": [{"name": "Python", "level": "3"}],
-                    "challenges": ["Testing"],
-                },
             },
             format="json",
         )
 
         self.assertEqual(response.status_code, 201)
         self.assertIn("user", response.data)
+        self.assertIn("token", response.data)
         self.assertNotIn("password", response.data["user"])
 
         current_user = self.client.get("/api/user")
         self.assertEqual(current_user.status_code, 200)
         self.assertEqual(current_user.data["user"]["email"], "new@example.com")
+
+        token_client = APIClient()
+        token_client.credentials(HTTP_AUTHORIZATION=f"Token {response.data['token']}")
+        token_user = token_client.get("/api/user")
+        self.assertEqual(token_user.status_code, 200)
+        self.assertEqual(token_user.data["user"]["email"], "new@example.com")
 
     def test_login_logout_flow(self):
         login_response = self.client.post(
@@ -49,7 +48,13 @@ class AuthApiTests(TestCase):
 
         self.assertEqual(login_response.status_code, 200)
         self.assertEqual(login_response.data["user"]["email"], self.user.email)
+        self.assertIn("token", login_response.data)
         self.assertNotIn("password", login_response.data["user"])
+
+        token_client = APIClient()
+        token_client.credentials(HTTP_AUTHORIZATION=f"Token {login_response.data['token']}")
+        token_user = token_client.get("/api/user")
+        self.assertEqual(token_user.status_code, 200)
 
         current_user = self.client.get("/api/user")
         self.assertEqual(current_user.status_code, 200)
@@ -59,6 +64,9 @@ class AuthApiTests(TestCase):
 
         after_logout = self.client.get("/api/user")
         self.assertIn(after_logout.status_code, (401, 403))
+
+        token_after_logout = token_client.get("/api/user")
+        self.assertIn(token_after_logout.status_code, (401, 403))
 
     def test_invalid_login_returns_400(self):
         response = self.client.post(

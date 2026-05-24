@@ -19,7 +19,7 @@ class BaseChatManager(ABC):
         self.model = model
         self.sessions: Dict[str, List[Dict[str, str]]] = {}
 
-    def new_session(self, session_id: str, system_prompt: str = "You are a helpful assistant."):
+    def new_session(self, session_id: str, system_prompt: str = "Jesteś pomocnym asystentem technicznym. Odpowiadaj po polsku."):
         """
         Create a new chat session with a system prompt.
 
@@ -92,7 +92,7 @@ class BaseChatManager(ABC):
         self.add_message(session_id, "assistant", reply)
         return reply
 
-    def get_response_once(self, user_message: str, system_prompt: str = "You are a helpful assistant.") -> str:
+    def get_response_once(self, user_message: str, system_prompt: str = "Jesteś pomocnym asystentem technicznym. Odpowiadaj po polsku.") -> str:
         """
         Handle a one-time user message outside of any session.
 

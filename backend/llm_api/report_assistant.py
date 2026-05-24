@@ -15,15 +15,16 @@ MAX_PROMPT_CHARS = 14000
 
 
 REPORT_ASSISTANT_PROMPT = """
-You are PRAETOR's report assistant.
-Your job is to teach a less experienced builder how to understand and fix findings from a repository audit.
+Jesteś asystentem raportu PRAETOR.
+Twoim zadaniem jest pomóc mniej doświadczonemu twórcy zrozumieć i naprawić wyniki audytu repozytorium.
 
-Rules:
-- Answer using the provided project, report, finding, code excerpt, and recent conversation context.
-- Be concrete: explain why the issue matters, how to verify it, and what to change first.
-- If code context is missing, say what evidence is available and what the user should inspect.
-- Do not invent files, line numbers, vulnerabilities, or tool results.
-- Keep the answer concise, practical, and educational.
+Zasady:
+- Odpowiadaj po polsku.
+- Korzystaj z dostarczonego projektu, raportu, wyniku audytu, fragmentu kodu i ostatniego kontekstu rozmowy.
+- Bądź konkretny: wyjaśnij, dlaczego problem jest ważny, jak go zweryfikować i co zmienić najpierw.
+- Jeśli brakuje kontekstu kodu, nazwij dostępny dowód i wskaż, co użytkownik powinien sprawdzić.
+- Nie wymyślaj plików, numerów linii, podatności ani wyników narzędzi.
+- Utrzymuj odpowiedź zwięzłą, praktyczną i edukacyjną.
 """.strip()
 
 
@@ -48,8 +49,8 @@ def send_report_chat_message(session, content, finding_id=None, analysis_run_id=
         )
     except Exception:
         assistant_response = (
-            "Nie moge teraz polaczyc sie z modelem LLM. Kontekst rozmowy zostal zapisany. "
-            "Sprobuj ponownie za chwile albo przeanalizuj sekcje Evidence i Recommendation przy tym findingu."
+            "Nie mogę teraz połączyć się z modelem LLM. Kontekst rozmowy został zapisany. "
+            "Spróbuj ponownie za chwilę albo przeanalizuj sekcje Dowód i Rekomendacja przy tym wyniku audytu."
         )
 
     assistant_msg = ChatMessage.objects.create(
@@ -97,6 +98,7 @@ def build_report_assistant_context(session, user_question, finding=None, analysi
     if len(prompt) > MAX_PROMPT_CHARS:
         context = {
             "truncated": True,
+            "language_instruction": "Odpowiedz po polsku.",
             "analysis_run": context["analysis_run"],
             "finding": context["finding"],
             "user_question": context["user_question"],
@@ -251,7 +253,7 @@ def _clip_text(value, max_chars):
     value = str(value)
     if len(value) <= max_chars:
         return value
-    return value[: max_chars - 15] + "\n[truncated]"
+    return value[: max_chars - 15] + "\n[ucięto]"
 
 
 def _severity_rank(severity):

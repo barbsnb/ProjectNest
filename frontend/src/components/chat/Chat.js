@@ -4,6 +4,7 @@ import { SendHorizontal } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
 import client from "../../axiosClient";
+import { categoryLabels, labelOrValue, severityLabels } from "../../utils/auditLabels";
 import "./Chat.css";
 
 const severityVariant = {
@@ -38,15 +39,15 @@ const Chat = ({ projectId, findingContext }) => {
       const response = await client.get(`/api/chat/sessions/${nextSessionId}/messages/`);
       setMessages(response.data.map(formatMessage));
     } catch (error) {
-      console.error("Message loading failed:", error);
-      setError("Nie udalo sie pobrac historii rozmowy.");
+      console.error("Nie udało się pobrać wiadomości:", error);
+      setError("Nie udało się pobrać historii rozmowy.");
     }
   }, []);
 
   const createSession = useCallback(async () => {
     const response = await client.post("/api/chat/sessions/", {
       project_id: projectId,
-      title: "Report assistant",
+      title: "Asystent raportu",
     });
     return response.data;
   }, [projectId]);
@@ -72,8 +73,8 @@ const Chat = ({ projectId, findingContext }) => {
         setSessionId(session.session_id);
         await fetchMessages(session.session_id);
       } catch (error) {
-        console.error("Chat session loading failed:", error);
-        setError("Nie udalo sie przygotowac asystenta dla tego projektu.");
+        console.error("Nie udało się przygotować sesji czatu:", error);
+        setError("Nie udało się przygotować asystenta dla tego projektu.");
       } finally {
         setIsLoadingSession(false);
       }
@@ -85,7 +86,7 @@ const Chat = ({ projectId, findingContext }) => {
   useEffect(() => {
     if (!activeContext) return;
 
-    setInput((current) => current || "Wyjasnij, dlaczego to jest problem i jak naprawic go krok po kroku.");
+    setInput((current) => current || "Wyjaśnij, dlaczego to jest problem i jak naprawić go krok po kroku.");
   }, [activeContext]);
 
   const handleSend = async () => {
@@ -116,14 +117,14 @@ const Chat = ({ projectId, findingContext }) => {
       const { assistant_message } = response.data;
       setMessages((prev) => [...prev, formatMessage(assistant_message)]);
     } catch (error) {
-      console.error("Message sending failed:", error);
-      setError("Nie udalo sie wyslac pytania. Sprobuj ponownie za chwile.");
+      console.error("Nie udało się wysłać wiadomości:", error);
+      setError("Nie udało się wysłać pytania. Spróbuj ponownie za chwilę.");
       setMessages((prev) => [
         ...prev,
         {
           id: `error-${Date.now()}`,
           from: "assistant",
-          text: "Nie moge teraz odpowiedziec. Historia rozmowy pozostala bezpieczna, a raport nadal jest dostepny.",
+          text: "Nie mogę teraz odpowiedzieć. Historia rozmowy pozostała bezpieczna, a raport nadal jest dostępny.",
         },
       ]);
     } finally {
@@ -142,13 +143,13 @@ const Chat = ({ projectId, findingContext }) => {
     <div className="chat-wrapper">
       <div className="chat-header">
         <div>
-          <p>Report assistant</p>
-          <h2>Ask about the audit</h2>
+          <p>Asystent raportu</p>
+          <h2>Zapytaj o audyt</h2>
         </div>
         {isLoadingSession && (
           <span className="chat-loading-label">
             <Spinner animation="border" size="sm" />
-            Preparing context
+            Przygotowuję kontekst
           </span>
         )}
       </div>
@@ -156,13 +157,15 @@ const Chat = ({ projectId, findingContext }) => {
       {activeContext && (
         <section className="assistant-context-card">
           <div>
-            <span>Current context</span>
+            <span>Bieżący kontekst</span>
             <h3>{activeContext.title}</h3>
           </div>
           <div className="assistant-context-meta">
-            <Badge bg={severityVariant[activeContext.severity] || "secondary"}>{activeContext.severity}</Badge>
-            <span>{activeContext.category}</span>
-            <code>{activeContext.file_path || "repository"}{activeContext.line_start ? `:${activeContext.line_start}` : ""}</code>
+            <Badge bg={severityVariant[activeContext.severity] || "secondary"}>
+              {labelOrValue(severityLabels, activeContext.severity)}
+            </Badge>
+            <span>{labelOrValue(categoryLabels, activeContext.category)}</span>
+            <code>{activeContext.file_path || "repozytorium"}{activeContext.line_start ? `:${activeContext.line_start}` : ""}</code>
           </div>
         </section>
       )}
@@ -172,8 +175,8 @@ const Chat = ({ projectId, findingContext }) => {
       <div className="chat-box">
         {messages.length === 0 && !isLoadingSession && (
           <div className="chat-empty-state">
-            <strong>No conversation yet.</strong>
-            <p>Ask about a finding, the latest report, or the safest next remediation step.</p>
+            <strong>Brak rozmowy.</strong>
+            <p>Zapytaj o wynik audytu, najnowszy raport albo najbezpieczniejszy kolejny krok naprawczy.</p>
           </div>
         )}
 
@@ -186,14 +189,14 @@ const Chat = ({ projectId, findingContext }) => {
         {isSending && (
           <div className="message assistant pending">
             <Spinner animation="border" size="sm" />
-            Reading report context...
+            Czytam kontekst raportu...
           </div>
         )}
       </div>
 
       <div className="chat-input-container">
         <textarea
-          placeholder={activeContext ? "Ask how to understand or fix this finding..." : "Ask about the latest audit report..."}
+          placeholder={activeContext ? "Zapytaj, jak zrozumieć lub naprawić ten problem..." : "Zapytaj o najnowszy raport audytu..."}
           value={input}
           onChange={(event) => setInput(event.target.value)}
           onKeyDown={handleKeyDown}
@@ -203,7 +206,7 @@ const Chat = ({ projectId, findingContext }) => {
         />
         <button onClick={handleSend} className="chat-send-btn" disabled={!sessionId || !input.trim() || isSending}>
           {isSending ? <Spinner animation="border" size="sm" /> : <SendHorizontal size={17} />}
-          Send
+          Wyślij
         </button>
       </div>
     </div>

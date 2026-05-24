@@ -29,8 +29,8 @@ export const UserProjectsProvider = ({ children }) => {
         setUserProjects(res.data);
       })
       .catch((error) => {
-        console.error("Failed to fetch user projects:", error);
-        setProjectsError("Nie udalo sie pobrac projektow.");
+        console.error("Nie udało się pobrać projektów użytkownika:", error);
+        setProjectsError("Nie udało się pobrać projektów.");
       })
       .finally(() => {
         setProjectsLoading(false);

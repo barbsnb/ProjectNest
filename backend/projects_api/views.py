@@ -53,9 +53,9 @@ class UserProject(APIView):
         if serializer.is_valid():
             serializer.save()
             project = serializer.instance
-            logger.info(f"Project {project.id} created")
+            logger.info("Utworzono projekt %s.", project.id)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        logger.error(f"Project creation failed with errors: {serializer.errors}")
+        logger.error("Nie udało się utworzyć projektu: %s", serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
@@ -78,9 +78,9 @@ class ProjectIngestView(APIView):
         except RepoIngestionError as exc:
             return Response({"error": exc.message}, status=exc.status_code)
         except Exception as exc:
-            logger.exception(f"Unexpected repository ingestion error for project {project_id}: {exc}")
+            logger.exception("Nieoczekiwany błąd indeksowania repozytorium dla projektu %s: %s", project_id, exc)
             return Response(
-                {"error": "Nie udalo sie zindeksowac repozytorium."},
+                {"error": "Nie udało się zindeksować repozytorium."},
                 status=status.HTTP_502_BAD_GATEWAY,
             )
 
@@ -159,10 +159,13 @@ class ProjectReportSummaryView(APIView):
             key=lambda item: (SEVERITY_ORDER.index(item.severity), -item.confidence, item.category, item.title),
         )[:3]
 
+        latest_run = _analysis_run_summary_payload(run, findings, category_scores)
+        agent_results = _agent_result_summary_payloads(run, findings)
+
         return Response(
             {
                 "project": UserProjectSerializer(project).data,
-                "latest_run": AnalysisRunSerializer(run).data,
+                "latest_run": latest_run,
                 "score_total": run.score_total,
                 "status": run.status,
                 "critical_count": sum(1 for finding in findings if finding.severity == Finding.SEVERITY_CRITICAL),
@@ -170,7 +173,7 @@ class ProjectReportSummaryView(APIView):
                 "category_counts": category_counts,
                 "category_scores": category_scores,
                 "top_findings": FindingSerializer(top_findings, many=True).data,
-                "agent_results": AnalysisRunSerializer(run).data.get("agent_results", []),
+                "agent_results": agent_results,
             },
             status=status.HTTP_200_OK,
         )
@@ -225,10 +228,10 @@ class ProjectAnalysisGenerate(APIView):
             analysis_data = UserProjectUpdater.update_project_analysis(project_id=project_id)
             return Response(analysis_data, status=status.HTTP_200_OK)
         except Project.DoesNotExist:
-            return Response({"error": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "Projekt nie istnieje."}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            logger.error(f"Error generating analysis: {e}")
-            return Response({"error": "Error generating analysis"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.error("Błąd generowania analizy: %s", e)
+            return Response({"error": "Nie udało się wygenerować analizy."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class ProjectSuggestionsGenerate(APIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -239,10 +242,10 @@ class ProjectSuggestionsGenerate(APIView):
             suggestions_data = UserProjectSuggestionsGenerator.generate_project_suggestions(project_id=project_id)
             return Response(suggestions_data, status=status.HTTP_200_OK)
         except Project.DoesNotExist:
-            return Response({"error": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "Projekt nie istnieje."}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            logger.error(f"Error generating suggestions: {e}")
-            return Response({"error": "Error generating suggestions"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.error("Błąd generowania sugestii: %s", e)
+            return Response({"error": "Nie udało się wygenerować sugestii."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class ProjectListView(generics.ListAPIView):
@@ -287,3 +290,43 @@ def _severity_penalty(severity):
         Finding.SEVERITY_LOW: 3,
         Finding.SEVERITY_INFO: 0,
     }.get(severity, 0)
+
+
+def _analysis_run_summary_payload(run, findings, category_scores):
+    return {
+        "id": run.id,
+        "project": run.project_id,
+        "snapshot": run.snapshot_id,
+        "status": run.status,
+        "started_at": run.started_at,
+        "finished_at": run.finished_at,
+        "error_message": run.error_message,
+        "score_total": run.score_total,
+        "findings_count": len(findings),
+        "category_scores": category_scores,
+    }
+
+
+def _agent_result_summary_payloads(run, findings):
+    finding_counts = {}
+    for finding in findings:
+        if finding.agent_name:
+            finding_counts[finding.agent_name] = finding_counts.get(finding.agent_name, 0) + 1
+
+    return [
+        {
+            "id": result.id,
+            "run": result.run_id,
+            "agent_name": result.agent_name,
+            "status": result.status,
+            "model": result.model,
+            "prompt_version": result.prompt_version,
+            "summary": result.summary,
+            "started_at": result.started_at,
+            "finished_at": result.finished_at,
+            "created_at": result.created_at,
+            "error_message": result.error_message,
+            "findings_count": finding_counts.get(result.agent_name, 0),
+        }
+        for result in run.agent_results.all()
+    ]

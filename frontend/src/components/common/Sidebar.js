@@ -21,31 +21,31 @@ const Sidebar = () => {
   return (
     <aside className="sidebar-container">
       <div className="sidebar-section">
-        <p className="sidebar-label">Workspace</p>
+        <p className="sidebar-label">Obszar pracy</p>
         <button className={isActive("/home") ? "active" : ""} onClick={() => navigate("/home")} type="button">
           <Home size={18} />
-          <span>Dashboard</span>
+          <span>Panel</span>
         </button>
         <button className={isActive("/project") ? "active" : ""} onClick={() => navigate("/project")} type="button">
           <FilePlus size={18} />
-          <span>New Audit</span>
+          <span>Nowy audyt</span>
         </button>
         <button className={isActive("/devpath") ? "active" : ""} onClick={() => navigate("/devpath")} type="button">
           <Gauge size={18} />
-          <span>Roadmap</span>
+          <span>Plan rozwoju</span>
         </button>
       </div>
 
       <div className="sidebar-section audits-section">
         <div className="sidebar-title-row">
-          <p className="sidebar-label">Audits</p>
+          <p className="sidebar-label">Audyty</p>
           <span>{userProjects.length}</span>
         </div>
         <div className="sidebar-filter">
           <Search size={15} />
           <input
             type="text"
-            placeholder="Filter audits"
+            placeholder="Filtruj audyty"
             value={filter}
             onChange={(event) => setFilter(event.target.value)}
           />
@@ -53,7 +53,7 @@ const Sidebar = () => {
 
         <div className="sidebar-projects">
           {filteredProjects.length === 0 ? (
-            <p className="sidebar-empty">No matching audits.</p>
+            <p className="sidebar-empty">Brak pasujących audytów.</p>
           ) : (
             filteredProjects.map((project) => (
               <button

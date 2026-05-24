@@ -148,7 +148,7 @@ class StringLLMChatInterface(LLMChatInterface):
         except (ValueError, SyntaxError):
             pass
 
-        raise ValueError(f"Unable to convert string to list of dictionaries. Input was:\n{s}")
+        raise ValueError(f"Nie udało się przekształcić odpowiedzi modelu do listy słowników. Odpowiedź:\n{s}")
 
 from openai import OpenAI
 
@@ -157,7 +157,7 @@ def test_openai_connection():
         client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         response = client.chat.completions.create(
             model=os.getenv("OPENAI_MODEL", "gpt-4.1-nano"),
-            messages=[{"role": "user", "content": "Hello!"}],
+            messages=[{"role": "user", "content": "Cześć!"}],
         )
         return response.choices[0].message.content
     except Exception as e:

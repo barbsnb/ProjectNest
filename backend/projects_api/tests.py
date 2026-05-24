@@ -49,7 +49,7 @@ def fake_github_get(url, **kwargs):
 
 class FakeOneBadAgentLLM:
     def conditioning_msg_string(self, conditioning, raw_prompt, session_id=None):
-        if "Security Auditor" in conditioning:
+        if "Audytor bezpieczeństwa" in conditioning:
             return "not-json"
         return '{"summary":"ok","findings":[]}'
 
@@ -58,17 +58,17 @@ class FakeDuplicateFindingLLM:
     def conditioning_msg_string(self, conditioning, raw_prompt, session_id=None):
         return """
         {
-          "summary": "duplicate finding",
+          "summary": "zduplikowany wynik",
           "findings": [
             {
               "category": "architecture",
               "severity": "medium",
-              "title": "Service layer is too tightly coupled",
-              "description": "The same architectural issue was reported by multiple agents.",
+              "title": "Warstwa usług jest zbyt silnie sprzężona",
+              "description": "Ten sam problem architektoniczny został zgłoszony przez wielu agentów.",
               "file_path": "src/app.py",
               "line_start": 10,
               "evidence": "src/app.py:10",
-              "recommendation": "Separate orchestration from request handling.",
+              "recommendation": "Oddziel orkiestrację od obsługi żądania.",
               "confidence": 0.82
             }
           ]
@@ -308,6 +308,7 @@ class RepositoryIngestionApiTests(TestCase):
             run=run,
             category="security",
             severity=Finding.SEVERITY_CRITICAL,
+            agent_name="Audytor bezpieczeństwa",
             title="Hardcoded secret",
             description="A secret-like value was detected.",
             file_path="settings.py",
@@ -315,11 +316,25 @@ class RepositoryIngestionApiTests(TestCase):
             recommendation="Rotate and remove the credential.",
             confidence=0.95,
         )
+        AgentResult.objects.create(
+            run=run,
+            agent_name="Audytor bezpieczeństwa",
+            status=AnalysisRun.STATUS_COMPLETED,
+            model="test-model",
+            prompt_version="v-test",
+            summary="Security review completed.",
+            raw_output={"large": "raw llm payload"},
+            normalized_output={"large": "normalized llm payload"},
+        )
 
         owner_response = self.client.get(f"/api/projects/{project.id}/report-summary/")
         self.assertEqual(owner_response.status_code, 200)
         self.assertEqual(owner_response.data["critical_count"], 1)
         self.assertEqual(owner_response.data["top_findings"][0]["status"], Finding.STATUS_NEW)
+        self.assertEqual(owner_response.data["agent_results"][0]["findings_count"], 1)
+        self.assertNotIn("raw_output", owner_response.data["agent_results"][0])
+        self.assertNotIn("normalized_output", owner_response.data["agent_results"][0])
+        self.assertNotIn("agent_results", owner_response.data["latest_run"])
 
         self.client.force_authenticate(user=self.other_user)
         other_response = self.client.get(f"/api/projects/{project.id}/report-summary/")
@@ -372,8 +387,8 @@ class RepositoryIngestionApiTests(TestCase):
 
         agent_results = AgentResult.objects.filter(run_id=response.data["id"], prompt_version="praetor-agent-v1")
         self.assertEqual(agent_results.count(), 4)
-        self.assertEqual(agent_results.get(agent_name="Security Auditor").status, AnalysisRun.STATUS_FAILED)
-        self.assertEqual(agent_results.exclude(agent_name="Security Auditor").filter(status=AnalysisRun.STATUS_COMPLETED).count(), 3)
+        self.assertEqual(agent_results.get(agent_name="Audytor bezpieczeństwa").status, AnalysisRun.STATUS_FAILED)
+        self.assertEqual(agent_results.exclude(agent_name="Audytor bezpieczeństwa").filter(status=AnalysisRun.STATUS_COMPLETED).count(), 3)
 
     @patch("projects_api.services.agent_orchestrator._build_llm_interface", return_value=FakeDuplicateFindingLLM())
     @patch("projects_api.services.analysis_pipeline.load_repository_text_files")

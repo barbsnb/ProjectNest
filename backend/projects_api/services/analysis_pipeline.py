@@ -19,22 +19,22 @@ from projects_api.services.repo_ingestion import (
 logger = logging.getLogger(__name__)
 
 SECRET_PATTERNS = [
-    ("AWS access key", re.compile(r"\bAKIA[0-9A-Z]{16}\b")),
-    ("OpenAI API key", re.compile(r"\bsk(?:-proj)?-[A-Za-z0-9_-]{20,}\b")),
-    ("GitHub token", re.compile(r"\bgh[pousr]_[A-Za-z0-9_]{36,255}\b")),
-    ("Google API key", re.compile(r"\bAIza[0-9A-Za-z_-]{35}\b")),
-    ("Private key header", re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----")),
+    ("klucz dostępu AWS", re.compile(r"\bAKIA[0-9A-Z]{16}\b")),
+    ("klucz API OpenAI", re.compile(r"\bsk(?:-proj)?-[A-Za-z0-9_-]{20,}\b")),
+    ("token GitHub", re.compile(r"\bgh[pousr]_[A-Za-z0-9_]{36,255}\b")),
+    ("klucz API Google", re.compile(r"\bAIza[0-9A-Za-z_-]{35}\b")),
+    ("nagłówek klucza prywatnego", re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----")),
 ]
 
 DEPENDENCY_MANIFESTS = {
-    "package.json": "Node.js package manifest",
-    "package-lock.json": "Node.js locked dependency graph",
-    "yarn.lock": "Yarn locked dependency graph",
-    "pnpm-lock.yaml": "pnpm locked dependency graph",
-    "requirements.txt": "Python pinned dependency list",
-    "pyproject.toml": "Python project manifest",
-    "Pipfile": "Python Pipenv manifest",
-    "poetry.lock": "Poetry locked dependency graph",
+    "package.json": "Manifest pakietów Node.js",
+    "package-lock.json": "Zablokowany graf zależności Node.js",
+    "yarn.lock": "Zablokowany graf zależności Yarn",
+    "pnpm-lock.yaml": "Zablokowany graf zależności pnpm",
+    "requirements.txt": "Lista zależności Python",
+    "pyproject.toml": "Manifest projektu Python",
+    "Pipfile": "Manifest Pipenv dla Python",
+    "poetry.lock": "Zablokowany graf zależności Poetry",
 }
 
 LANGUAGE_BY_EXTENSION = {
@@ -93,8 +93,8 @@ def execute_analysis_run(project):
     except RepoIngestionError as exc:
         _fail_run(run, exc.message)
     except Exception as exc:
-        logger.exception("Unexpected analysis error for project %s.", project.id)
-        _fail_run(run, "Unexpected analysis error.")
+        logger.exception("Nieoczekiwany błąd analizy projektu %s.", project.id)
+        _fail_run(run, "Wystąpił nieoczekiwany błąd analizy.")
 
     return run
 
@@ -126,14 +126,14 @@ def _scan_secret_patterns(run, files):
                     {
                         "category": "security",
                         "severity": Finding.SEVERITY_CRITICAL,
-                        "title": f"Potential secret detected: {label}",
-                        "description": "A deterministic secret pattern matched repository source code.",
+                        "title": f"Wykryto potencjalny sekret: {label}",
+                        "description": "Deterministyczny skaner znalazł w kodzie wzorzec przypominający sekret.",
                         "file_path": path,
                         "line_start": line_number,
                         "evidence": _mask_secret_match(label, match.group(0)),
                         "recommendation": (
-                            "Remove the value from git history, rotate the credential, and load it from a "
-                            "secret manager or environment variable."
+                            "Usuń wartość z historii gita, zrotuj poświadczenie i ładuj je z menedżera sekretów "
+                            "albo ze zmiennej środowiskowej."
                         ),
                         "confidence": 0.95,
                     }
@@ -143,7 +143,7 @@ def _scan_secret_patterns(run, files):
         run=run,
         agent_name="secret_pattern_scan",
         status=AnalysisRun.STATUS_COMPLETED,
-        summary=f"Scanned {len(files)} files and {scanned_lines} lines for high-risk secret patterns.",
+        summary=f"Przeskanowano {len(files)} plików i {scanned_lines} linii pod kątem sekretów wysokiego ryzyka.",
         raw_output={"findings_count": len(findings), "scanned_files": len(files), "scanned_lines": scanned_lines},
         normalized_output={"findings_count": len(findings)},
         prompt_version="deterministic-v1",
@@ -168,12 +168,15 @@ def _detect_dependency_manifests(run, files):
             {
                 "category": "dependencies",
                 "severity": Finding.SEVERITY_INFO,
-                "title": f"Dependency manifest detected: {name}",
+                "title": f"Wykryto manifest zależności: {name}",
                 "description": DEPENDENCY_MANIFESTS[name],
                 "file_path": file_data["path"],
                 "line_start": None,
-                "evidence": f"{name} is present in the repository snapshot.",
-                "recommendation": "Keep dependency manifests locked, reviewed, and covered by automated vulnerability checks.",
+                "evidence": f"{name} znajduje się w zindeksowanym snapshocie repozytorium.",
+                "recommendation": (
+                    "Utrzymuj zależności w plikach lock, regularnie je przeglądaj i obejmij automatycznym "
+                    "skanowaniem podatności."
+                ),
                 "confidence": 0.9,
             }
         )
@@ -182,7 +185,7 @@ def _detect_dependency_manifests(run, files):
         run=run,
         agent_name="dependency_manifest_detection",
         status=AnalysisRun.STATUS_COMPLETED,
-        summary=f"Detected {len(manifests)} dependency manifest files.",
+        summary=f"Wykryto {len(manifests)} plików manifestów zależności.",
         raw_output={"manifests": manifests},
         normalized_output={"findings_count": len(findings), "manifests": manifests},
         prompt_version="deterministic-v1",
@@ -202,7 +205,7 @@ def _run_npm_audit(run, files):
             run=run,
             agent_name="npm_audit",
             status=AnalysisRun.STATUS_COMPLETED,
-            summary="No package-lock.json detected.",
+            summary="Nie wykryto pliku package-lock.json.",
             raw_output={"skipped": True, "reason": "missing_package_lock"},
             normalized_output={"findings_count": 0},
             prompt_version="deterministic-v1",
@@ -216,13 +219,13 @@ def _run_npm_audit(run, files):
             run=run,
             agent_name="npm_audit",
             status=AnalysisRun.STATUS_FAILED,
-            summary="package-lock.json detected, but matching package.json is missing.",
+            summary="Wykryto package-lock.json, ale brakuje odpowiadającego pliku package.json.",
             raw_output={"skipped": True, "reason": "missing_package_json", "package_lock": package_lock["path"]},
             normalized_output={"findings_count": 0},
             prompt_version="deterministic-v1",
             started_at=started_at,
             finished_at=timezone.now(),
-            error_message="npm audit requires package.json next to package-lock.json.",
+            error_message="npm audit wymaga pliku package.json obok package-lock.json.",
         )
         return []
 
@@ -233,7 +236,7 @@ def _run_npm_audit(run, files):
             run=run,
             agent_name="npm_audit",
             status=AnalysisRun.STATUS_FAILED,
-            summary="npm audit could not complete.",
+            summary="Nie udało się zakończyć npm audit.",
             raw_output={"package_lock": package_lock["path"]},
             normalized_output={"findings_count": 0},
             prompt_version="deterministic-v1",
@@ -254,11 +257,14 @@ def _run_npm_audit(run, files):
                 "category": "dependencies",
                 "severity": severity,
                 "title": title,
-                "description": f"npm audit reported a {vulnerability.get('severity', 'unknown')} issue in {package_name}.",
+                "description": (
+                    f"npm audit zgłosił problem o poziomie {_npm_severity_label(vulnerability.get('severity'))} "
+                    f"w pakiecie {package_name}."
+                ),
                 "file_path": package_lock["path"],
                 "line_start": None,
-                "evidence": f"Package: {package_name}; range: {vulnerability.get('range', 'unknown')}",
-                "recommendation": "Review the affected package and run a controlled dependency update or npm audit fix.",
+                "evidence": f"Pakiet: {package_name}; zakres: {vulnerability.get('range', 'nieznany')}",
+                "recommendation": "Sprawdź podatny pakiet i wykonaj kontrolowaną aktualizację zależności albo npm audit fix.",
                 "confidence": 0.9,
             }
         )
@@ -268,7 +274,7 @@ def _run_npm_audit(run, files):
         run=run,
         agent_name="npm_audit",
         status=AnalysisRun.STATUS_COMPLETED,
-        summary=f"npm audit reported {len(vulnerabilities)} vulnerable packages.",
+        summary=f"npm audit zgłosił {len(vulnerabilities)} podatnych pakietów.",
         raw_output={
             "package_lock": package_lock["path"],
             "vulnerabilities": metadata.get("vulnerabilities", {}),
@@ -294,12 +300,15 @@ def _record_python_dependency_placeholder(run, files):
             {
                 "category": "dependencies",
                 "severity": Finding.SEVERITY_INFO,
-                "title": "Python dependency audit pending",
-                "description": "A Python dependency manifest is present, but a local vulnerability scanner is not configured yet.",
+                "title": "Audyt zależności Python wymaga konfiguracji",
+                "description": (
+                    "W repozytorium wykryto manifest zależności Python, ale lokalny skaner podatności "
+                    "nie jest jeszcze skonfigurowany."
+                ),
                 "file_path": file_data["path"],
                 "line_start": None,
-                "evidence": f"Detected {PurePosixPath(file_data['path']).name}.",
-                "recommendation": "Add pip-audit or Safety integration in the dependency audit stage.",
+                "evidence": f"Wykryto {PurePosixPath(file_data['path']).name}.",
+                "recommendation": "Dodaj integrację pip-audit albo Safety w etapie audytu zależności.",
                 "confidence": 0.7,
             }
         )
@@ -308,7 +317,7 @@ def _record_python_dependency_placeholder(run, files):
         run=run,
         agent_name="python_dependency_audit",
         status=AnalysisRun.STATUS_COMPLETED,
-        summary=f"Recorded placeholder for {len(python_manifests)} Python manifests.",
+        summary=f"Zapisano informację o {len(python_manifests)} manifestach Python wymagających audytu.",
         raw_output={"manifests": [file_data["path"] for file_data in python_manifests]},
         normalized_output={"findings_count": len(findings)},
         prompt_version="deterministic-v1",
@@ -323,7 +332,7 @@ def _record_repo_metrics(run, snapshot, files):
     languages = Counter()
     for file_data in files:
         extension = PurePosixPath(file_data["path"]).suffix.lower()
-        language = LANGUAGE_BY_EXTENSION.get(extension, extension.lstrip(".") or "Other")
+        language = LANGUAGE_BY_EXTENSION.get(extension, extension.lstrip(".") or "Inne")
         languages[language] += 1
 
     largest_files = sorted(
@@ -343,7 +352,7 @@ def _record_repo_metrics(run, snapshot, files):
         run=run,
         agent_name="repo_metrics",
         status=AnalysisRun.STATUS_COMPLETED,
-        summary=f"Indexed {snapshot.file_count} text files and {snapshot.total_size_bytes} bytes.",
+        summary=f"Zindeksowano {snapshot.file_count} plików tekstowych i {snapshot.total_size_bytes} bajtów.",
         raw_output={
             "file_count": snapshot.file_count,
             "total_size_bytes": snapshot.total_size_bytes,
@@ -382,12 +391,12 @@ def _execute_npm_audit(package_json, package_lock):
 
     output = result.stdout or result.stderr
     if not output:
-        raise RuntimeError("npm audit returned no output.")
+        raise RuntimeError("npm audit nie zwrócił wyniku.")
 
     try:
         return json.loads(output)
     except json.JSONDecodeError as exc:
-        raise RuntimeError(f"npm audit returned non-JSON output: {output[:240]}") from exc
+        raise RuntimeError(f"npm audit zwrócił wynik, który nie jest poprawnym JSON: {output[:240]}") from exc
 
 
 def _find_file(files, filename):
@@ -421,16 +430,26 @@ def _normalize_npm_severity(severity):
 def _npm_vulnerability_title(package_name, via):
     for item in via:
         if isinstance(item, dict) and item.get("title"):
-            return item["title"]
-    return f"Vulnerable npm package: {package_name}"
+            return f"Podatność npm: {item['title']}"
+    return f"Podatny pakiet npm: {package_name}"
+
+
+def _npm_severity_label(severity):
+    return {
+        "critical": "krytycznym",
+        "high": "wysokim",
+        "moderate": "średnim",
+        "low": "niskim",
+        "info": "informacyjnym",
+    }.get(severity, "nieznanym")
 
 
 def _mask_secret_match(label, value):
-    if label == "Private key header":
-        return "Private key header detected."
+    if label == "nagłówek klucza prywatnego":
+        return "Wykryto nagłówek klucza prywatnego."
     if len(value) <= 8:
-        return "Matched secret-like value."
-    return f"Matched secret-like value: {value[:4]}...{value[-4:]}"
+        return "Dopasowano wartość przypominającą sekret."
+    return f"Dopasowano wartość przypominającą sekret: {value[:4]}...{value[-4:]}"
 
 
 def _calculate_score(findings):
@@ -450,9 +469,9 @@ def _tool_agent_name(category, title):
     title = (title or "").lower()
     if category == "security":
         return "secret_pattern_scan"
-    if "dependency manifest" in title:
+    if "dependency manifest" in title or "manifest zależności" in title:
         return "dependency_manifest_detection"
-    if "python dependency" in title:
+    if "python dependency" in title or "zależności python" in title:
         return "python_dependency_audit"
     if category == "dependencies":
         return "npm_audit"

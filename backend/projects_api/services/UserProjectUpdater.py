@@ -15,21 +15,21 @@ class UserProjectUpdater:
     @staticmethod
     def update_project_analysis(project_id: int) -> Dict[str, Any]:
         """
-        Update ProjectAnalysis for a given project using all project fields as the raw_prompt.
+        Aktualizuje klasyczny raport ProjectAnalysis na podstawie pól projektu.
         """
         try:
             project = Project.objects.get(pk=project_id)
         except Project.DoesNotExist:
-            logger.error(f"Project with id {project_id} not found.")
-            return {"error": "Project not found."}
+            logger.error("Projekt o id %s nie istnieje.", project_id)
+            return {"error": "Projekt nie istnieje."}
 
         # Serialize all fields into a readable string
         project_dict = model_to_dict(project)
         raw_prompt = "\n".join(f"{key}: {value}" for key, value in project_dict.items())
 
         if not raw_prompt.strip():
-            logger.warning(f"Project {project_id} has no usable data for analysis.")
-            return {"error": "Project has no content for analysis."}
+            logger.warning("Projekt %s nie ma danych możliwych do analizy.", project_id)
+            return {"error": "Projekt nie ma treści do analizy."}
 
         result = llm_interface.conditioning_msg(
             conditioning=ask_project_analysis,
@@ -45,9 +45,9 @@ class UserProjectUpdater:
         if serializer.is_valid():
             instance = serializer.save(project=project)
             logger.info(
-                f"ProjectAnalysis {'created' if not hasattr(instance, 'id') else 'updated'} for project id {project_id}."
+                "Zapisano ProjectAnalysis dla projektu %s.", project_id
             )
             return ProjectAnalysisSerializer(instance).data
         else:
-            logger.error(f"Validation failed for ProjectAnalysis update: {serializer.errors}")
+            logger.error("Walidacja ProjectAnalysis nie powiodła się: %s", serializer.errors)
             return {"errors": serializer.errors}

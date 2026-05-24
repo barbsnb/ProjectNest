@@ -23,7 +23,7 @@ class DjangoChatPersistenceMixin:
         try:
             session = ChatSession.objects.get(session_id=session_id)
         except ChatSession.DoesNotExist:
-            raise ValueError(f"No session found with ID: {session_id}")
+            raise ValueError(f"Nie znaleziono sesji o ID: {session_id}")
 
         return [
             {"role": msg.role, "content": msg.content}
@@ -45,8 +45,8 @@ class DjangoChatPersistenceMixin:
     def initialize_session(
         self,
         session_id: str,
-        system_prompt: str = "You are a helpful assistant.",
-        title: Optional[str] = "Untitled Session",
+        system_prompt: str = "Jesteś pomocnym asystentem technicznym. Odpowiadaj po polsku.",
+        title: Optional[str] = "Sesja bez tytułu",
         user=None
     ):
         """

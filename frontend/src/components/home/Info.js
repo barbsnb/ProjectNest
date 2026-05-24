@@ -1,6 +1,6 @@
-import React from 'react';
-import './Info.css';
-import RegistrationForm from '../auth/RegistrationForm';
+import React from "react";
+import RegistrationForm from "../auth/RegistrationForm";
+import "./Info.css";
 
 const Info = () => {
   const scrollToRegistration = () => {
@@ -11,43 +11,39 @@ const Info = () => {
   return (
     <div className="container">
       <main className="info-container">
-        
-        {/* Hero section */}
         <section className="hero-section">
-          <h1 className="hero-title">Chcesz ulepszyć swój projekt informatyczny?</h1>
+          <h1 className="hero-title">PRAETOR</h1>
           <p className="hero-subtitle">
-            Korzystaj z inteligentnych analiz, automatycznego feedbacku i buduj portfolio gotowe na rynek pracy.
+            Wieloagentowy audyt repozytorium GitHub: bezpieczeństwo, architektura, jakość kodu, testowalność,
+            wydajność, dokumentacja i konkretne rekomendacje napraw.
           </p>
-          <button className="hero-button" onClick={scrollToRegistration}>
-            Zarejestruj się za darmo
+          <button className="hero-button" onClick={scrollToRegistration} type="button">
+            Utwórz konto
           </button>
         </section>
 
-        {/* Info Cards */}
         <section className="info-cards">
           <div className="info-card">
-            <h2>Automatyczny feedback</h2>
-            <p>Wgraj projekt, a nasz AI przeanalizuje jakość kodu, strukturę i funkcjonalność.</p>
+            <h2>Audyt z linku GitHub</h2>
+            <p>Podajesz publiczny URL repozytorium, a PRAETOR indeksuje kod i przygotowuje techniczny raport.</p>
           </div>
           <div className="info-card">
-            <h2>Konsultacje projektów</h2>
-            <p>Otrzymuj szczegółowe uwagi i propozycje ulepszeń — jakbyś miał osobistego mentora.</p>
+            <h2>Agenci specjalistyczni</h2>
+            <p>Osobne perspektywy dla bezpieczeństwa, architektury, jakości kodu oraz testów i niezawodności.</p>
           </div>
           <div className="info-card">
-            <h2>Buduj portfolio</h2>
-            <p>Twórz spersonalizowane CV i dokumentuj swoje projekty zgodnie z oczekiwaniami rynku.</p>
+            <h2>Rekomendacje napraw</h2>
+            <p>Każdy wynik zawiera poziom ryzyka, dowód, plik, opis problemu i konkretny następny krok.</p>
           </div>
         </section>
 
-        {/* Rejestracja */}
         <section id="register-section" className="register-section">
           <div className="register-card">
-            <h1>Nie masz konta?</h1>
-            <p>Odpowiedz na kilka pytań, a dostosujemy asystenta AI do Twoich potrzeb.</p>
+            <h1>Rozpocznij audyt</h1>
+            <p>Załóż konto i przeanalizuj pierwsze repozytorium lokalnie w ramach MVP.</p>
             <RegistrationForm />
           </div>
         </section>
-
       </main>
     </div>
   );

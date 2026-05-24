@@ -18,12 +18,19 @@ const LogoutButton = () => {
     client
       .post("/api/logout")
       .then(() => {
+        window.localStorage.removeItem("praetorAuthToken");
         setCurrentUser(null);
         navigate("/");
       })
       .catch((err) => {
-        console.error("Logout failed: ", err);
-        setError("Logout failed.");
+        if ([401, 403].includes(err.response?.status)) {
+          window.localStorage.removeItem("praetorAuthToken");
+          setCurrentUser(null);
+          navigate("/");
+          return;
+        }
+        console.error("Wylogowanie nie powiodło się:", err);
+        setError("Nie udało się wylogować.");
       })
       .finally(() => {
         setIsLoggingOut(false);
@@ -33,7 +40,7 @@ const LogoutButton = () => {
   return (
     <span className="logout-control">
       <button className="navbar_btn" onClick={handleLogout} disabled={isLoggingOut} type="button">
-        {isLoggingOut ? "Logging out" : "Wyloguj"}
+        {isLoggingOut ? "Wylogowywanie..." : "Wyloguj"}
       </button>
       {error && <span className="logout-error">{error}</span>}
     </span>

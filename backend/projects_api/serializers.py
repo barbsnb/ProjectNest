@@ -44,7 +44,7 @@ class UserProjectSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request = self.context.get("request")
         if not request or not request.user or not request.user.is_authenticated:
-            raise serializers.ValidationError("Projekt musi byc przypisany do zalogowanego uzytkownika.")
+            raise serializers.ValidationError("Projekt musi być przypisany do zalogowanego użytkownika.")
         return Project.objects.create(user=request.user, **validated_data)
 
 

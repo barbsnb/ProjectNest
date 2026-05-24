@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Alert, Badge, Card, Container, Spinner } from "react-bootstrap";
 
 import client from "../../axiosClient";
+import { labelOrValue, priorityLabels } from "../../utils/auditLabels";
 import "./ProjectSuggestions.css";
 
 const statusLabels = {
@@ -33,8 +34,8 @@ const ProjectSuggestions = ({ projectId }) => {
         setProject(projectResponse.data);
         setSuggestions(suggestionsResponse.data);
       } catch (error) {
-        setError("Nie udalo sie pobrac sugestii dla tego projektu.");
-        console.error("Suggestions loading failed:", error);
+        setError("Nie udało się pobrać sugestii dla tego projektu.");
+        console.error("Nie udało się pobrać sugestii:", error);
       } finally {
         setLoading(false);
       }
@@ -62,7 +63,7 @@ const ProjectSuggestions = ({ projectId }) => {
   if (!suggestions || suggestions.length === 0) {
     return (
       <Container className="suggestion-container mt-3">
-        <h3 className="suggestion-header">Sugestie ulepszen: {project ? project.name : "(ladowanie...)"}</h3>
+        <h3 className="suggestion-header">Sugestie ulepszeń: {project ? project.name : "(ładowanie...)"}</h3>
         <p className="suggestion-content">Brak danych.</p>
       </Container>
     );
@@ -74,14 +75,14 @@ const ProjectSuggestions = ({ projectId }) => {
 
   return (
     <Container className="suggestion-container mt-3">
-      <h3 className="suggestion-header">Sugestie ulepszen: {project ? project.name : "(ladowanie...)"}</h3>
+      <h3 className="suggestion-header">Sugestie ulepszeń: {project ? project.name : "(ładowanie...)"}</h3>
       {sortedSuggestions.map((suggestion) => (
         <Card key={suggestion.id} className="mb-3 section-card">
           <Card.Body>
             <Card.Title>
               {suggestion.title}{" "}
               <Badge className={`priority-badge ${suggestion.priority}`}>
-                {suggestion.priority.charAt(0).toUpperCase() + suggestion.priority.slice(1)}
+                {labelOrValue(priorityLabels, suggestion.priority)}
               </Badge>
             </Card.Title>
             <Card.Subtitle className="mb-2 text-muted">

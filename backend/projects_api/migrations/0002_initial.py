@@ -5,6 +5,22 @@ from django.conf import settings
 from django.db import migrations, models
 
 
+def assign_legacy_project_owner(apps, schema_editor):
+    Project = apps.get_model("projects_api", "Project")
+    if not Project.objects.filter(user__isnull=True).exists():
+        return
+
+    AppUser = apps.get_model("user_api", "AppUser")
+    legacy_owner, _ = AppUser.objects.get_or_create(
+        email="legacy-project-owner@example.invalid",
+        defaults={
+            "username": "legacy_project_owner",
+            "password": "!",
+        },
+    )
+    Project.objects.filter(user__isnull=True).update(user=legacy_owner)
+
+
 class Migration(migrations.Migration):
 
     initial = True
@@ -16,6 +32,12 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
+            model_name='project',
+            name='user',
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+        ),
+        migrations.RunPython(assign_legacy_project_owner, migrations.RunPython.noop),
+        migrations.AlterField(
             model_name='project',
             name='user',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),

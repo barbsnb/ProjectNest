@@ -13,15 +13,15 @@ def custom_validation(data):
     errors = {}
 
     if not email:
-        errors["email"] = "Email jest wymagany."
+        errors["email"] = "Adres e-mail jest wymagany."
     elif UserModel.objects.filter(email=email).exists():
-        errors["email"] = "Ten email juz istnieje."
+        errors["email"] = "Ten adres e-mail już istnieje."
 
     if not username:
-        errors["username"] = "Nazwa uzytkownika jest wymagana."
+        errors["username"] = "Nazwa użytkownika jest wymagana."
 
     if not password or len(password) < 8:
-        errors["password"] = "Haslo musi miec co najmniej 8 znakow."
+        errors["password"] = "Hasło musi mieć co najmniej 8 znaków."
 
     if errors:
         raise ValidationError(errors)
