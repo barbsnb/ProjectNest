@@ -156,7 +156,7 @@ def test_openai_connection():
     try:
         client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         response = client.chat.completions.create(
-            model=os.getenv("OPENAI_MODEL", "gpt-4.1-nano"),
+            model=os.getenv("OPENAI_MODEL", "gpt-5.5"),
             messages=[{"role": "user", "content": "Cześć!"}],
         )
         return response.choices[0].message.content

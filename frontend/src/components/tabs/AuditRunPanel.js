@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Alert, Badge, Button, Form, Spinner, Table } from "react-bootstrap";
+import { Alert, Badge, Button, Form, ProgressBar, Spinner, Table } from "react-bootstrap";
 import { MessageSquare, Play, Search } from "lucide-react";
 
 import client from "../../axiosClient";
@@ -31,6 +31,29 @@ const statusVariant = {
 
 const riskOrder = { critical: 0, high: 1, medium: 2, low: 3, info: 4 };
 
+const progressByStatus = {
+  queued: 12,
+  ingesting: 38,
+  analyzing: 74,
+  completed: 100,
+  failed: 100,
+  not_started: 0,
+};
+
+const progressSteps = [
+  { label: "Start", threshold: 10 },
+  { label: "Indeksowanie", threshold: 35 },
+  { label: "Analiza", threshold: 70 },
+  { label: "Raport", threshold: 95 },
+];
+
+const getRunningProgressLabel = (progress) => {
+  if (progress < 30) return "Przygotowanie audytu";
+  if (progress < 55) return "Indeksowanie repozytorium";
+  if (progress < 88) return "Analiza narzędzi i agentów";
+  return "Składanie raportu";
+};
+
 const AuditRunPanel = ({ projectId, project, onAskAssistant }) => {
   const [summary, setSummary] = useState(null);
   const [run, setRun] = useState(null);
@@ -45,6 +68,7 @@ const AuditRunPanel = ({ projectId, project, onAskAssistant }) => {
   const [isRunning, setIsRunning] = useState(false);
   const [isLoadingSummary, setIsLoadingSummary] = useState(true);
   const [isLoadingFindings, setIsLoadingFindings] = useState(false);
+  const [auditProgress, setAuditProgress] = useState(0);
   const [error, setError] = useState("");
 
   const loadSummary = useCallback(async () => {
@@ -101,6 +125,26 @@ const AuditRunPanel = ({ projectId, project, onAskAssistant }) => {
   }, [loadSummary]);
 
   useEffect(() => {
+    if (!isRunning) {
+      const currentStatus = summary?.status || run?.status || "not_started";
+      setAuditProgress(progressByStatus[currentStatus] ?? 0);
+      return undefined;
+    }
+
+    setAuditProgress((current) => (current > 0 && current < 95 ? current : 12));
+    const timer = window.setInterval(() => {
+      setAuditProgress((current) => {
+        if (current < 35) return current + 6;
+        if (current < 70) return current + 4;
+        if (current < 92) return current + 1;
+        return 92;
+      });
+    }, 700);
+
+    return () => window.clearInterval(timer);
+  }, [isRunning, run?.status, summary?.status]);
+
+  useEffect(() => {
     if (run?.id) {
       setPage(1);
       loadFindings(run.id, 1);
@@ -121,6 +165,7 @@ const AuditRunPanel = ({ projectId, project, onAskAssistant }) => {
   const runAudit = async () => {
     setError("");
     setIsRunning(true);
+    setAuditProgress(12);
     setFindings([]);
     setSelectedFinding(null);
 
@@ -147,6 +192,11 @@ const AuditRunPanel = ({ projectId, project, onAskAssistant }) => {
   const agentResults = summary?.agent_results || run?.agent_results || [];
   const categoryScores = summary?.category_scores || run?.category_scores || {};
   const criticalHighCount = (summary?.critical_count || 0) + (summary?.high_count || 0);
+  const statusKey = summary?.status || run?.status || "not_started";
+  const progressLabel = isRunning ? getRunningProgressLabel(auditProgress) : labelOrValue(statusLabels, statusKey);
+  const progressVariant =
+    isRunning ? "primary" : statusKey === "failed" ? "danger" : statusKey === "completed" ? "success" : "secondary";
+  const shouldShowProgress = isRunning || statusKey !== "not_started";
 
   return (
     <div className="report-page">
@@ -163,6 +213,26 @@ const AuditRunPanel = ({ projectId, project, onAskAssistant }) => {
       </div>
 
       {error && <Alert variant={run?.status === "failed" ? "warning" : "danger"}>{error}</Alert>}
+
+      {shouldShowProgress && (
+        <div className="audit-progress-panel" aria-live="polite">
+          <div className="audit-progress-heading">
+            <div>
+              <span>Postęp audytu</span>
+              <strong>{progressLabel}</strong>
+            </div>
+            <span>{Math.round(auditProgress)}%</span>
+          </div>
+          <ProgressBar now={auditProgress} min={0} max={100} variant={progressVariant} aria-label="Postęp audytu" />
+          <div className="audit-progress-steps">
+            {progressSteps.map((step) => (
+              <span key={step.label} className={auditProgress >= step.threshold ? "done" : ""}>
+                {step.label}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="report-overview-grid">
         <div className="score-card">

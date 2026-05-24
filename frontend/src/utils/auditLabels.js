@@ -10,7 +10,7 @@ export const statusLabels = {
   queued: "W kolejce",
   ingesting: "Indeksowanie",
   analyzing: "Analiza",
-  completed: "Zakończony",
+  completed: "Zakończone",
   failed: "Błąd",
   not_started: "Nie rozpoczęto",
   new: "Nowe",

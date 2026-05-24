@@ -21,3 +21,17 @@ select,
 textarea {
   font: inherit;
 }
+
+.badge.bg-success,
+.badge.bg-danger,
+.badge.bg-primary,
+.badge.bg-secondary,
+.badge.bg-dark {
+  color: #ffffff !important;
+}
+
+.badge.bg-warning,
+.badge.bg-info,
+.badge.bg-light {
+  color: #17202e !important;
+}
