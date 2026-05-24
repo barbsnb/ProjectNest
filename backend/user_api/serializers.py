@@ -1,16 +1,8 @@
-# do przekształcania danych modeli django na forme przesylana przez siec
+from django.contrib.auth import authenticate, get_user_model
 from rest_framework import serializers
-from django.contrib.auth import get_user_model, authenticate
 
+from user_api.models import Survey
 
-# konteneryzacja danych do formatu json
-
-UserModel = get_user_model()
-
-
-from rest_framework import serializers
-from django.contrib.auth import get_user_model, authenticate
-from user_api.models import Survey  # zakładam, że masz Survey w user_api/models.py
 
 UserModel = get_user_model()
 
@@ -24,10 +16,10 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             "email",
             "username",
             "password",
-            "survey"
+            "survey",
         ]
         extra_kwargs = {
-            "password": {"write_only": True}
+            "password": {"write_only": True},
         }
 
     def create(self, validated_data):
@@ -55,16 +47,17 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
 class UserLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    password = serializers.CharField()
+    password = serializers.CharField(write_only=True)
 
-    ##
     def check_user(self, clean_data):
         user = authenticate(
-            username=clean_data["email"], password=clean_data["password"]
+            username=clean_data["email"],
+            password=clean_data["password"],
         )
         if not user:
-            raise ValueError("user not found")
+            raise serializers.ValidationError("Nieprawidlowy email lub haslo.")
         return user
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -74,7 +67,3 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
             "username",
         )
-
-
-
-

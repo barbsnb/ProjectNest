@@ -3,6 +3,7 @@ from pathlib import PurePosixPath
 from tempfile import TemporaryDirectory
 from django.utils import timezone
 import json
+import logging
 import subprocess
 import re
 
@@ -14,6 +15,8 @@ from projects_api.services.repo_ingestion import (
     load_repository_text_files,
 )
 
+
+logger = logging.getLogger(__name__)
 
 SECRET_PATTERNS = [
     ("AWS access key", re.compile(r"\bAKIA[0-9A-Z]{16}\b")),
@@ -90,7 +93,8 @@ def execute_analysis_run(project):
     except RepoIngestionError as exc:
         _fail_run(run, exc.message)
     except Exception as exc:
-        _fail_run(run, f"Unexpected analysis error: {exc}")
+        logger.exception("Unexpected analysis error for project %s.", project.id)
+        _fail_run(run, "Unexpected analysis error.")
 
     return run
 

@@ -35,8 +35,6 @@ class UserProjectSuggestionsGenerator:
             conditioning=ask_project_suggestions,
             raw_prompt=raw_prompt
         )
-        
-        print(result)
 
         if isinstance(result, str):
             try:
@@ -50,12 +48,14 @@ class UserProjectSuggestionsGenerator:
             logger.error("Unexpected type of LLM response.")
             return {"error": "Unexpected response type from LLM."}
 
+        logger.debug("Generated raw suggestion payload for project id %s.", project_id)
+
         if not isinstance(parsed_result, list):
             logger.error("LLM response is not a list of suggestions.")
             return {"error": "Unexpected response format from LLM."}
         
         suggestions = []
-        for suggestion_data in result:
+        for suggestion_data in parsed_result:
             suggestion_data['project'] = project_id
             serializer = ImprovementSuggestionSerializer(data=suggestion_data)
             if serializer.is_valid():

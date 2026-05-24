@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import client from '../../axiosClient';
+import { AuthContext } from '../../contexts/AuthContext';
+import { UserProjectsContext } from '../../contexts/UserProjectsContext';
 import './RegistrationForm.css';
 
 const Survey = ({ onComplete, onBackToRegistration }) => {
@@ -231,6 +234,8 @@ const StepButtons = ({ onBack, onNext, isSubmit = false, disabled = false }) => 
 );
 
 const RegistrationForm = () => {
+  const { setCurrentUser, setGetCurrentUser } = useContext(AuthContext);
+  const { setGetUserProjects } = useContext(UserProjectsContext);
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -238,6 +243,7 @@ const RegistrationForm = () => {
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState('');
   const [showSurvey, setShowSurvey] = useState(false);
+  const navigate = useNavigate();
 
   const validate = () => {
     const errors = {};
@@ -281,8 +287,11 @@ const RegistrationForm = () => {
     };
 
     client.post("/api/register", payload)
-      .then(() => {
-        window.location.href = '/';
+      .then((response) => {
+        setCurrentUser(response.data.user);
+        setGetCurrentUser(true);
+        setGetUserProjects(true);
+        navigate('/home');
       })
       .catch(() => {
         setFormError('Rejestracja nie powiodła się. Spróbuj ponownie.');

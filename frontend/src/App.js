@@ -1,23 +1,25 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
 
-import { AuthProvider } from "./contexts/AuthContext";
-import { UserProjectsProvider } from "./contexts/UserProjectsContext";
-import { ChatProvider } from "./contexts/ChatContext";
-
-
-import LoginForm from './components/auth/LoginForm';
-import RegistrationForm from './components/auth/RegistrationForm';
-import Home from './components/home/Home';
-import Info from './components/home/Info';
-
-import NewProject from './components/tabs/NewProject';
-import Chat from "./components/chat/Chat";
-import ProjectAnalysisView from "./components/tabs/ProjectAnalysis";
+import LoginForm from "./components/auth/LoginForm";
+import BaseLayout from "./components/common/BaseLayout";
+import Layout from "./components/common/Layout";
+import ProtectedRoute from "./components/common/ProtectedRoute";
+import Home from "./components/home/Home";
+import Info from "./components/home/Info";
 import DevPath from "./components/tabs/DevPath";
+import NewProject from "./components/tabs/NewProject";
+import ProjectAnalysisView from "./components/tabs/ProjectAnalysis";
+import RegistrationForm from "./components/auth/RegistrationForm";
+import { AuthProvider } from "./contexts/AuthContext";
+import { ChatProvider } from "./contexts/ChatContext";
+import { UserProjectsProvider } from "./contexts/UserProjectsContext";
 
-import Layout from './components/common/Layout';        // z sidebar
-import BaseLayout from './components/common/BaseLayout'; // bez sidebar
+const protectedElement = (children) => (
+  <ProtectedRoute>
+    <Layout>{children}</Layout>
+  </ProtectedRoute>
+);
 
 function App() {
   return (
@@ -26,7 +28,6 @@ function App() {
         <UserProjectsProvider>
           <ChatProvider>
             <Routes>
-              {/* Publiczne strony (bez sidebar) */}
               <Route
                 path="/"
                 element={
@@ -51,48 +52,12 @@ function App() {
                   </BaseLayout>
                 }
               />
-
-              {/* Chronione strony (z sidebar) */}
-              <Route
-                path="/home"
-                element={
-                  <Layout>
-                    <Home />
-                  </Layout>
-                }
-              />
-              <Route
-                path="/project"
-                element={
-                  <Layout>
-                    <NewProject />
-                  </Layout>
-                }
-              />
-              <Route
-                path="/chat"
-                element={
-                  <Layout>
-                    <Chat />
-                  </Layout>
-                }
-              />
-              <Route
-                path="/analysis/:projectId"
-                element={
-                  <Layout>
-                    <ProjectAnalysisView />
-                  </Layout>
-                }
-              />
-              <Route
-                path="/devpath"
-                element={
-                  <Layout>
-                    <DevPath />
-                  </Layout>
-                }
-              />
+              <Route path="/home" element={protectedElement(<Home />)} />
+              <Route path="/project" element={protectedElement(<NewProject />)} />
+              <Route path="/analysis/:projectId" element={protectedElement(<ProjectAnalysisView />)} />
+              <Route path="/devpath" element={protectedElement(<DevPath />)} />
+              <Route path="/chat" element={<Navigate to="/home" replace />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </ChatProvider>
         </UserProjectsProvider>

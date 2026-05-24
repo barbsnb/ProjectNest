@@ -205,6 +205,17 @@ class AnalysisRunFindingListView(generics.ListAPIView):
         return queryset
 
 
+class AnalysisRunFindingDetailView(generics.RetrieveAPIView):
+    serializer_class = FindingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_url_kwarg = "finding_id"
+
+    def get_queryset(self):
+        run_id = self.kwargs.get("run_id")
+        get_owned_analysis_run(self.request, run_id)
+        return Finding.objects.filter(run_id=run_id, run__project__user=self.request.user)
+
+
 class ProjectAnalysisGenerate(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 

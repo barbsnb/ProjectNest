@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
 import { Form, Button, Alert } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
 import { UserProjectsContext } from "../../contexts/UserProjectsContext";
 
@@ -8,12 +9,13 @@ import "./LoginForm.css";
 
 
 const LoginForm = () => {
-   const { setGetCurrentUser } = useContext(AuthContext);
+   const { setCurrentUser, setGetCurrentUser } = useContext(AuthContext);
    const [email, setEmail] = useState("");
    const [password, setPassword] = useState("");
    const { setGetUserProjects } = useContext(UserProjectsContext);
    const [errors, setErrors] = useState({});
    const [loginError, setLoginError] = useState("");
+   const navigate = useNavigate();
 
    const validate = () => {
       const errors = {};
@@ -40,9 +42,11 @@ const LoginForm = () => {
       client
          .post("/api/login", { email, password }, { withCredentials: true })
          .then((res) => {
+            setCurrentUser(res.data.user);
             setGetCurrentUser(true);
             setGetUserProjects(true);
             setLoginError(""); // Reset login error on successful login
+            navigate("/home");
          })
          .catch((err) => {
             setLoginError("Podano błędne dane logowania. Proszę spróbować ponownie.");

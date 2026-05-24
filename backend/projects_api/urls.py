@@ -15,4 +15,5 @@ urlpatterns = [
     path('projects/<int:project_id>/analysis-runs/<int:run_id>/', views.ProjectAnalysisRunDetailView.as_view(), name='project-analysis-run-detail'),
     path('projects/<int:project_id>/report-summary/', views.ProjectReportSummaryView.as_view(), name='project-report-summary'),
     path('analysis-runs/<int:run_id>/findings/', views.AnalysisRunFindingListView.as_view(), name='analysis-run-findings'),
+    path('analysis-runs/<int:run_id>/findings/<int:finding_id>/', views.AnalysisRunFindingDetailView.as_view(), name='analysis-run-finding-detail'),
 ]

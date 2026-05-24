@@ -1,0 +1,99 @@
+name: PRAETOR CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DJANGO_SECRET_KEY: ci-only-secret
+      DJANGO_DEBUG: "False"
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1
+      LLM_PROVIDER: gpt4all
+      GPT4ALL_URL: http://localhost:4891/v1/chat/completions
+      GPT4ALL_MODEL: ci-placeholder
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Install backend dependencies
+        run: python -m pip install -r ../requirements.txt
+      - name: Django system check
+        run: python manage.py check
+      - name: Backend dependency consistency
+        run: python -m pip check
+      - name: Check migrations
+        run: python manage.py makemigrations --check --dry-run
+      - name: Backend tests
+        run: python manage.py test
+
+  frontend:
+    name: Frontend build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install frontend dependencies
+        run: npm ci
+      - name: Build frontend
+        run: npm run build
+      - name: Audit production dependencies
+        run: npm audit --omit=dev
+
+  secret-scan:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Scan for committed API keys
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          import sys
+
+          patterns = [
+              re.compile("sk" + r"(?:-proj)?-" + r"[A-Za-z0-9_-]{20,}"),
+              re.compile(r"gh[pousr]_[A-Za-z0-9_]{36,255}"),
+          ]
+          ignored_parts = {".git", "node_modules", "build", "__pycache__", "docs"}
+          hits = []
+          for path in Path(".").rglob("*"):
+              if not path.is_file():
+                  continue
+              if ignored_parts.intersection(path.parts):
+                  continue
+              try:
+                  text = path.read_text(encoding="utf-8")
+              except UnicodeDecodeError:
+                  continue
+              for pattern in patterns:
+                  if pattern.search(text):
+                      hits.append(str(path))
+                      break
+
+          if hits:
+              print("Potential secrets detected:")
+              print("\n".join(hits))
+              sys.exit(1)
+          PY

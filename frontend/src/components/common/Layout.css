@@ -19,6 +19,15 @@
   margin-left: 264px;
 }
 
+.route-loading {
+  min-height: calc(100vh - 64px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  font-size: 0.95rem;
+}
+
 @media (max-width: 900px) {
   .app-content {
     padding: 76px 16px 28px;

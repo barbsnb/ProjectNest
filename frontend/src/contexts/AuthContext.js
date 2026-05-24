@@ -1,44 +1,55 @@
-// src/contexts/AuthContext.js
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useEffect, useState } from "react";
+
 import client from "../axiosClient";
-import { useNavigate } from "react-router-dom";
 
 export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-   const [currentUser, setCurrentUser] = useState(null);
-   const [getCurrentUser, setGetCurrentUser] = useState(false);
-   const [getUserProjects, setGetUserProjects] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [getCurrentUser, setGetCurrentUser] = useState(false);
+  const [getUserProjects, setGetUserProjects] = useState(false);
 
-   const navigate = useNavigate();
+  useEffect(() => {
+    let isMounted = true;
+    setAuthLoading(true);
 
-   useEffect(() => {
-      client
-         .get("/api/user")
-         .then((res) => {
-            setCurrentUser(res.data);
-            navigate("/home"); // W przeciwnym razie przekieruj na stronę Home
-            setGetCurrentUser(false);
-         })
-         .catch(() => {
-            setCurrentUser(null);
-            setGetCurrentUser(false);
-         });
-   }, [getCurrentUser, navigate]);
+    client
+      .get("/api/user")
+      .then((res) => {
+        if (!isMounted) return;
+        setCurrentUser(res.data.user);
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        setCurrentUser(null);
+      })
+      .finally(() => {
+        if (!isMounted) return;
+        setAuthLoading(false);
+        if (getCurrentUser) {
+          setGetCurrentUser(false);
+        }
+      });
 
-   return (
-      <AuthContext.Provider
-         value={{
-            currentUser,
-            setCurrentUser,
-            getCurrentUser,
-            setGetCurrentUser,
-            getUserProjects,
-            setGetUserProjects,
-         }}
-      >
-         {children}
-      </AuthContext.Provider>
-   );
+    return () => {
+      isMounted = false;
+    };
+  }, [getCurrentUser]);
+
+  return (
+    <AuthContext.Provider
+      value={{
+        currentUser,
+        setCurrentUser,
+        authLoading,
+        getCurrentUser,
+        setGetCurrentUser,
+        getUserProjects,
+        setGetUserProjects,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 };
-

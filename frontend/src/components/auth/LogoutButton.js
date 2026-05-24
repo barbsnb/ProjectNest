@@ -1,26 +1,42 @@
-import React, { useContext } from 'react';
-import { AuthContext } from '../../contexts/AuthContext';
-import client from '../../axiosClient';
-import '../common/Navbar.css'
+import React, { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import client from "../../axiosClient";
+import { AuthContext } from "../../contexts/AuthContext";
+import "../common/Navbar.css";
 
 const LogoutButton = () => {
   const { setCurrentUser } = useContext(AuthContext);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleLogout = () => {
-    client.post("/api/logout")
+    setIsLoggingOut(true);
+    setError("");
+
+    client
+      .post("/api/logout")
       .then(() => {
-        setCurrentUser(null);  // Assuming setting to null logs the user out in your context
-        window.location.href = '/';
-        alert("You have been logged out successfully.");
+        setCurrentUser(null);
+        navigate("/");
       })
-      .catch(err => {
+      .catch((err) => {
         console.error("Logout failed: ", err);
-        alert("Logout failed. Please try again.");
+        setError("Logout failed.");
+      })
+      .finally(() => {
+        setIsLoggingOut(false);
       });
   };
 
   return (
-    <button className='navbar_btn' onClick={handleLogout} >Wyloguj</button>
+    <span className="logout-control">
+      <button className="navbar_btn" onClick={handleLogout} disabled={isLoggingOut} type="button">
+        {isLoggingOut ? "Logging out" : "Wyloguj"}
+      </button>
+      {error && <span className="logout-error">{error}</span>}
+    </span>
   );
 };
 

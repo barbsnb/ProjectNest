@@ -256,6 +256,46 @@ class RepositoryIngestionApiTests(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
+    def test_finding_detail_respects_run_ownership(self):
+        project = self._project_with_snapshot()
+        run = AnalysisRun.objects.create(
+            project=project,
+            snapshot=project.repository_snapshots.first(),
+            status=AnalysisRun.STATUS_COMPLETED,
+        )
+        finding = Finding.objects.create(
+            run=run,
+            category="security",
+            severity=Finding.SEVERITY_HIGH,
+            title="Unsafe setting",
+            description="Demo finding",
+            file_path="settings.py",
+            evidence="demo",
+            recommendation="Fix the setting.",
+            confidence=0.9,
+        )
+
+        owner_response = self.client.get(f"/api/analysis-runs/{run.id}/findings/{finding.id}/")
+        self.assertEqual(owner_response.status_code, 200)
+        self.assertEqual(owner_response.data["id"], finding.id)
+
+        self.client.force_authenticate(user=self.other_user)
+        other_response = self.client.get(f"/api/analysis-runs/{run.id}/findings/{finding.id}/")
+        self.assertEqual(other_response.status_code, 404)
+
+    def test_project_endpoints_require_authentication(self):
+        unauthenticated = APIClient()
+
+        list_response = unauthenticated.get("/api/project_list/")
+        create_response = unauthenticated.post(
+            "/api/project/",
+            {"name": "No auth", "repo_url": "https://github.com/octo/demo"},
+            format="json",
+        )
+
+        self.assertIn(list_response.status_code, (401, 403))
+        self.assertIn(create_response.status_code, (401, 403))
+
     def test_report_summary_respects_project_ownership(self):
         project = self._project_with_snapshot()
         run = AnalysisRun.objects.create(

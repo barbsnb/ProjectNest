@@ -137,6 +137,7 @@ Backend checks:
 cd backend
 python manage.py check
 python manage.py makemigrations --check --dry-run
+python manage.py test
 ```
 
 Frontend checks:
@@ -146,6 +147,21 @@ cd frontend
 npm run build
 npm audit --omit=dev
 ```
+
+## Demo Flow
+
+Use a small public GitHub repository that you control or can safely analyze. Keep it under the current ingestion limits: 500 text files, 300 KB per file, and 20 MB total text.
+
+Recommended Demo Day path:
+
+1. Register or log in.
+2. Open **New Audit** and submit `https://github.com/<owner>/<repo>`.
+3. Wait for the repository snapshot to be indexed.
+4. Run the audit from the report screen.
+5. Open the top critical/high finding.
+6. Use **Ask assistant about this finding** to show contextual remediation guidance.
+
+The CI workflow in `.github/workflows/ci.yml` runs backend checks, backend tests, frontend build, dependency checks, and a lightweight secret scan for committed API keys.
 
 ## Cleanup Policy
 
@@ -161,4 +177,4 @@ The repository should contain source code, lockfiles, migrations, documentation,
 
 ## Project Status
 
-Sprint 5 grounds the assistant in the audit report: selected findings now carry context into chat, backend messages are linked to `Project`, `AnalysisRun`, and optional `Finding`, and LLM failures return a friendly fallback without breaking the conversation. The next sprint should focus on remediation grouping, exportable reports, and deployment hardening.
+Sprint 6 hardens the Demo Day path: auth responses no longer expose credentials, protected frontend routes guard the workspace, finding detail has ownership checks, CI covers backend/frontend validation, and the README now documents the demo path. Remaining product work should focus on deployment configuration, report export, and richer remediation workflow.
